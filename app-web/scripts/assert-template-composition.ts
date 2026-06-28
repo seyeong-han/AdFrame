@@ -12,6 +12,7 @@ const DARK_TONES = new Set(["tile", "ink", "frost", "clear", "accent"]);
 const LIGHT_TONES = new Set(["paper", "orange"]);
 const preset = EXPORT_PRESETS[0];
 const product = fixture as ProductExtraction;
+const assetsWithoutBackgroundFlag = product.assets.filter((asset) => typeof asset.bgRemoved !== "boolean");
 
 const shapes = composeMainCanvasTemplate(product, preset, "cinema-mosaic");
 const appleShapes = composeMainCanvasTemplate(product, preset, "apple-infographic");
@@ -48,6 +49,12 @@ const verifiedBadges = shapes.filter((shape) => {
   const props = shape.props as { text?: string };
   return props.text === "Verified PDP facts";
 });
+
+if (assetsWithoutBackgroundFlag.length > 0) {
+  throw new Error(
+    `Every extracted fixture asset must include an explicit bgRemoved boolean. Missing: ${assetsWithoutBackgroundFlag.map((asset) => asset.id).join(", ")}`,
+  );
+}
 
 if (canvasBackgrounds.length !== 1) {
   throw new Error(`Expected exactly one dark canvas-background shape, got ${canvasBackgrounds.length}`);
@@ -104,6 +111,18 @@ const appleBackgrounds = appleShapes.filter((shape) => shape.type === CANVAS_BG_
 const appleImages = appleShapes.filter((shape) => shape.type === CUTOUT_IMAGE_TYPE);
 const appleCards = appleShapes.filter((shape) => shape.type === GLASS_CARD_TYPE);
 const appleHero = appleImages.find((shape) => String(shape.id).includes("apple-hero"));
+const appleTopLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-left-asset"));
+const appleTopRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-right-asset"));
+const appleMiddleLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-middle-left-asset"));
+const appleMiddleRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-middle-right-asset"));
+const appleHeroSideAsset = appleImages.find((shape) => String(shape.id).includes("apple-hero-side-asset"));
+const appleBottomLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-left-asset"));
+const appleBottomCenterAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-center-asset"));
+const appleBottomRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-right-asset"));
+const appleMiddleCopyTiles = appleCards.filter((shape) => String(shape.id).includes("apple-middle-copy"));
+const appleBottomLeftCopy = appleCards.find((shape) => String(shape.id).includes("apple-bottom-left-copy"));
+const applePrice = appleCards.find((shape) => String(shape.id).includes("apple-price"));
+const appleBottomRightCopy = appleCards.find((shape) => String(shape.id).includes("apple-bottom-right-copy"));
 const appleVideos = appleImages.filter((shape) => {
   const props = shape.props as { src?: string };
   return props.src?.endsWith(".mp4");
@@ -128,26 +147,60 @@ if (appleBgProps.variant !== "light") {
 }
 
 if (!appleHero) {
-  throw new Error("Expected Apple infographic preset to include a centered hero image.");
+  throw new Error("Expected Apple infographic preset to include a main hero image.");
 }
 
-const appleHeroProps = appleHero.props as { w?: number };
-const appleHeroCenter = (appleHero.x || 0) + (appleHeroProps.w || 0) / 2;
-const frameCenter = preset.width / 2;
-if (Math.abs(appleHeroCenter - frameCenter) > 2) {
-  throw new Error(`Expected Apple hero to be centered at ${frameCenter}, got ${appleHeroCenter}`);
+if (appleImages.length < 9) {
+  throw new Error(`Expected dense Apple tile-board to include at least 9 image tiles including hero, got ${appleImages.length}`);
 }
 
-if (appleImages.length < 4) {
-  throw new Error(`Expected Apple infographic to include surrounding image/detail tiles, got ${appleImages.length}`);
+if (appleCards.length < 4) {
+  throw new Error(`Expected dense Apple tile-board to include multiple editable copy/spec tiles, got ${appleCards.length}`);
 }
 
-if (appleCards.length < 5) {
-  throw new Error(`Expected Apple infographic to include multiple editable text/spec tiles, got ${appleCards.length}`);
-}
-
-if (appleLightCards.length < 5) {
+if (appleLightCards.length < 4) {
   throw new Error("Expected Apple infographic tiles to use light paper/orange tones.");
+}
+
+if (!appleTopLeftAsset || !appleTopRightAsset) {
+  throw new Error("Expected dense Apple tile-board to include two large top asset tiles.");
+}
+
+if (!appleHeroSideAsset || !applePrice) {
+  throw new Error("Expected dense Apple tile-board to include the sketch's right-side price/asset stack beside the main tile.");
+}
+
+if (!appleMiddleLeftAsset || !appleMiddleRightAsset) {
+  throw new Error("Expected dense Apple tile-board to include left/right middle asset tiles around the copy stack.");
+}
+
+if (!appleBottomLeftAsset || !appleBottomCenterAsset || !appleBottomRightAsset) {
+  throw new Error("Expected dense Apple tile-board to include bottom left, center, and right asset tiles.");
+}
+
+if (appleMiddleCopyTiles.length < 2 || !appleBottomLeftCopy || !appleBottomRightCopy) {
+  throw new Error("Expected dense Apple tile-board to include middle stacked copy, bottom-left copy, and bottom-right copy/price.");
+}
+
+const topLeftProps = appleTopLeftAsset.props as { h?: number };
+const topRightProps = appleTopRightAsset.props as { h?: number };
+if (Math.abs((topLeftProps.h || 0) - (topRightProps.h || 0)) > 2 || Math.abs((appleTopLeftAsset.y || 0) - (appleTopRightAsset.y || 0)) > 2) {
+  throw new Error("Expected the two top asset tiles to form a balanced top row.");
+}
+
+const heroProps = appleHero.props as { h?: number; w?: number };
+const priceProps = applePrice.props as { h?: number; w?: number };
+if ((heroProps.w || 0) < 650 || (heroProps.h || 0) < 300 || (applePrice.x || 0) <= ((appleHero.x || 0) + (heroProps.w || 0))) {
+  throw new Error("Expected the main tile to be a large left-side asset with price stacked on its right.");
+}
+
+if ((priceProps.w || 0) < 180 || (priceProps.h || 0) < 90) {
+  throw new Error("Expected the price tile to be a compact right-side card beside the main asset.");
+}
+
+const bottomCenterProps = appleBottomCenterAsset.props as { h?: number; w?: number };
+if ((bottomCenterProps.w || 0) < 500 || (bottomCenterProps.h || 0) < 300) {
+  throw new Error("Expected the bottom-center asset to be the dominant lower tile.");
 }
 
 if (appleVideos.length > 0) {
@@ -208,6 +261,6 @@ if (!carouselFramed) {
 }
 
 console.log(
-  `template composition ok: cinema mosaic + Apple infographic (${appleImages.length} images, centered hero) + carousel split ${carousel.frameIds.length} editable frames`,
+  `template composition ok: cinema mosaic + sketch Apple tile-board (${appleImages.length} images, right-side price stack) + carousel split ${carousel.frameIds.length} editable frames`,
 );
 process.exit(0);

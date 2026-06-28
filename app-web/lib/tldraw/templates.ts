@@ -93,7 +93,7 @@ function composeCinemaMosaicTemplate(
         src: ambientSection.src,
         alt: ambientSection.alt,
         fit: "cover",
-        bgRemoved: false,
+        bgRemoved: Boolean(ambientSection.bgRemoved),
         provenance: ambientSection.provenance,
       },
     });
@@ -184,7 +184,7 @@ function composeCinemaMosaicTemplate(
           src: sectionAsset.src,
           alt: sectionAsset.alt,
           fit: "cover",
-          bgRemoved: false,
+          bgRemoved: Boolean(sectionAsset.bgRemoved),
           provenance: sectionAsset.provenance,
         },
       });
@@ -237,17 +237,53 @@ function composeAppleInfographicTemplate(
   const hero = pickHeroAsset(imageAssets);
   const features = product.features.slice(0, 4);
   const frameId = createShapeId("frame-social");
-  const margin = 48 * scale;
-  const gap = 16 * scale;
+  const margin = 46 * scale;
+  const gap = 20 * scale;
   const accent = "#ff7a1a";
-  const heroW = preset.width * 0.52;
-  const heroH = Math.min(430 * scale, preset.height * 0.33);
-  const heroX = (preset.width - heroW) / 2;
-  const heroY = preset.height * 0.32;
-  const tileRadiusOffset = 0;
-  const sideW = (preset.width - heroW - margin * 2 - gap * 2) / 2;
-  const contentBottom = preset.height - margin;
   const showPrice = options.showPrice ?? true;
+  const contentW = preset.width - margin * 2;
+  const contentH = preset.height - margin * 2;
+  const topH = Math.round(240 * scale);
+  const heroRowH = Math.round(330 * scale);
+  const middleH = Math.round(260 * scale);
+  const bottomH = contentH - topH - heroRowH - middleH - gap * 3;
+  const topY = margin;
+  const heroY = topY + topH + gap;
+  const middleY = heroY + heroRowH + gap;
+  const bottomY = middleY + middleH + gap;
+  const topTileW = (contentW - gap) / 2;
+  const heroSideW = Math.round(245 * scale);
+  const heroW = contentW - heroSideW - gap;
+  const heroX = margin;
+  const heroSideX = heroX + heroW + gap;
+  const priceH = Math.round(128 * scale);
+  const heroSideAssetH = heroRowH - priceH - gap;
+  const middleLeftW = Math.round(285 * scale);
+  const middleRightW = Math.round(245 * scale);
+  const middleCopyW = contentW - middleLeftW - middleRightW - gap * 2;
+  const middleCopyH = (middleH - gap) / 2;
+  const leftX = margin;
+  const middleCopyX = leftX + middleLeftW + gap;
+  const rightX = middleCopyX + middleCopyW + gap;
+  const bottomLeftW = Math.round(170 * scale);
+  const bottomRightW = Math.round(230 * scale);
+  const bottomCenterW = contentW - bottomLeftW - bottomRightW - gap * 2;
+  const bottomCenterX = leftX + bottomLeftW + gap;
+  const bottomRightX = bottomCenterX + bottomCenterW + gap;
+  const bottomLeftCopyH = Math.round(106 * scale);
+  const bottomLeftAssetH = Math.round(130 * scale);
+  const bottomLeftAssetY = bottomY + bottomLeftCopyH + gap;
+  const bottomRightCopyH = Math.round(74 * scale);
+  const bottomRightAssetH = bottomH - bottomRightCopyH - gap;
+  const usedAssetIds = new Set<string>();
+  if (hero?.id) usedAssetIds.add(hero.id);
+  const nextAsset = (slot: "feature" | "detail", feature?: ProductFeature, preferredAssets = sectionAssets) => {
+    const preferred = preferredAssets.filter((asset) => !usedAssetIds.has(asset.id));
+    const fallback = imageAssets.filter((asset) => !usedAssetIds.has(asset.id));
+    const asset = pickAssetForSlot(preferred.length ? preferred : fallback.length ? fallback : imageAssets, slot, feature, hero?.id);
+    if (asset?.id) usedAssetIds.add(asset.id);
+    return asset;
+  };
 
   const shapes: TLShapePartial[] = [
     {
@@ -277,42 +313,54 @@ function composeAppleInfographicTemplate(
     },
   ];
 
-  const topDetail = pickAssetForSlot(imageAssets, "detail", features[0], hero?.id);
-  if (topDetail) {
+  const topLeftAsset = nextAsset("feature", features[0]);
+  const topRightAsset = nextAsset("feature", features[1] || features[0]);
+  const heroSideAsset = nextAsset("detail", features[2] || features[0], imageAssets);
+  const middleLeftAsset = nextAsset("feature", features[2] || features[0]);
+  const middleRightAsset = nextAsset("feature", features[1] || features[0]);
+  const bottomLeftAsset = nextAsset("detail", features[2], imageAssets);
+  const bottomCenterAsset = nextAsset("feature", features[3] || features[1] || features[0]);
+  const bottomRightAsset = nextAsset("detail", features[3], imageAssets);
+
+  if (topLeftAsset) {
     shapes.push({
-      id: createShapeId("apple-top-detail"),
+      id: createShapeId("apple-top-left-asset"),
       parentId: frameId,
       type: CUTOUT_IMAGE_TYPE,
-      x: margin,
-      y: 34 * scale,
+      x: leftX,
+      y: topY,
       props: {
-        w: 330 * scale,
-        h: 92 * scale,
-        src: topDetail.src,
-        alt: topDetail.alt,
-        fit: topDetail.kind === "section" ? "cover" : "contain",
-        bgRemoved: Boolean(topDetail.bgRemoved),
-        provenance: topDetail.provenance,
+        w: topTileW,
+        h: topH,
+        src: topLeftAsset.src,
+        alt: topLeftAsset.alt,
+        fit: topLeftAsset.kind === "section" ? "cover" : "contain",
+        bgRemoved: Boolean(topLeftAsset.bgRemoved),
+        provenance: topLeftAsset.provenance,
+      },
+    });
+  }
+
+  if (topRightAsset) {
+    shapes.push({
+      id: createShapeId("apple-top-right-asset"),
+      parentId: frameId,
+      type: CUTOUT_IMAGE_TYPE,
+      x: leftX + topTileW + gap,
+      y: topY,
+      props: {
+        w: topTileW,
+        h: topH,
+        src: topRightAsset.src,
+        alt: topRightAsset.alt,
+        fit: topRightAsset.kind === "section" ? "cover" : "contain",
+        bgRemoved: Boolean(topRightAsset.bgRemoved),
+        provenance: topRightAsset.provenance,
       },
     });
   }
 
   shapes.push(
-    {
-      id: createShapeId("apple-title"),
-      parentId: frameId,
-      type: GLASS_CARD_TYPE,
-      x: 380 * scale,
-      y: 34 * scale,
-      props: {
-        w: 652 * scale,
-        h: 92 * scale,
-        title: trimTitle(product.name, 42),
-        body: product.model,
-        tone: "paper",
-        provenance: "verified",
-      },
-    },
     {
       id: createShapeId("apple-hero"),
       parentId: frameId,
@@ -321,7 +369,7 @@ function composeAppleInfographicTemplate(
       y: heroY,
       props: {
         w: heroW,
-        h: heroH,
+        h: heroRowH,
         src: hero?.src || "/fixtures/samsung-s90f/oled-tv.svg",
         alt: hero?.alt || product.name,
         fit: "contain",
@@ -331,131 +379,201 @@ function composeAppleInfographicTemplate(
     },
   );
 
-  if (showPrice) {
+  shapes.push(
+    showPrice
+      ? {
+          id: createShapeId("apple-price"),
+          parentId: frameId,
+          type: GLASS_CARD_TYPE,
+          x: heroSideX,
+          y: heroY,
+          props: {
+            w: heroSideW,
+            h: priceH,
+            title: product.price,
+            body: product.previousPrice ? `was ${product.previousPrice}` : product.model,
+            tone: "orange",
+            provenance: "verified",
+          },
+        }
+      : {
+          id: createShapeId("apple-hero-side-copy"),
+          parentId: frameId,
+          type: GLASS_CARD_TYPE,
+          x: heroSideX,
+          y: heroY,
+          props: {
+            w: heroSideW,
+            h: priceH,
+            title: findFactValue(product, "sizes") || product.model,
+            body: findFactValue(product, "sizes") ? "available sizes" : "model",
+            tone: "paper",
+            provenance: "verified",
+          },
+        },
+  );
+
+  if (heroSideAsset) {
     shapes.push({
-      id: createShapeId("apple-price"),
+      id: createShapeId("apple-hero-side-asset"),
       parentId: frameId,
-      type: GLASS_CARD_TYPE,
-      x: preset.width - margin - sideW,
-      y: 144 * scale,
+      type: CUTOUT_IMAGE_TYPE,
+      x: heroSideX,
+      y: heroY + priceH + gap,
       props: {
-        w: sideW,
-        h: 148 * scale,
-        title: product.price,
-        body: product.previousPrice ? `was ${product.previousPrice}` : "current price",
-        tone: "orange",
-        provenance: "verified",
+        w: heroSideW,
+        h: heroSideAssetH,
+        src: heroSideAsset.src,
+        alt: heroSideAsset.alt,
+        fit: heroSideAsset.kind === "section" ? "cover" : "contain",
+        bgRemoved: Boolean(heroSideAsset.bgRemoved),
+        provenance: heroSideAsset.provenance,
       },
     });
   }
 
-  const leftFeature = features[0];
-  const rightFeature = features[1] || features[0];
-  const lowerFeature = features[2] || features[0];
-  const bottomFeature = features[3] || features[1] || features[0];
-  const leftImage = pickAssetForSlot(sectionAssets, "feature", leftFeature, hero?.id);
-  const rightImage = pickAssetForSlot(sectionAssets, "feature", rightFeature, hero?.id);
-  const lowerImage = pickAssetForSlot(sectionAssets, "feature", lowerFeature, hero?.id);
-
-  if (leftImage) {
+  if (middleLeftAsset) {
     shapes.push({
-      id: createShapeId("apple-left-image"),
+      id: createShapeId("apple-middle-left-asset"),
       parentId: frameId,
       type: CUTOUT_IMAGE_TYPE,
-      x: margin,
-      y: 144 * scale,
+      x: leftX,
+      y: middleY,
       props: {
-        w: sideW,
-        h: 190 * scale,
-        src: leftImage.src,
-        alt: leftImage.alt,
+        w: middleLeftW,
+        h: middleH,
+        src: middleLeftAsset.src,
+        alt: middleLeftAsset.alt,
         fit: "cover",
-        bgRemoved: false,
-        provenance: leftImage.provenance,
+        bgRemoved: Boolean(middleLeftAsset.bgRemoved),
+        provenance: middleLeftAsset.provenance,
       },
     });
   }
 
   shapes.push(
-    makeFeatureTile("apple-left-copy", frameId, margin, 350 * scale, sideW, 140 * scale, leftFeature, "paper"),
     makeFeatureTile(
-      "apple-right-copy",
+      "apple-middle-copy-1",
       frameId,
-      preset.width - margin - sideW,
-      310 * scale,
-      sideW,
-      160 * scale,
-      rightFeature,
+      middleCopyX,
+      middleY,
+      middleCopyW,
+      middleCopyH,
+      features[0],
+      "paper",
+    ),
+    makeFeatureTile(
+      "apple-middle-copy-2",
+      frameId,
+      middleCopyX,
+      middleY + middleCopyH + gap,
+      middleCopyW,
+      middleCopyH,
+      features[1] || features[0],
       "paper",
     ),
   );
 
-  if (rightImage) {
+  if (middleRightAsset) {
     shapes.push({
-      id: createShapeId("apple-right-image"),
+      id: createShapeId("apple-middle-right-asset"),
       parentId: frameId,
       type: CUTOUT_IMAGE_TYPE,
-      x: preset.width - margin - sideW,
-      y: 490 * scale,
+      x: rightX,
+      y: middleY,
       props: {
-        w: sideW,
-        h: 170 * scale,
-        src: rightImage.src,
-        alt: rightImage.alt,
+        w: middleRightW,
+        h: middleH,
+        src: middleRightAsset.src,
+        alt: middleRightAsset.alt,
         fit: "cover",
-        bgRemoved: false,
-        provenance: rightImage.provenance,
-      },
-    });
-  }
-
-  const bottomY = Math.max(heroY + heroH + 34 * scale, preset.height * 0.68);
-  const bottomTileW = (preset.width - margin * 2 - gap * 2) / 3;
-  if (lowerImage) {
-    shapes.push({
-      id: createShapeId("apple-bottom-image"),
-      parentId: frameId,
-      type: CUTOUT_IMAGE_TYPE,
-      x: margin,
-      y: bottomY,
-      props: {
-        w: bottomTileW,
-        h: contentBottom - bottomY,
-        src: lowerImage.src,
-        alt: lowerImage.alt,
-        fit: "cover",
-        bgRemoved: false,
-        provenance: lowerImage.provenance,
+        bgRemoved: Boolean(middleRightAsset.bgRemoved),
+        provenance: middleRightAsset.provenance,
       },
     });
   }
 
   shapes.push(
     makeFeatureTile(
-      "apple-bottom-feature",
+      "apple-bottom-left-copy",
       frameId,
-      margin + bottomTileW + gap,
-      bottomY + tileRadiusOffset,
-      bottomTileW,
-      Math.min(210 * scale, contentBottom - bottomY),
-      bottomFeature,
+      leftX,
+      bottomY,
+      bottomLeftW,
+      bottomLeftCopyH,
+      features[2] || features[0],
       "paper",
     ),
-    {
-      id: createShapeId("apple-spec-size"),
+  );
+
+  if (bottomLeftAsset) {
+    shapes.push({
+      id: createShapeId("apple-bottom-left-asset"),
       parentId: frameId,
-      type: GLASS_CARD_TYPE,
-      x: margin + (bottomTileW + gap) * 2,
+      type: CUTOUT_IMAGE_TYPE,
+      x: leftX,
+      y: bottomLeftAssetY,
+      props: {
+        w: bottomLeftW,
+        h: bottomLeftAssetH,
+        src: bottomLeftAsset.src,
+        alt: bottomLeftAsset.alt,
+        fit: bottomLeftAsset.kind === "section" ? "cover" : "contain",
+        bgRemoved: Boolean(bottomLeftAsset.bgRemoved),
+        provenance: bottomLeftAsset.provenance,
+      },
+    });
+  }
+
+  if (bottomCenterAsset) {
+    shapes.push({
+      id: createShapeId("apple-bottom-center-asset"),
+      parentId: frameId,
+      type: CUTOUT_IMAGE_TYPE,
+      x: bottomCenterX,
       y: bottomY,
       props: {
-        w: bottomTileW,
-        h: Math.min(210 * scale, contentBottom - bottomY),
-        title: findFactValue(product, "sizes") || product.model,
-        body: findFactValue(product, "sizes") ? "available sizes" : "model",
-        tone: "paper",
-        provenance: "verified",
+        w: bottomCenterW,
+        h: bottomH,
+        src: bottomCenterAsset.src,
+        alt: bottomCenterAsset.alt,
+        fit: "cover",
+        bgRemoved: Boolean(bottomCenterAsset.bgRemoved),
+        provenance: bottomCenterAsset.provenance,
       },
-    },
+    });
+  }
+
+  if (bottomRightAsset) {
+    shapes.push({
+      id: createShapeId("apple-bottom-right-asset"),
+      parentId: frameId,
+      type: CUTOUT_IMAGE_TYPE,
+      x: bottomRightX,
+      y: bottomY,
+      props: {
+        w: bottomRightW,
+        h: bottomRightAssetH,
+        src: bottomRightAsset.src,
+        alt: bottomRightAsset.alt,
+        fit: bottomRightAsset.kind === "section" ? "cover" : "contain",
+        bgRemoved: Boolean(bottomRightAsset.bgRemoved),
+        provenance: bottomRightAsset.provenance,
+      },
+    });
+  }
+
+  shapes.push(
+    makeFeatureTile(
+      "apple-bottom-right-copy",
+      frameId,
+      bottomRightX,
+      bottomY + bottomRightAssetH + gap,
+      bottomRightW,
+      bottomRightCopyH,
+      features[3] || features[1] || features[0],
+      "paper",
+    ),
   );
 
   return shapes;
@@ -571,10 +689,6 @@ function pickAssetForSlot(
   return [...assets].sort(
     (a, b) => scoreAssetForSlot(b, slot, feature, excludeId) - scoreAssetForSlot(a, slot, feature, excludeId),
   )[0];
-}
-
-function trimTitle(value: string, maxLength: number) {
-  return value.length > maxLength ? `${value.slice(0, maxLength - 1).trim()}…` : value;
 }
 
 function findFactValue(product: ProductExtraction, idFragment: string) {

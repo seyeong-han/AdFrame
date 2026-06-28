@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import {
   BaseBoxShapeUtil,
@@ -34,6 +35,7 @@ export type GlassCardShape = TLBaseShape<
     title: string;
     body: string;
     tone: GlassTone;
+    showBody?: boolean;
   }
 >;
 
@@ -148,6 +150,7 @@ export class GlassCardShapeUtil extends BaseBoxShapeUtil<GlassCardShape> {
       title: "OLED HDR+",
       body: "High contrast, rich color, and cinematic depth.",
       tone: "frost",
+      showBody: false,
       provenance: "inferred",
     };
   }
@@ -157,7 +160,7 @@ export class GlassCardShapeUtil extends BaseBoxShapeUtil<GlassCardShape> {
       <HTMLContainer id={shape.id} style={{ pointerEvents: "all" }}>
         <div className={`glass-card-shape ${shape.props.tone}`}>
           <div className="glass-card-title">{shape.props.title}</div>
-          <div className="glass-card-body">{shape.props.body}</div>
+          {shape.props.showBody ? <div className="glass-card-body">{shape.props.body}</div> : null}
         </div>
       </HTMLContainer>
     );
@@ -209,10 +212,77 @@ export class GlassTextShapeUtil extends BaseBoxShapeUtil<GlassTextShape> {
   }
 }
 
+function fitImageToBox(naturalWidth: number, naturalHeight: number, boxWidth: number, boxHeight: number) {
+  const scale = Math.min(boxWidth / naturalWidth, boxHeight / naturalHeight);
+  return {
+    height: naturalHeight * scale,
+    width: naturalWidth * scale,
+  };
+}
+
+function fitImageFullWidth(
+  naturalWidth: number,
+  naturalHeight: number,
+  boxWidth: number,
+  boxHeight: number,
+) {
+  const height = naturalHeight * (boxWidth / naturalWidth);
+  return {
+    height: Math.min(height, boxHeight),
+    width: boxWidth,
+  };
+}
+
+function FitCutoutImage({
+  alt,
+  bgRemoved,
+  boxHeight,
+  boxWidth,
+  src,
+}: {
+  alt: string;
+  bgRemoved: boolean;
+  boxHeight: number;
+  boxWidth: number;
+  src: string;
+}) {
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const applyFit = useCallback(() => {
+    const img = imgRef.current;
+    if (!img?.naturalWidth || !img.naturalHeight) return;
+    const fitted = bgRemoved
+      ? fitImageToBox(img.naturalWidth, img.naturalHeight, boxWidth, boxHeight)
+      : fitImageFullWidth(img.naturalWidth, img.naturalHeight, boxWidth, boxHeight);
+    img.style.width = `${fitted.width}px`;
+    img.style.height = `${fitted.height}px`;
+  }, [bgRemoved, boxHeight, boxWidth]);
+
+  useEffect(() => {
+    applyFit();
+  }, [applyFit, src]);
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      ref={imgRef}
+      draggable={false}
+      onDragStart={(event) => event.preventDefault()}
+      onLoad={applyFit}
+      src={src}
+      alt={alt}
+    />
+  );
+}
+
 export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
   static override type = CUTOUT_IMAGE_TYPE;
 
   override canResize() {
+    return true;
+  }
+
+  override isAspectRatioLocked() {
     return true;
   }
 
@@ -230,26 +300,30 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
 
   override component(shape: CutoutImageShape) {
     const isCover = shape.props.fit === "cover";
+    const boxStyle = {
+      height: shape.props.h,
+      width: shape.props.w,
+    } satisfies CSSProperties;
+
     return (
-      <HTMLContainer id={shape.id} style={{ pointerEvents: "all", overflow: isCover ? "hidden" : "visible" }}>
+      <HTMLContainer
+        id={shape.id}
+        style={{ pointerEvents: "all", overflow: "hidden", ...boxStyle }}
+      >
         <div
           className="cutout-shape"
           style={{
+            ...boxStyle,
             borderRadius: isCover ? 24 : undefined,
-            overflow: isCover ? "hidden" : "visible",
+            overflow: isCover ? "hidden" : undefined,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            draggable={false}
-            onDragStart={(event) => event.preventDefault()}
-            src={shape.props.src}
+          <FitCutoutImage
             alt={shape.props.alt}
-            style={{
-              height: isCover ? "100%" : undefined,
-              objectFit: shape.props.fit,
-              width: isCover ? "100%" : undefined,
-            }}
+            bgRemoved={shape.props.bgRemoved}
+            boxHeight={shape.props.h}
+            boxWidth={shape.props.w}
+            src={shape.props.src}
           />
         </div>
       </HTMLContainer>

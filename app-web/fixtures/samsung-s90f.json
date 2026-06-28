@@ -181,7 +181,8 @@
       "alt": "Feature motion",
       "provenance": "verified",
       "kind": "video",
-      "mediaType": "video"
+      "mediaType": "video",
+      "bgRemoved": false
     },
     {
       "id": "video-us-feature-nbsp-545617677",
@@ -190,7 +191,8 @@
       "alt": "Feature motion",
       "provenance": "verified",
       "kind": "video",
-      "mediaType": "video"
+      "mediaType": "video",
+      "bgRemoved": false
     },
     {
       "id": "video-us-feature-nbsp-545617809",
@@ -199,7 +201,8 @@
       "alt": "Feature motion",
       "provenance": "verified",
       "kind": "video",
-      "mediaType": "video"
+      "mediaType": "video",
+      "bgRemoved": false
     },
     {
       "id": "video-us-feature-catch-hidden-details-in-dark-scenes-545617641",
@@ -208,7 +211,8 @@
       "alt": "Catch Hidden Details In Dark Scenes",
       "provenance": "verified",
       "kind": "video",
-      "mediaType": "video"
+      "mediaType": "video",
+      "bgRemoved": false
     },
     {
       "id": "video-us-feature-tv-and-soundbar-play-together-in-smooth-harmony-545617719",
@@ -217,7 +221,8 @@
       "alt": "Tv And Soundbar Play Together In Smooth Harmony",
       "provenance": "verified",
       "kind": "video",
-      "mediaType": "video"
+      "mediaType": "video",
+      "bgRemoved": false
     },
     {
       "id": "video-us-feature-a-next-level-dolby-atmos-experience-545617725",
@@ -226,7 +231,8 @@
       "alt": "A Next Level Dolby Atmos Experience",
       "provenance": "verified",
       "kind": "video",
-      "mediaType": "video"
+      "mediaType": "video",
+      "bgRemoved": false
     }
   ],
   "extractedAt": "2026-06-28T00:00:00.000Z",

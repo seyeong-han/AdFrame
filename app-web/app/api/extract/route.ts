@@ -93,14 +93,14 @@ export async function POST(request: Request) {
 
 async function removeBackgroundForExtractedAssets(assets: ProductAsset[]): Promise<ProductAsset[]> {
   const apiKey = await getRemoveBgApiKey();
-  if (!apiKey) return assets;
+  if (!apiKey) return assets.map(normalizeAssetBackgroundFlag);
 
   const outputDir = path.join(process.cwd(), "public", "generated", "removebg", "samsung-s90f");
   await mkdir(outputDir, { recursive: true });
 
   return Promise.all(
     assets.slice(0, 4).map(async (asset, index) => {
-      if (!/^https?:\/\//.test(asset.src)) return asset;
+      if (!/^https?:\/\//.test(asset.src)) return normalizeAssetBackgroundFlag(asset);
 
       const filename = `asset-${index + 1}.png`;
       const diskPath = path.join(outputDir, filename);
@@ -125,7 +125,7 @@ async function removeBackgroundForExtractedAssets(assets: ProductAsset[]): Promi
         body: form,
       });
 
-      if (!response.ok) return asset;
+      if (!response.ok) return normalizeAssetBackgroundFlag(asset);
 
       const buffer = Buffer.from(await response.arrayBuffer());
       await writeFile(diskPath, buffer);
@@ -138,6 +138,18 @@ async function removeBackgroundForExtractedAssets(assets: ProductAsset[]): Promi
       };
     }),
   );
+}
+
+function normalizeAssetBackgroundFlag(asset: ProductAsset): ProductAsset {
+  const looksBackgroundRemoved =
+    asset.bgRemoved === true ||
+    asset.src.includes("/generated/removebg/") ||
+    asset.name.toLowerCase().includes("bg removed");
+
+  return {
+    ...asset,
+    bgRemoved: looksBackgroundRemoved,
+  };
 }
 
 async function cacheSectionComponentAssets(components: SectionComponentSignal[]): Promise<ProductAsset[]> {
@@ -232,6 +244,7 @@ async function cacheVideoAssets(videos: VideoSignal[]): Promise<ProductAsset[]> 
         provenance: "verified" as const,
         kind: "video" as const,
         mediaType: "video" as const,
+        bgRemoved: false,
       };
     }),
   );
@@ -480,9 +493,10 @@ async function mergeScrapeIntoFixture(scrape: ScrapeResult, url: string): Promis
           alt: `${scrape.title} image ${index + 1}`,
           provenance: "verified" as const,
           kind: index === 0 ? ("hero" as const) : ("gallery" as const),
+          bgRemoved: false,
         }))
       : base.assets;
-  const bgRemovedAssets = await removeBackgroundForExtractedAssets(liveAssets);
+  const bgRemovedAssets = (await removeBackgroundForExtractedAssets(liveAssets)).map(normalizeAssetBackgroundFlag);
   const sectionAssets = await cacheSectionComponentAssets(scrape.sectionComponents);
   const videoAssets = await cacheVideoAssets(scrape.videos);
 
@@ -705,7 +719,7 @@ function parseRgb(color: string): [number, number, number] | null {
 async function normalizeWithOpenAI(extraction: ProductExtraction): Promise<ProductExtraction> {
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const response = await client.responses.create({
-    model: "gpt-4.1-mini",
+    model: "gpt-5.4-mini-2026-03-17",
     input: [
       {
         role: "system",

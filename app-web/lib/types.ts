@@ -27,7 +27,7 @@ export type ProductAsset = {
   provenance: Provenance;
   kind: "hero" | "gallery" | "section" | "video" | "generated" | "upload";
   mediaType?: "image" | "video";
-  bgRemoved?: boolean;
+  bgRemoved: boolean;
 };
 
 export type ProductDesignSystem = {

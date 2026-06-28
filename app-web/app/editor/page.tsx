@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Drag
 import { useRouter } from "next/navigation";
 import {
   ArrowDownToLine,
+  CheckCircle2,
   Copy,
   FileArchive,
   FileImage,
@@ -55,6 +56,25 @@ type InspectorState = {
   bgRemoved?: boolean;
 };
 
+type LayoutReviewPatch =
+  | { type: "moveResize"; shapeId: string; x: number; y: number; w?: number; h?: number }
+  | { type: "swapAsset"; shapeId: string; assetId: string; src: string; alt: string; fit: "contain" | "cover" }
+  | { type: "updateProps"; shapeId: string; props: Record<string, unknown> }
+  | { type: "bringToFront"; shapeIds: string[] };
+
+type LayoutReviewResult = {
+  score: number;
+  summary: string;
+  findings: Array<{
+    severity: "info" | "warning" | "error";
+    category: "overflow" | "overlap" | "coverage" | "asset" | "typography" | "design";
+    shapeIds: string[];
+    message: string;
+  }>;
+  patches: LayoutReviewPatch[];
+  source: "agents" | "deterministic";
+};
+
 const DEFAULT_PROMPT = "Premium product asset, preserve source product page typography, palette, and CTA style, no text";
 const ASSET_DRAG_TYPE = "application/x-adframe-asset-id";
 const ENABLE_CAROUSEL_FEATURES = false;
@@ -72,6 +92,7 @@ export default function EditorPage() {
   const [styleOpen, setStyleOpen] = useState(false);
   const [safeMargins, setSafeMargins] = useState(true);
   const [busy, setBusy] = useState("");
+  const [layoutReview, setLayoutReview] = useState<LayoutReviewResult | null>(null);
   const placementCounter = useRef(0);
   const assets = [...extraAssets, ...product.assets];
 
@@ -303,6 +324,60 @@ export default function EditorPage() {
     }
   }
 
+  async function reviewLayout() {
+    if (!editor) return;
+    const frame = getMainFrame(editor);
+    if (!frame) {
+      setBusy("No main canvas frame found.");
+      return;
+    }
+
+    setBusy("Reviewing layout...");
+    setLayoutReview(null);
+
+    try {
+      const image = await editor.toImage([frame.id], {
+        format: "png",
+        scale: 0.35,
+        background: true,
+      });
+      const response = await fetch("/api/layout-review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageDataUrl: await blobToDataUrl(image.blob),
+          exportPreset: preset,
+          positionPreset,
+          frame: {
+            id: frame.id,
+            width: getNumberProp(frame, "w", preset.width),
+            height: getNumberProp(frame, "h", preset.height),
+          },
+          shapes: serializeReviewShapes(editor, frame.id),
+          assets: assets.map(({ id, name, src, alt, kind, mediaType, bgRemoved }) => ({
+            id,
+            name,
+            src,
+            alt,
+            kind,
+            mediaType,
+            bgRemoved: Boolean(bgRemoved),
+          })),
+          features: product.features.map(({ id, title, body }) => ({ id, title, body })),
+        }),
+      });
+
+      if (!response.ok) throw new Error(await response.text());
+      const result = (await response.json()) as LayoutReviewResult;
+      const applied = applyLayoutReviewPatches(editor, frame.id, result.patches);
+      setLayoutReview(result);
+      setBusy(`Layout reviewed: ${applied} fixes applied (${result.source}, score ${Math.round(result.score)}).`);
+      syncSelection(editor);
+    } catch {
+      setBusy("Layout review failed. Try again after checking your canvas assets.");
+    }
+  }
+
   function applyStyle(style: StylePreset) {
     if (!editor) return;
     const shapes = editor.getCurrentPageShapes();
@@ -496,6 +571,10 @@ export default function EditorPage() {
                   <Sparkles size={15} />
                   Presets
                 </button>
+                <button className="btn ghost" onClick={reviewLayout} type="button">
+                  <CheckCircle2 size={15} />
+                  Review layout
+                </button>
                 <button className="btn liquid-glass-strong" onClick={() => setExportOpen(true)} type="button">
                   <ArrowDownToLine size={15} />
                   Export
@@ -592,6 +671,12 @@ export default function EditorPage() {
               </div>
               <span className="text-sm text-white/52">{busy || "Ready"}</span>
             </div>
+            {layoutReview ? (
+              <div className="px-6 pb-5 text-xs leading-5 text-white/58">
+                <strong className="text-white/76">{layoutReview.summary}</strong>
+                {layoutReview.findings[0] ? <span> {layoutReview.findings[0].message}</span> : null}
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -829,13 +914,110 @@ function Modal({
   );
 }
 
+function getMainFrame(editor: Editor) {
+  return editor
+    .getCurrentPageShapes()
+    .find((shape) => shape.type === "frame" && !String(shape.id).includes(CAROUSEL_FRAME_PREFIX));
+}
+
+function serializeReviewShapes(editor: Editor, frameId: TLShapeId) {
+  return editor
+    .getCurrentPageShapes()
+    .filter((shape) => shape.id === frameId || shape.parentId === frameId)
+    .map((shape) => ({
+      id: String(shape.id),
+      type: shape.type,
+      parentId: shape.parentId ? String(shape.parentId) : undefined,
+      x: shape.x,
+      y: shape.y,
+      props: shape.props as Record<string, unknown>,
+    }));
+}
+
+function applyLayoutReviewPatches(editor: Editor, frameId: TLShapeId, patches: LayoutReviewPatch[]) {
+  const frameShapeIds = new Set(
+    editor
+      .getCurrentPageShapes()
+      .filter((shape) => shape.id === frameId || shape.parentId === frameId)
+      .map((shape) => String(shape.id)),
+  );
+  const updates: TLShapePartial[] = [];
+  let applied = 0;
+
+  for (const patch of patches) {
+    if (patch.type === "bringToFront") {
+      const ids = patch.shapeIds.filter((id) => frameShapeIds.has(id)).map((id) => id as TLShapeId);
+      if (ids.length) {
+        editor.bringToFront(ids);
+        applied += ids.length;
+      }
+      continue;
+    }
+
+    if (!frameShapeIds.has(patch.shapeId)) continue;
+    const shape = editor.getShape(patch.shapeId as TLShapeId);
+    if (!shape) continue;
+
+    if (patch.type === "moveResize") {
+      updates.push({
+        id: shape.id,
+        type: shape.type,
+        x: patch.x,
+        y: patch.y,
+        props: {
+          ...(patch.w !== undefined ? { w: patch.w } : {}),
+          ...(patch.h !== undefined ? { h: patch.h } : {}),
+        },
+      } as TLShapePartial);
+      applied += 1;
+      continue;
+    }
+
+    if (patch.type === "swapAsset") {
+      updates.push({
+        id: shape.id,
+        type: shape.type,
+        props: { src: patch.src, alt: patch.alt, fit: patch.fit },
+      } as TLShapePartial);
+      applied += 1;
+      continue;
+    }
+
+    if (patch.type === "updateProps") {
+      updates.push({
+        id: shape.id,
+        type: shape.type,
+        props: patch.props,
+      } as TLShapePartial);
+      applied += 1;
+    }
+  }
+
+  if (updates.length) editor.updateShapes(updates);
+  return applied;
+}
+
+function getNumberProp(shape: TLShape, key: string, fallback: number) {
+  const value = (shape.props as Record<string, unknown>)[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function blobToDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => resolve(String(reader.result));
+    reader.readAsDataURL(blob);
+  });
+}
+
 function getAssetPlacement(asset: ProductAsset): {
   fit: "contain" | "cover";
   h: number;
   w: number;
 } {
   if (asset.kind === "section") {
-    return { fit: "cover", w: 360, h: 205 };
+    return { fit: "contain", w: 360, h: 205 };
   }
 
   if (asset.kind === "hero") {
