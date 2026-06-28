@@ -93,7 +93,7 @@ export default function EditorPage() {
   const [extraAssets, setExtraAssets] = useState<ProductAsset[]>([]);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [preset, setPreset] = useState<ExportPreset>(EXPORT_PRESETS[0]);
-  const [positionPreset, setPositionPreset] = useState<PositionPresetId>("cinema-mosaic");
+  const [positionPreset, setPositionPreset] = useState<PositionPresetId>("apple-infographic");
   const [showPrice, setShowPrice] = useState(true);
   const [selected, setSelected] = useState<InspectorState | null>(null);
   const [exportOpen, setExportOpen] = useState(false);

@@ -48,7 +48,7 @@ export function getAssetTilePresentation(asset: ProductAsset, role: AssetTileRol
 export function composeMainCanvasTemplate(
   product: ProductExtraction,
   preset: ExportPreset,
-  positionPreset: PositionPresetId = "cinema-mosaic",
+  positionPreset: PositionPresetId = "apple-infographic",
   options: { showPrice?: boolean } = {},
 ): TLShapePartial[] {
   if (positionPreset === "apple-infographic") return composeAppleInfographicTemplate(product, preset, options);

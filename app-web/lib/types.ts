@@ -1,5 +1,5 @@
 export const SAMSUNG_DEMO_URL =
-  "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/";
+  "https://www.samsung.com/us/tvs/oled-tv/77-inch-oled-4k-tv-s90h-sku-qn77s90haexza/";
 
 export type Provenance = "verified" | "inferred" | "generated";
 

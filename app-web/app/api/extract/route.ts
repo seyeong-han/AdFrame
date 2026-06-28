@@ -87,31 +87,19 @@ export async function POST(request: Request) {
   let extraction = fixture as ProductExtraction;
 
   if (isServerlessDeploy()) {
-    extraction = {
-      ...(fixture as ProductExtraction),
+    extraction = await buildCachedFixtureExtraction(
       url,
-      extractionMode: "fixture",
-      extractedAt: new Date().toISOString(),
-      notes: [
-        ...(fixture as ProductExtraction).notes,
-        "Serverless deploy: using cached Samsung fixture (Playwright unavailable on Vercel).",
-      ],
-    };
+      "Serverless deploy: using cached Samsung fixture (Playwright unavailable on Vercel).",
+    );
   } else {
     try {
       const scrape = await scrapeSamsungPage(url);
       extraction = await mergeScrapeIntoFixture(scrape, url);
     } catch (error) {
-      extraction = {
-        ...(fixture as ProductExtraction),
+      extraction = await buildCachedFixtureExtraction(
         url,
-        extractionMode: "fixture",
-        extractedAt: new Date().toISOString(),
-        notes: [
-          ...(fixture as ProductExtraction).notes,
-          `Live scrape failed; cached fixture used. ${error instanceof Error ? error.message : ""}`.trim(),
-        ],
-      };
+        `Live scrape failed; cached fixture used. ${error instanceof Error ? error.message : ""}`.trim(),
+      );
     }
   }
 
@@ -122,6 +110,53 @@ export async function POST(request: Request) {
   extraction = await attachDesignSystem(extraction);
 
   return NextResponse.json(extraction);
+}
+
+async function buildCachedFixtureExtraction(url: string, note: string): Promise<ProductExtraction> {
+  const base = fixture as ProductExtraction;
+  const productHints = getSamsungProductHints(url);
+  const csvManifest = await loadCsvImageManifest(productHints);
+  const videoAssets = await loadCachedVideoAssets(productHints.cacheNamespace);
+  const assets = csvManifest ? [...csvManifest.assets, ...videoAssets] : base.assets;
+
+  return {
+    ...base,
+    url,
+    ...(productHints.sku ? { model: productHints.sku.toUpperCase() } : {}),
+    assets,
+    extractionMode: "fixture",
+    extractedAt: new Date().toISOString(),
+    notes: [
+      ...base.notes,
+      note,
+      ...(csvManifest ? [`CSV image manifest loaded from ${csvManifest.path}.`] : []),
+      ...(videoAssets.length ? [`Cached video manifest loaded for ${productHints.cacheNamespace}.`] : []),
+    ],
+  };
+}
+
+async function loadCachedVideoAssets(cacheNamespace: string): Promise<ProductAsset[]> {
+  const manifestPath = path.join(process.cwd(), "public", "generated", "videos", cacheNamespace, "videos.json");
+  if (!(await fileExists(manifestPath))) return [];
+
+  const videos = JSON.parse(await readFile(manifestPath, "utf8")) as Array<{
+    id: string;
+    title: string;
+    cachedSrc?: string;
+  }>;
+
+  return videos
+    .filter((video) => video.cachedSrc)
+    .map((video) => ({
+      id: video.id,
+      name: `${video.title} video`,
+      src: video.cachedSrc!,
+      alt: video.title,
+      provenance: "verified" as const,
+      kind: "video" as const,
+      mediaType: "video" as const,
+      bgRemoved: false,
+    }));
 }
 
 async function removeBackgroundForExtractedAssets(assets: ProductAsset[], cacheNamespace: string): Promise<ProductAsset[]> {

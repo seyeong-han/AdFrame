@@ -76,7 +76,7 @@ export default function Home() {
                 Product-link infographics with editable glass tiles.
               </span>
             </div>
-            <h1 className="display-title">Extract. Cut out. Compose.</h1>
+            <h1 className="display-title">Turn Product URL to IG Ad</h1>
             <p className="lead mt-8">
               Paste a premium product page, verify the facts, remove product backgrounds locally,
               and compose an Apple-style social infographic on a Figma-like tldraw canvas.
@@ -110,7 +110,7 @@ export default function Home() {
               Start from a URL.
             </h2>
             <p className="mt-4 text-sm leading-6 text-white/60">
-              The Samsung S90F page is prepared with live Playwright extraction and a cached
+              The Samsung S90H page is prepared with live Playwright extraction and a cached
               fixture fallback so the demo stays reliable.
             </p>
 
