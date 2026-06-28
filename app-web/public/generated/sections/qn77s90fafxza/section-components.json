@@ -1,0 +1,258 @@
+[
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/01-section-processor-11ff14c3-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/01-section-processor-11ff14c3-full.jpg",
+    "captionRemoved": true,
+    "id": "section-processor",
+    "title": "NQ4 AI Gen3 Processor",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-processor-545665875?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA processor",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "NQ4 AI Gen3 Processor",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/02-section-upscaling-5e397186-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/02-section-upscaling-5e397186-full.jpg",
+    "captionRemoved": true,
+    "id": "section-upscaling",
+    "title": "4K AI Upscaling Pro",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-upscaling-545665877?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA upscaling",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "4K AI Upscaling Pro",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/03-section-hdr-e25a970b-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/03-section-hdr-e25a970b-full.jpg",
+    "captionRemoved": true,
+    "id": "section-hdr",
+    "title": "OLED HDR+",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-hdr-545665867?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA HDR",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "OLED HDR+",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/04-section-motion-399dd10b-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/04-section-motion-399dd10b-full.jpg",
+    "captionRemoved": true,
+    "id": "section-motion",
+    "title": "Motion Xcelerator 144Hz",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-motion-xcelerator-545665869?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA Motion Xcelerator",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Motion Xcelerator 144Hz",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/05-section-extra-1-87284954-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/05-section-extra-1-87284954-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-1",
+    "title": "77&quot; Class OLED S90F 4K Samsung Vision AI Smart TV (2025) Black",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-s90f-qn77s90fafxza-550200605?$product-details-jpg$",
+    "alt": "77&quot; Class OLED S90F 4K Samsung Vision AI Smart TV (2025) Black",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "77&quot; Class OLED S90F 4K Samsung Vision AI Smart TV (2025) Black",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/06-section-extra-2-062a2b71-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/06-section-extra-2-062a2b71-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-2",
+    "title": "77&quot; Class OLED S90F 4K Samsung Vision AI Smart TV (2025) Black",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-s90f-qn77s90fafxza-550200823?$product-details-jpg$",
+    "alt": "77&quot; Class OLED S90F 4K Samsung Vision AI Smart TV (2025) Black",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "77&quot; Class OLED S90F 4K Samsung Vision AI Smart TV (2025) Black",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/07-section-extra-3-b006129e-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/07-section-extra-3-b006129e-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-3",
+    "title": "QN77S90FAFXZA",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-s90f-qn77s90fafxza-546073374?$product-details-jpg$",
+    "alt": "QN77S90FAFXZA",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "QN77S90FAFXZA",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/08-section-extra-4-8909df5f-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/08-section-extra-4-8909df5f-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-4",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/165969989/us-feature-get-smooth-motion-for-games-up-to-144hz-545617761?$FB_TYPE_A_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/09-section-extra-5-26e49e0a-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/09-section-extra-5-26e49e0a-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-5",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/165969944/us-feature-enhances-content-to-hdr-like-picture-quality-545617635?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/10-section-extra-6-777adc20-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/10-section-extra-6-777adc20-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-6",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s90f-549646917?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/11-section-extra-7-b3d4cdf6-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/11-section-extra-7-b3d4cdf6-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-7",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/166001675/us-feature-oled-s90f-548685554?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/12-section-extra-8-bd13945a-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/12-section-extra-8-bd13945a-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-8",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s90f-548685914?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/13-section-extra-9-00d6775b-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/13-section-extra-9-00d6775b-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-9",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s90f-548686159?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/14-section-extra-10-5dd27ce5-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/14-section-extra-10-5dd27ce5-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-10",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s90f-550256345?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/15-section-extra-11-15896725-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/15-section-extra-11-15896725-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-11",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s90f-550256374?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90fafxza/16-section-extra-12-5a2193ff-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90fafxza/16-section-extra-12-5a2193ff-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-12",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/165969971/us-feature-our-most-advanced-ai-powered-4k-processor-545617709?$FB_TYPE_A_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  }
+]

@@ -1,0 +1,226 @@
+[
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/01-section-processor-99bfde01-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/01-section-processor-99bfde01-full.jpg",
+    "captionRemoved": true,
+    "id": "section-processor",
+    "title": "NQ4 AI Gen3 Processor",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651947?$product-details-jpg$",
+    "alt": "A close-up shot of a NQ4 AI Gen3 Processor on the mother board of a Samsung OLED S95H TV.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "NQ4 AI Gen3 Processor",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/02-section-hdr-d75ca577-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/02-section-hdr-d75ca577-full.jpg",
+    "captionRemoved": true,
+    "id": "section-hdr",
+    "title": "OLED HDR+",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651945?$product-details-jpg$",
+    "alt": "A with- and without- shot of the Samsung OLED S95H Smart TV&apos;s glare-free HDR functionality.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "OLED HDR+",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/03-section-motion-be8ba471-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/03-section-motion-be8ba471-full.jpg",
+    "captionRemoved": true,
+    "id": "section-motion",
+    "title": "Motion Xcelerator 144Hz",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651949?$product-details-jpg$",
+    "alt": "An illustration showing how Motion Xcelerator technology running on the Samsung OLED S95H TV delivers fast and responsive gaming performance in a racing game.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Motion Xcelerator 144Hz",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/04-section-gaming-1e58a621-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/04-section-gaming-1e58a621-full.jpg",
+    "captionRemoved": true,
+    "id": "section-gaming",
+    "title": "Ultimate Gaming Pack",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651953?$product-details-jpg$",
+    "alt": "A screenshot showing the Samsung Gaming Hub interface, with icons for popular games such as Fortnite, Angry Birds and Exploding Kittens 2.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Ultimate Gaming Pack",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/05-section-extra-1-fdc07a66-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/05-section-extra-1-fdc07a66-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-1",
+    "title": "An angle product view of the  OLED S95H.",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651937?$product-details-jpg$",
+    "alt": "An angle product view of the  OLED S95H.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "An angle product view of the  OLED S95H.",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/06-section-extra-2-410f73db-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/06-section-extra-2-410f73db-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-2",
+    "title": "77 Inch Class OLED S95H 4K Samsung Vision AI Smart TV (2026) Silver",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-s95h-qn77s95hafxza-553148087?$product-details-jpg$",
+    "alt": "77 Inch Class OLED S95H 4K Samsung Vision AI Smart TV (2026) Silver",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "77 Inch Class OLED S95H 4K Samsung Vision AI Smart TV (2026) Silver",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/07-section-extra-3-41d5802d-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/07-section-extra-3-41d5802d-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-3",
+    "title": "Lifestyle TV",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651951?$product-details-jpg$",
+    "alt": "A lifestyle shot demonstrating the bold, sleek FloatLayer design of the OLED S95H Smart TV.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Lifestyle TV",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/08-section-extra-4-fb217026-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/08-section-extra-4-fb217026-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-4",
+    "title": "Lifestyle TV",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s95hafxza/gallery/us-oled-tv-qn77s95hafxza----inch-class-oled-s--h--k-samsung-vision-ai-smart-tv--------silver-551651955?$product-details-jpg$",
+    "alt": "A lifestyle shot showing Samsung entertainment devices such as the OLED S95H Smart TV connecting wirelessly with one another.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Lifestyle TV",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/09-section-extra-5-ffb664b3-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/09-section-extra-5-ffb664b3-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-5",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026372/us-feature-see-real-black-and-real-color-perfected-by-glare-free-551642024?$FB_TYPE_A_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/10-section-extra-6-cb09d16a-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/10-section-extra-6-cb09d16a-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-6",
+    "title": "Ultimate Gaming Pack",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026361/us-feature-unbeatable-high-performance-for-the-gamer-551641996?$FB_TYPE_A_JPG$",
+    "alt": "Ultimate Gaming Pack",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Ultimate Gaming Pack",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/11-section-extra-7-3187264c-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/11-section-extra-7-3187264c-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-7",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s95h-552061691?$ORIGIN_IMG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/12-section-extra-8-d62e22f8-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/12-section-extra-8-d62e22f8-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-8",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026369/us-feature-get-ultra-smooth-motion-for-games-up-to-165hz-551642018?$FB_TYPE_B_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/13-section-extra-9-57c4710b-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/13-section-extra-9-57c4710b-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-9",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/others/us-feature-oled-s95h-552061204?$FB_TYPE_C_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s95hafxza/14-section-extra-10-a0c5accb-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s95hafxza/14-section-extra-10-a0c5accb-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-10",
+    "title": "Ultimate Gaming Pack",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026358/us-feature-tear-free--stutter-free--low-latency-hdr-gaming-551641993?$ORIGIN_IMG$",
+    "alt": "Ultimate Gaming Pack",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Ultimate Gaming Pack",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  }
+]

@@ -55,6 +55,8 @@ export default function Home() {
         provenance: "verified",
         kind: "upload",
         bgRemoved: false,
+        caption: file.name.replace(/\.[^.]+$/, ""),
+        semanticGroup: `upload-${file.name.replace(/\.[^.]+$/, "").toLowerCase()}`,
       })),
     );
     appendUploadedAssets(assets);

@@ -1,0 +1,178 @@
+[
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/01-section-processor-01d0a901-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/01-section-processor-01d0a901-full.jpg",
+    "captionRemoved": true,
+    "id": "section-processor",
+    "title": "NQ4 AI Gen3 Processor",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-551690107?$product-details-jpg$",
+    "alt": "A close-up shot of a NQ4 AI Gen3 Processor on the mother board of a Samsung OLED S90H TV.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "NQ4 AI Gen3 Processor",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/02-section-hdr-ec56f6af-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/02-section-hdr-ec56f6af-full.jpg",
+    "captionRemoved": true,
+    "id": "section-hdr",
+    "title": "OLED HDR+",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-553299658?$product-details-jpg$",
+    "alt": "A with- and without- shot of the Samsung OLED S90H Smart TV&apos;s glare-free HDR functionality.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "OLED HDR+",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/03-section-motion-1b7db740-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/03-section-motion-1b7db740-full.jpg",
+    "captionRemoved": true,
+    "id": "section-motion",
+    "title": "Motion Xcelerator 144Hz",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-551690251?$product-details-jpg$",
+    "alt": "A with- and without- shot of how AI Motion Enhancer Pro technology on the Samsung OLED S90H Smart TV can be used to make crisp, more vivid sports action.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Motion Xcelerator 144Hz",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/04-section-gaming-78666dc7-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/04-section-gaming-78666dc7-full.jpg",
+    "captionRemoved": true,
+    "id": "section-gaming",
+    "title": "Ultimate Gaming Pack",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-551690115?$product-details-jpg$",
+    "alt": "A lifestyle shot of two gamers playing a collage of different video games using the Samsung OLED S90H.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Ultimate Gaming Pack",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/05-section-extra-1-4ee7b054-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/05-section-extra-1-4ee7b054-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-1",
+    "title": "77 Inch Class OLED S90H 4K Samsung Vision AI Smart TV (2026) Graphite",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-553148064?$product-details-jpg$",
+    "alt": "77 Inch Class OLED S90H 4K Samsung Vision AI Smart TV (2026) Graphite",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "77 Inch Class OLED S90H 4K Samsung Vision AI Smart TV (2026) Graphite",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/06-section-extra-2-943975bc-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/06-section-extra-2-943975bc-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-2",
+    "title": "AI upscaling lifestyle",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-551724128?$product-details-jpg$",
+    "alt": "An image of a little girl kissing a dog in a grassy yard,  being used to represent the ability of the Samsung OLED S90H television to upscale standard-def content to 4K using AI.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "AI upscaling lifestyle",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/07-section-extra-3-9957e471-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/07-section-extra-3-9957e471-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-3",
+    "title": "Lifestyle TV",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90haexza/gallery/us-oled-s90h-qn77s90haexza-551690382?$product-details-jpg$",
+    "alt": "A lifestyle image of the OLED S90H Smart TV.",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Lifestyle TV",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/08-section-extra-4-aae635db-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/08-section-extra-4-aae635db-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-4",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026547/us-feature-see-real-black-and-real-color-perfected-by-glare-free-551643020?$FB_TYPE_A_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/09-section-extra-5-cb09d16a-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/09-section-extra-5-cb09d16a-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-5",
+    "title": "Ultimate Gaming Pack",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026361/us-feature-unbeatable-high-performance-for-the-gamer-551641996?$FB_TYPE_A_JPG$",
+    "alt": "Ultimate Gaming Pack",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Ultimate Gaming Pack",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/10-section-extra-6-d62e22f8-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/10-section-extra-6-d62e22f8-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-6",
+    "title": "Samsung feature visual",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026369/us-feature-get-ultra-smooth-motion-for-games-up-to-165hz-551642018?$FB_TYPE_B_JPG$",
+    "alt": "Samsung feature visual",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Samsung feature visual",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "cachedSrc": "/generated/sections/qn77s90haexza/11-section-extra-7-a0c5accb-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/qn77s90haexza/11-section-extra-7-a0c5accb-full.jpg",
+    "captionRemoved": true,
+    "id": "section-extra-7",
+    "title": "Ultimate Gaming Pack",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/feature/167026358/us-feature-tear-free--stutter-free--low-latency-hdr-gaming-551641993?$ORIGIN_IMG$",
+    "alt": "Ultimate Gaming Pack",
+    "extraction": "dom-image",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Ultimate Gaming Pack",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  }
+]

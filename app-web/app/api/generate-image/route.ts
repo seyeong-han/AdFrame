@@ -21,6 +21,8 @@ export async function POST(request: Request) {
       provenance: "generated",
       kind: "generated",
       bgRemoved: true,
+      caption: prompt,
+      semanticGroup: semanticGroupFromPrompt(prompt),
     });
   }
 
@@ -41,6 +43,8 @@ export async function POST(request: Request) {
       provenance: "generated",
       kind: "generated",
       bgRemoved: true,
+      caption: prompt,
+      semanticGroup: semanticGroupFromPrompt(prompt),
     });
   } catch {
     return NextResponse.json({
@@ -51,8 +55,18 @@ export async function POST(request: Request) {
       provenance: "generated",
       kind: "generated",
       bgRemoved: true,
+      caption: prompt,
+      semanticGroup: semanticGroupFromPrompt(prompt),
     });
   }
+}
+
+function semanticGroupFromPrompt(prompt: string) {
+  return prompt
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 64);
 }
 
 function placeholderSvg(prompt: string) {

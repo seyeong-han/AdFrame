@@ -6,6 +6,16 @@ const labels: Record<Provenance, string> = {
   generated: "Generated",
 };
 
+const descriptions: Record<Provenance, string> = {
+  verified: "Directly sourced from the product page or user-provided asset.",
+  inferred: "Derived from verified source facts.",
+  generated: "Created by AdFrame or an AI generation step.",
+};
+
 export function ProvenanceChip({ provenance }: { provenance: Provenance }) {
-  return <span className={`chip ${provenance}`}>{labels[provenance]}</span>;
+  return (
+    <span className={`chip ${provenance}`} title={descriptions[provenance]}>
+      {labels[provenance]}
+    </span>
+  );
 }

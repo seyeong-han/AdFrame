@@ -2,7 +2,7 @@ import { access } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
-const endpoint = process.env.FRIDGEFRAME_EXTRACT_URL || "http://127.0.0.1:3028/api/extract";
+const endpoint = process.env.ADFRAME_EXTRACT_URL || "http://127.0.0.1:3028/api/extract";
 const root = process.cwd();
 
 const response = await fetch(endpoint, {

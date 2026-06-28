@@ -28,7 +28,7 @@ import {
 import { AppShell } from "@/components/AppChrome";
 import { ProvenanceChip } from "@/components/ProvenanceChip";
 import { downloadCarouselFramesZip, downloadCarouselSlidesZip, downloadFrame, downloadPdfProof } from "@/lib/export";
-import { isExtractionApproved, readExtraction, useExtractionSnapshot } from "@/lib/client-store";
+import { isExtractionApproved, useApprovedExtractionSnapshot } from "@/lib/client-store";
 import { removeBackgroundLocally } from "@/lib/segmentation";
 import { EXPORT_PRESETS, type ExportPreset, type ProductAsset, type ProductExtraction } from "@/lib/types";
 import { POSITION_PRESETS, STYLE_PRESETS, type PositionPresetId, type StylePreset } from "@/lib/presets";
@@ -37,11 +37,11 @@ import {
   CUTOUT_IMAGE_TYPE,
   GLASS_CARD_TYPE,
   GLASS_TEXT_TYPE,
-  fridgeFrameShapeUtils,
+  adFrameShapeUtils,
   type CutoutImageShape,
   type GlassCardShape,
   type GlassTextShape,
-} from "@/lib/tldraw/shapes/fridgeframe-shapes";
+} from "@/lib/tldraw/shapes/adframe-shapes";
 
 type InspectorState = {
   id: TLShapeId;
@@ -81,7 +81,7 @@ const ENABLE_CAROUSEL_FEATURES = false;
 
 export default function EditorPage() {
   const router = useRouter();
-  const product = useExtractionSnapshot();
+  const product = useApprovedExtractionSnapshot();
   const [extraAssets, setExtraAssets] = useState<ProductAsset[]>([]);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [preset, setPreset] = useState<ExportPreset>(EXPORT_PRESETS[0]);
@@ -94,6 +94,7 @@ export default function EditorPage() {
   const [busy, setBusy] = useState("");
   const [layoutReview, setLayoutReview] = useState<LayoutReviewResult | null>(null);
   const placementCounter = useRef(0);
+  const composedExtractionKey = useRef("");
   const assets = [...extraAssets, ...product.assets];
 
   useEffect(() => {
@@ -144,10 +145,20 @@ export default function EditorPage() {
 
   function handleMount(nextEditor: Editor) {
     setEditor(nextEditor);
-    const extraction = readExtraction();
-    composeCanvas(nextEditor, extraction, preset, positionPreset, showPrice);
+    const nextKey = extractionCanvasKey(product);
+    composedExtractionKey.current = nextKey;
+    composeCanvas(nextEditor, product, preset, positionPreset, showPrice);
     nextEditor.store.listen(() => syncSelection(nextEditor), { scope: "document" });
   }
+
+  useEffect(() => {
+    if (!editor || !product) return;
+    const nextKey = extractionCanvasKey(product);
+    if (nextKey === composedExtractionKey.current) return;
+    composedExtractionKey.current = nextKey;
+    setExtraAssets([]);
+    composeCanvas(editor, product, preset, positionPreset, showPrice);
+  }, [composeCanvas, editor, positionPreset, preset, product, showPrice]);
 
   function updatePreset(id: ExportPreset["id"]) {
     const nextPreset = EXPORT_PRESETS.find((item) => item.id === id) || EXPORT_PRESETS[0];
@@ -210,6 +221,8 @@ export default function EditorPage() {
         alt: asset.alt,
         fit: placement.fit,
         bgRemoved: Boolean(asset.bgRemoved),
+        caption: asset.caption,
+        semanticGroup: asset.semanticGroup,
         provenance: asset.provenance,
       },
     });
@@ -354,7 +367,7 @@ export default function EditorPage() {
             height: getNumberProp(frame, "h", preset.height),
           },
           shapes: serializeReviewShapes(editor, frame.id),
-          assets: assets.map(({ id, name, src, alt, kind, mediaType, bgRemoved }) => ({
+          assets: assets.map(({ id, name, src, alt, kind, mediaType, bgRemoved, caption, semanticGroup }) => ({
             id,
             name,
             src,
@@ -362,6 +375,8 @@ export default function EditorPage() {
             kind,
             mediaType,
             bgRemoved: Boolean(bgRemoved),
+            caption,
+            semanticGroup,
           })),
           features: product.features.map(({ id, title, body }) => ({ id, title, body })),
         }),
@@ -606,7 +621,7 @@ export default function EditorPage() {
             <Tldraw
               hideUi
               onMount={handleMount}
-              shapeUtils={fridgeFrameShapeUtils}
+              shapeUtils={adFrameShapeUtils}
             />
           </div>
 
@@ -643,6 +658,8 @@ export default function EditorPage() {
                           provenance: "verified",
                           kind: "upload",
                           bgRemoved: false,
+                          caption: file.name.replace(/\.[^.]+$/, ""),
+                          semanticGroup: `upload-${file.name.replace(/\.[^.]+$/, "").toLowerCase()}`,
                         };
                         setExtraAssets((current) => [asset, ...current]);
                         if (editor) {
@@ -659,6 +676,8 @@ export default function EditorPage() {
                               alt: asset.alt,
                               fit: "contain",
                               bgRemoved: false,
+                              caption: asset.caption,
+                              semanticGroup: asset.semanticGroup,
                               provenance: "verified",
                             },
                           });
@@ -1025,6 +1044,17 @@ function getAssetPlacement(asset: ProductAsset): {
   }
 
   return { fit: "contain", w: 460, h: 320 };
+}
+
+function extractionCanvasKey(product: ProductExtraction) {
+  return [
+    product.url,
+    product.model,
+    product.extractedAt,
+    product.headline,
+    product.assets.map((asset) => `${asset.id}:${asset.src}`).join("|"),
+    product.features.map((feature) => `${feature.id}:${feature.title}:${feature.body}`).join("|"),
+  ].join("::");
 }
 
 function getCarouselFrameIds(editor: Editor) {

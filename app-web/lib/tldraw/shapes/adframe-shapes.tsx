@@ -55,6 +55,8 @@ export type CutoutImageShape = TLBaseShape<
     alt: string;
     fit: "contain" | "cover";
     bgRemoved: boolean;
+    caption?: string;
+    semanticGroup?: string;
   }
 >;
 
@@ -283,7 +285,7 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
   }
 
   override isAspectRatioLocked() {
-    return true;
+    return false;
   }
 
   override getDefaultProps(): CutoutImageShape["props"] {
@@ -294,6 +296,8 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
       alt: "Product cutout",
       fit: "contain",
       bgRemoved: true,
+      caption: "front TV product cutout",
+      semanticGroup: "product-front",
       provenance: "verified",
     };
   }
@@ -414,7 +418,7 @@ export class IconShapeUtil extends BaseBoxShapeUtil<IconShape> {
   }
 }
 
-export const fridgeFrameShapeUtils = [
+export const adFrameShapeUtils = [
   CanvasBackgroundShapeUtil,
   GlassCardShapeUtil,
   GlassTextShapeUtil,

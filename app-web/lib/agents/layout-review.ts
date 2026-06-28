@@ -26,6 +26,8 @@ export const ReviewAssetSchema = z.object({
   kind: z.string(),
   mediaType: z.string().optional(),
   bgRemoved: z.boolean().optional(),
+  caption: z.string().optional(),
+  semanticGroup: z.string().optional(),
 });
 
 export const LayoutReviewRequestSchema = z.object({

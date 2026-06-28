@@ -1,7 +1,7 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
 
-const endpoint = process.env.FRIDGEFRAME_EXTRACT_URL || "http://127.0.0.1:3028/api/extract";
+const endpoint = process.env.ADFRAME_EXTRACT_URL || "http://127.0.0.1:3028/api/extract";
 const root = process.cwd();
 const expectedNeedle = "us-feature-catch-hidden-details-in-dark-scenes-545617641";
 
@@ -25,7 +25,7 @@ if (!expected) {
   throw new Error(`Expected hidden-details MP4 video asset. Got: ${videoAssets.map((asset) => asset.src).join(", ")}`);
 }
 
-if (!expected.src.startsWith("/generated/videos/samsung-s90f/") || !expected.src.endsWith(".mp4")) {
+if (!expected.src.startsWith("/generated/videos/qn77s90fafxza/") || !expected.src.endsWith(".mp4")) {
   throw new Error(`Expected cached local MP4 path, got ${expected.src}`);
 }
 

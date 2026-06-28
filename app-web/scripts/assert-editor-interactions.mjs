@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 
 const editorSource = await readFile("app/editor/page.tsx", "utf8");
 const appChromeSource = await readFile("components/AppChrome.tsx", "utf8");
-const shapeSource = await readFile("lib/tldraw/shapes/fridgeframe-shapes.tsx", "utf8");
+const shapeSource = await readFile("lib/tldraw/shapes/adframe-shapes.tsx", "utf8");
 const globalCss = await readFile("app/globals.css", "utf8");
 const layoutReviewSource = await readFile("lib/agents/layout-review.ts", "utf8");
 const layoutReviewRouteSource = await readFile("app/api/layout-review/route.ts", "utf8");
@@ -47,6 +47,10 @@ const requiredSnippets = [
   "type LayoutReviewPatch",
   "type LayoutReviewResult",
   "const [layoutReview, setLayoutReview]",
+  "useApprovedExtractionSnapshot",
+  "const product = useApprovedExtractionSnapshot()",
+  "const composedExtractionKey = useRef(\"\")",
+  "extractionCanvasKey(product)",
   "async function reviewLayout()",
   "editor.toImage([frame.id]",
   "fetch(\"/api/layout-review\"",
@@ -73,7 +77,7 @@ const shapeMissing = [
   "bgRemoved={shape.props.bgRemoved}",
   "showBody?: boolean",
   "shape.props.showBody ?",
-  "override isAspectRatioLocked()",
+  "override isAspectRatioLocked() {\n    return false;",
   "onDragStart={(event) => event.preventDefault()}",
   "draggable={false}",
   "style={{ pointerEvents: \"all\", overflow: \"hidden\", ...boxStyle }}",

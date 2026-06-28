@@ -28,6 +28,8 @@ export type ProductAsset = {
   kind: "hero" | "gallery" | "section" | "video" | "generated" | "upload";
   mediaType?: "image" | "video";
   bgRemoved: boolean;
+  caption?: string;
+  semanticGroup?: string;
 };
 
 export type ProductDesignSystem = {

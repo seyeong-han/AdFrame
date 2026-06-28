@@ -109,7 +109,9 @@
       "alt": "front Black",
       "provenance": "verified",
       "kind": "hero",
-      "bgRemoved": true
+      "bgRemoved": true,
+      "caption": "front TV product cutout",
+      "semanticGroup": "product-front"
     },
     {
       "id": "asset-live-2",
@@ -118,7 +120,9 @@
       "alt": "l-perspective Black",
       "provenance": "verified",
       "kind": "gallery",
-      "bgRemoved": true
+      "bgRemoved": true,
+      "caption": "angled TV product cutout",
+      "semanticGroup": "product-perspective"
     },
     {
       "id": "asset-live-3",
@@ -127,7 +131,9 @@
       "alt": "l-side Black",
       "provenance": "verified",
       "kind": "gallery",
-      "bgRemoved": true
+      "bgRemoved": true,
+      "caption": "thin TV side profile cutout",
+      "semanticGroup": "product-side"
     },
     {
       "id": "asset-live-4",
@@ -136,7 +142,9 @@
       "alt": "QN83S90FAEXZA Ports",
       "provenance": "verified",
       "kind": "gallery",
-      "bgRemoved": true
+      "bgRemoved": true,
+      "caption": "TV ports and rear detail",
+      "semanticGroup": "product-ports"
     },
     {
       "id": "section-processor",
@@ -145,7 +153,9 @@
       "alt": "QN83S90FAEXZA processor",
       "provenance": "verified",
       "kind": "section",
-      "bgRemoved": false
+      "bgRemoved": false,
+      "caption": "AI processor chip graphic",
+      "semanticGroup": "processor-chip"
     },
     {
       "id": "section-upscaling",
@@ -154,7 +164,9 @@
       "alt": "QN83S90FAEXZA upscaling",
       "provenance": "verified",
       "kind": "section",
-      "bgRemoved": false
+      "bgRemoved": false,
+      "caption": "colorful racing car upscaling scene",
+      "semanticGroup": "upscaling-racing"
     },
     {
       "id": "section-hdr",
@@ -163,7 +175,9 @@
       "alt": "QN83S90FAEXZA HDR",
       "provenance": "verified",
       "kind": "section",
-      "bgRemoved": false
+      "bgRemoved": false,
+      "caption": "OLED contrast and brightness TV scene",
+      "semanticGroup": "oled-picture-quality"
     },
     {
       "id": "section-motion",
@@ -172,7 +186,9 @@
       "alt": "QN83S90FAEXZA Motion Xcelerator",
       "provenance": "verified",
       "kind": "section",
-      "bgRemoved": false
+      "bgRemoved": false,
+      "caption": "fast motion clarity visual",
+      "semanticGroup": "motion-clarity"
     },
     {
       "id": "video-us-feature-nbsp-545617705",

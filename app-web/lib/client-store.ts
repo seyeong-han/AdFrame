@@ -6,10 +6,13 @@ import type { ProductExtraction } from "@/lib/types";
 
 const KEY = "adframe:last-extraction";
 const APPROVED_KEY = "adframe:facts-approved";
+const APPROVED_EXTRACTION_KEY = "adframe:approved-extraction";
 const EXTRACTION_CHANGED_EVENT = "adframe:extraction-changed";
 const FIXTURE_EXTRACTION = fixture as ProductExtraction;
 let cachedRaw: string | null = null;
 let cachedExtraction = FIXTURE_EXTRACTION;
+let cachedApprovedRaw: string | null = null;
+let cachedApprovedExtraction = FIXTURE_EXTRACTION;
 
 export function readExtraction(): ProductExtraction {
   if (typeof window === "undefined") return FIXTURE_EXTRACTION;
@@ -36,11 +39,20 @@ export function readExtraction(): ProductExtraction {
 export function writeExtraction(extraction: ProductExtraction) {
   window.localStorage.setItem(KEY, JSON.stringify(extraction));
   window.localStorage.removeItem(APPROVED_KEY);
+  window.localStorage.removeItem(APPROVED_EXTRACTION_KEY);
   notifyExtractionChanged();
 }
 
-export function approveExtraction() {
+export function approveExtraction(extraction = readExtraction()) {
+  const serialized = JSON.stringify(extraction);
+  window.localStorage.setItem(KEY, serialized);
+  window.localStorage.setItem(APPROVED_EXTRACTION_KEY, serialized);
   window.localStorage.setItem(APPROVED_KEY, "true");
+  cachedRaw = serialized;
+  cachedExtraction = extraction;
+  cachedApprovedRaw = serialized;
+  cachedApprovedExtraction = extraction;
+  notifyExtractionChanged();
 }
 
 export function isExtractionApproved() {
@@ -61,6 +73,28 @@ export function appendUploadedAssets(assets: ProductExtraction["assets"]) {
 
 export function useExtractionSnapshot(): ProductExtraction {
   return useSyncExternalStore(subscribeToExtraction, readExtraction, () => FIXTURE_EXTRACTION);
+}
+
+export function readApprovedExtraction(): ProductExtraction {
+  if (typeof window === "undefined") return FIXTURE_EXTRACTION;
+
+  const raw = window.localStorage.getItem(APPROVED_EXTRACTION_KEY);
+  if (!raw) return readExtraction();
+  if (raw === cachedApprovedRaw) return cachedApprovedExtraction;
+
+  try {
+    cachedApprovedRaw = raw;
+    cachedApprovedExtraction = JSON.parse(raw) as ProductExtraction;
+    return cachedApprovedExtraction;
+  } catch {
+    cachedApprovedRaw = raw;
+    cachedApprovedExtraction = readExtraction();
+    return cachedApprovedExtraction;
+  }
+}
+
+export function useApprovedExtractionSnapshot(): ProductExtraction {
+  return useSyncExternalStore(subscribeToExtraction, readApprovedExtraction, () => FIXTURE_EXTRACTION);
 }
 
 function subscribeToExtraction(callback: () => void) {

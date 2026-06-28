@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import OpenAI from "openai";
 import { chromium } from "playwright";
@@ -32,10 +33,17 @@ type ScrapeResult = {
   price?: string;
   previousPrice?: string;
   highlights: string[];
-  images: string[];
+  images: ImageCandidateSignal[];
   sectionComponents: SectionComponentSignal[];
   videos: VideoSignal[];
   design: RawDesignSignals;
+};
+
+type SamsungProductHints = {
+  cacheNamespace: string;
+  sku?: string;
+  series?: string;
+  tokens: string[];
 };
 
 type SectionComponentSignal = {
@@ -44,6 +52,18 @@ type SectionComponentSignal = {
   src: string;
   alt: string;
   extraction: "dom-image" | "section-crop" | "ocr-recreation";
+};
+
+type ImageCandidateSignal = {
+  src: string;
+  alt: string;
+  role: string;
+  title: string;
+};
+
+type CsvImageManifest = {
+  assets: ProductAsset[];
+  path: string;
 };
 
 type VideoSignal = {
@@ -91,20 +111,20 @@ export async function POST(request: Request) {
   return NextResponse.json(extraction);
 }
 
-async function removeBackgroundForExtractedAssets(assets: ProductAsset[]): Promise<ProductAsset[]> {
+async function removeBackgroundForExtractedAssets(assets: ProductAsset[], cacheNamespace: string): Promise<ProductAsset[]> {
   const apiKey = await getRemoveBgApiKey();
-  if (!apiKey) return assets.map(normalizeAssetBackgroundFlag);
+  if (!apiKey) return assets.map(normalizeAssetMetadata);
 
-  const outputDir = path.join(process.cwd(), "public", "generated", "removebg", "samsung-s90f");
+  const outputDir = path.join(process.cwd(), "public", "generated", "removebg", cacheNamespace);
   await mkdir(outputDir, { recursive: true });
 
   return Promise.all(
     assets.slice(0, 4).map(async (asset, index) => {
-      if (!/^https?:\/\//.test(asset.src)) return normalizeAssetBackgroundFlag(asset);
+      if (!/^https?:\/\//.test(asset.src)) return normalizeAssetMetadata(asset);
 
       const filename = `asset-${index + 1}.png`;
       const diskPath = path.join(outputDir, filename);
-      const publicPath = `/generated/removebg/samsung-s90f/${filename}`;
+      const publicPath = `/generated/removebg/${cacheNamespace}/${filename}`;
 
       if (await fileExists(diskPath)) {
         return {
@@ -125,7 +145,7 @@ async function removeBackgroundForExtractedAssets(assets: ProductAsset[]): Promi
         body: form,
       });
 
-      if (!response.ok) return normalizeAssetBackgroundFlag(asset);
+      if (!response.ok) return normalizeAssetMetadata(asset);
 
       const buffer = Buffer.from(await response.arrayBuffer());
       await writeFile(diskPath, buffer);
@@ -140,32 +160,84 @@ async function removeBackgroundForExtractedAssets(assets: ProductAsset[]): Promi
   );
 }
 
-function normalizeAssetBackgroundFlag(asset: ProductAsset): ProductAsset {
+function normalizeAssetMetadata(asset: ProductAsset): ProductAsset {
   const looksBackgroundRemoved =
     asset.bgRemoved === true ||
     asset.src.includes("/generated/removebg/") ||
     asset.name.toLowerCase().includes("bg removed");
+  const caption = asset.caption || deterministicAssetCaption(asset);
 
   return {
     ...asset,
     bgRemoved: looksBackgroundRemoved,
+    caption,
+    semanticGroup: asset.semanticGroup || semanticGroupFromAsset({ ...asset, caption }),
   };
 }
 
-async function cacheSectionComponentAssets(components: SectionComponentSignal[]): Promise<ProductAsset[]> {
+function deterministicAssetCaption(asset: ProductAsset) {
+  const haystack = `${asset.id} ${asset.name} ${asset.alt} ${asset.src}`.toLowerCase();
+  if (asset.mediaType === "video") return `${asset.name} motion clip`;
+  if (haystack.includes("g-sync") || haystack.includes("gsync")) return "NVIDIA G-SYNC gaming visual";
+  if (haystack.includes("free-sync") || haystack.includes("freesync")) return "AMD FreeSync gaming visual";
+  if (haystack.includes("gaming") || haystack.includes("gamer")) return "gaming performance lifestyle scene";
+  if (haystack.includes("soccer")) return "AI soccer mode sports scene";
+  if (haystack.includes("dog") || haystack.includes("pet") || haystack.includes("girl")) return "AI upscaling lifestyle scene";
+  if (haystack.includes("processor")) return "AI processor chip graphic";
+  if (haystack.includes("upscaling")) return "colorful racing car upscaling scene";
+  if (haystack.includes("glare")) return "glare-free HDR comparison scene";
+  if (haystack.includes("hdr")) return "OLED contrast and brightness TV scene";
+  if (haystack.includes("motion") || haystack.includes("xcelerator")) return "fast motion clarity visual";
+  if (haystack.includes("port")) return "TV ports and rear detail";
+  if (haystack.includes("side")) return "thin TV side profile cutout";
+  if (haystack.includes("perspective")) return "angled TV product cutout";
+  if (haystack.includes("front")) return "front TV product cutout";
+  return asset.alt || asset.name;
+}
+
+function semanticGroupFromAsset(asset: Pick<ProductAsset, "caption" | "id" | "kind" | "name" | "alt" | "src">) {
+  const caption = `${asset.caption || ""} ${asset.id} ${asset.name} ${asset.alt} ${asset.src}`.toLowerCase();
+  if (caption.includes("g-sync") || caption.includes("gsync") || caption.includes("gaming") || caption.includes("gamer")) {
+    return "gaming-performance";
+  }
+  if (caption.includes("free-sync") || caption.includes("freesync")) return "gaming-freesync";
+  if (caption.includes("soccer")) return "sports-soccer";
+  if (caption.includes("dog") || caption.includes("pet") || caption.includes("girl") || caption.includes("person")) {
+    return "ai-upscaling-lifestyle";
+  }
+  if (caption.includes("processor") || caption.includes("chip")) return "processor-chip";
+  if (caption.includes("motion") || caption.includes("xcelerator")) return "motion-clarity";
+  if (caption.includes("racing") || caption.includes("car") || caption.includes("upscaling")) return "upscaling-racing";
+  if (caption.includes("glare")) return "glare-free-hdr";
+  if (caption.includes("hdr") || caption.includes("oled") || caption.includes("brightness") || caption.includes("contrast")) return "oled-picture-quality";
+  if (caption.includes("port")) return "product-ports";
+  if (caption.includes("side profile") || caption.includes("side")) return "product-side";
+  if (caption.includes("perspective") || caption.includes("angled")) return "product-perspective";
+  if (caption.includes("front") || caption.includes("product cutout")) return "product-front";
+  return `${asset.kind}-${asset.id}`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+async function cacheSectionComponentAssets(
+  components: SectionComponentSignal[],
+  cacheNamespace: string,
+): Promise<ProductAsset[]> {
   if (!components.length) return [];
 
-  const outputDir = path.join(process.cwd(), "public", "generated", "sections", "samsung-s90f");
+  const outputDir = path.join(process.cwd(), "public", "generated", "sections", cacheNamespace);
   await mkdir(outputDir, { recursive: true });
 
   const assets: Array<ProductAsset | null> = await Promise.all(
     components.map(async (component, index) => {
-      const baseName = `${String(index + 1).padStart(2, "0")}-${component.id}`;
+      const sourceHash = createHash("sha1").update(component.src).digest("hex").slice(0, 8);
+      const baseName = `${String(index + 1).padStart(2, "0")}-${component.id}-${sourceHash}`;
       const fullFilename = `${baseName}-full.jpg`;
       const visualFilename = `${baseName}-visual.jpg`;
       const fullDiskPath = path.join(outputDir, fullFilename);
       const visualDiskPath = path.join(outputDir, visualFilename);
-      const visualPublicPath = `/generated/sections/samsung-s90f/${visualFilename}`;
+      const visualPublicPath = `/generated/sections/${cacheNamespace}/${visualFilename}`;
+      const tileName = component.title.toLowerCase().endsWith("visual")
+        ? `${component.title} tile`
+        : `${component.title} visual tile`;
 
       if (!(await fileExists(fullDiskPath))) {
         const response = await fetch(component.src);
@@ -180,7 +252,7 @@ async function cacheSectionComponentAssets(components: SectionComponentSignal[])
 
       return {
         id: component.id,
-        name: `${component.title} visual tile`,
+        name: tileName,
         src: visualPublicPath,
         alt: component.alt || component.title,
         provenance: "verified" as const,
@@ -194,10 +266,18 @@ async function cacheSectionComponentAssets(components: SectionComponentSignal[])
     path.join(outputDir, "section-components.json"),
     JSON.stringify(
       components.map((component, index) => ({
+        cachedSrc: `/generated/sections/${cacheNamespace}/${String(index + 1).padStart(2, "0")}-${component.id}-${createHash("sha1")
+          .update(component.src)
+          .digest("hex")
+          .slice(0, 8)}-visual.jpg`,
+        sourceFullCardSrc: `/generated/sections/${cacheNamespace}/${String(index + 1).padStart(2, "0")}-${component.id}-${createHash(
+          "sha1",
+        )
+          .update(component.src)
+          .digest("hex")
+          .slice(0, 8)}-full.jpg`,
         captionRemoved: true,
         ...component,
-        cachedSrc: `/generated/sections/samsung-s90f/${String(index + 1).padStart(2, "0")}-${component.id}-visual.jpg`,
-        sourceFullCardSrc: `/generated/sections/samsung-s90f/${String(index + 1).padStart(2, "0")}-${component.id}-full.jpg`,
         editableRecreation: {
           type: "feature-card",
           title: component.title,
@@ -214,10 +294,10 @@ async function cacheSectionComponentAssets(components: SectionComponentSignal[])
   return assets.filter((asset): asset is ProductAsset => asset !== null);
 }
 
-async function cacheVideoAssets(videos: VideoSignal[]): Promise<ProductAsset[]> {
+async function cacheVideoAssets(videos: VideoSignal[], cacheNamespace: string): Promise<ProductAsset[]> {
   if (!videos.length) return [];
 
-  const outputDir = path.join(process.cwd(), "public", "generated", "videos", "samsung-s90f");
+  const outputDir = path.join(process.cwd(), "public", "generated", "videos", cacheNamespace);
   await mkdir(outputDir, { recursive: true });
 
   const assets: Array<ProductAsset | null> = await Promise.all(
@@ -225,7 +305,7 @@ async function cacheVideoAssets(videos: VideoSignal[]): Promise<ProductAsset[]> 
       const sourceFilename = video.src.split("/").pop()?.split("?")[0] || `${video.id}.mp4`;
       const filename = `${String(index + 1).padStart(2, "0")}-${sourceFilename.replace(/[^a-z0-9.-]/gi, "-")}`;
       const diskPath = path.join(outputDir, filename);
-      const publicPath = `/generated/videos/samsung-s90f/${filename}`;
+      const publicPath = `/generated/videos/${cacheNamespace}/${filename}`;
 
       if (!(await fileExists(diskPath))) {
         const response = await fetch(video.src);
@@ -254,7 +334,7 @@ async function cacheVideoAssets(videos: VideoSignal[]): Promise<ProductAsset[]> 
     JSON.stringify(
       videos.slice(0, 6).map((video, index) => ({
         ...video,
-        cachedSrc: `/generated/videos/samsung-s90f/${String(index + 1).padStart(2, "0")}-${
+        cachedSrc: `/generated/videos/${cacheNamespace}/${String(index + 1).padStart(2, "0")}-${
           video.src.split("/").pop()?.split("?")[0]?.replace(/[^a-z0-9.-]/gi, "-") || `${video.id}.mp4`
         }`,
       })),
@@ -291,8 +371,117 @@ async function fileExists(filePath: string) {
   );
 }
 
+async function loadCsvImageManifest(productHints: SamsungProductHints): Promise<CsvImageManifest | null> {
+  const manifestPath = path.join(process.cwd(), "generated", `demo-image-map-${productHints.cacheNamespace}.csv`);
+  if (!(await fileExists(manifestPath))) return null;
+
+  const rows = parseCsv(await readFile(manifestPath, "utf8"));
+  const assets = rows
+    .map((row): ProductAsset | null => {
+      const kind = normalizeAssetKind(row.kind);
+      const src = row.public_path?.trim();
+      if (!kind || !src) return null;
+
+      return normalizeAssetMetadata({
+        id: row.asset_id?.trim() || `${kind}-${createHash("sha1").update(src).digest("hex").slice(0, 8)}`,
+        name: row.name?.trim() || row.caption?.trim() || row.alt?.trim() || "Demo image asset",
+        src,
+        alt: row.alt?.trim() || row.caption?.trim() || row.name?.trim() || "Demo image asset",
+        provenance: "verified",
+        kind,
+        bgRemoved: row.bg_removed?.trim().toLowerCase() === "true",
+        caption: row.caption?.trim() || undefined,
+        semanticGroup: row.semantic_group?.trim() || undefined,
+      });
+    })
+    .filter((asset): asset is ProductAsset => asset !== null);
+
+  return assets.length ? { assets, path: path.relative(process.cwd(), manifestPath) } : null;
+}
+
+function normalizeAssetKind(value: string | undefined): ProductAsset["kind"] | null {
+  if (value === "hero" || value === "gallery" || value === "section" || value === "generated" || value === "upload") {
+    return value;
+  }
+  return null;
+}
+
+function parseCsv(source: string) {
+  const rows: string[][] = [];
+  let field = "";
+  let row: string[] = [];
+  let quoted = false;
+
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index];
+    const next = source[index + 1];
+
+    if (quoted) {
+      if (char === '"' && next === '"') {
+        field += '"';
+        index += 1;
+      } else if (char === '"') {
+        quoted = false;
+      } else {
+        field += char;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      quoted = true;
+    } else if (char === ",") {
+      row.push(field);
+      field = "";
+    } else if (char === "\n") {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else if (char !== "\r") {
+      field += char;
+    }
+  }
+
+  if (field || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+
+  const [header, ...body] = rows;
+  if (!header) return [];
+
+  return body
+    .filter((values) => values.some((value) => value.trim()))
+    .map((values) =>
+      Object.fromEntries(header.map((key, index) => [key, values[index] || ""])) as Record<string, string>,
+    );
+}
+
+function getSamsungProductHints(url: string): SamsungProductHints {
+  const parsed = new URL(url);
+  const slug = parsed.pathname
+    .split("/")
+    .filter(Boolean)
+    .at(-1)
+    ?.toLowerCase()
+    .replace(/\.html$/, "");
+  const sku = slug?.match(/sku-([a-z0-9]+)/i)?.[1]?.toLowerCase();
+  const series = slug?.match(/s\d{2}[a-z]?/i)?.[0]?.toLowerCase();
+  const cacheNamespace = (sku || series || slug || "samsung-product").replace(/[^a-z0-9-]+/g, "-");
+  const tokens = Array.from(new Set([sku, series, slug?.replace(/-/g, ""), slug].filter((token): token is string => Boolean(token))));
+
+  return {
+    cacheNamespace,
+    sku,
+    series,
+    tokens,
+  };
+}
+
 async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
   const browser = await chromium.launch({ headless: true });
+  const productHints = getSamsungProductHints(url);
 
   try {
     const page = await browser.newPage({
@@ -306,7 +495,7 @@ async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
       await page.waitForTimeout(250);
     }
 
-    return await page.evaluate(() => {
+    return await page.evaluate((hints) => {
       const text = document.body.innerText;
       const title =
         document.querySelector("h1")?.textContent?.trim() ||
@@ -320,38 +509,159 @@ async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
         "Samsung Vision AI",
       ];
       const highlights = highlightLabels.filter((label) => text.includes(label));
-      const images = Array.from(document.images)
-        .map((image) => ({
-          src: image.currentSrc || image.src,
-          alt: image.alt || "",
-          width: image.naturalWidth,
-          height: image.naturalHeight,
-        }))
-        .filter((image) => image.src && /^https?:/.test(image.src));
+      const normalizeUrl = (value: string) => {
+        try {
+          return new URL(value.replace(/&amp;/g, "&"), location.href).href;
+        } catch {
+          return "";
+        }
+      };
+      const srcsetUrls = (value: string | null) =>
+        (value || "")
+          .split(",")
+          .map((entry) => normalizeUrl(entry.trim().split(/\s+/)[0] || ""))
+          .filter(Boolean);
+      const imageUrlsFromText = (value: string) =>
+        Array.from(value.matchAll(/https?:[^"'<>\\\s]+?\.(?:png|jpe?g|webp|avif)(?:\?[^"'<>\\\s]*)?/gi), (match) =>
+          normalizeUrl(match[0]),
+        ).filter(Boolean);
+      const candidates = new Map<
+        string,
+        { src: string; alt: string; height: number; source: string; width: number }
+      >();
+      const addCandidate = (src: string, alt: string, width = 0, height = 0, source = "dom") => {
+        const normalized = normalizeUrl(src);
+        if (!normalized || !/^https?:/.test(normalized)) return;
+        const existing = candidates.get(normalized);
+        const next = {
+          src: normalized,
+          alt: alt.trim(),
+          width,
+          height,
+          source,
+        };
+        if (!existing || next.width * next.height > existing.width * existing.height || next.alt.length > existing.alt.length) {
+          candidates.set(normalized, {
+            ...next,
+            alt: next.alt || existing?.alt || "",
+            width: Math.max(next.width, existing?.width || 0),
+            height: Math.max(next.height, existing?.height || 0),
+          });
+        }
+      };
+      const imageAttributes = [
+        "src",
+        "currentSrc",
+        "data-src",
+        "data-desktop-src",
+        "data-mobile-src",
+        "data-image-src",
+        "data-img-src",
+        "data-srcset",
+        "data-desktop-srcset",
+      ];
+      Array.from(document.querySelectorAll("img,picture source,[data-src],[data-desktop-src],[data-mobile-src],[data-srcset]")).forEach((node) => {
+        const element = node as HTMLImageElement;
+        const alt =
+          element.alt ||
+          element.getAttribute("aria-label") ||
+          element.getAttribute("title") ||
+          element.closest("section,li,div")?.textContent?.slice(0, 180) ||
+          "";
+        imageAttributes.forEach((attribute) => {
+          const value = attribute === "currentSrc" && "currentSrc" in element ? element.currentSrc : element.getAttribute(attribute);
+          if (!value) return;
+          if (attribute.toLowerCase().includes("srcset")) {
+            srcsetUrls(value).forEach((src) => addCandidate(src, alt, element.naturalWidth, element.naturalHeight, attribute));
+            return;
+          }
+          addCandidate(value, alt, element.naturalWidth, element.naturalHeight, attribute);
+        });
+        srcsetUrls(element.getAttribute("srcset")).forEach((src) =>
+          addCandidate(src, alt, element.naturalWidth, element.naturalHeight, "srcset"),
+        );
+      });
+      Array.from(document.querySelectorAll<HTMLElement>("*"))
+        .slice(0, 2000)
+        .forEach((node) => {
+          const background = window.getComputedStyle(node).backgroundImage;
+          if (!background || background === "none") return;
+          Array.from(background.matchAll(/url\(["']?([^"')]+)["']?\)/g)).forEach((match) => {
+            addCandidate(match[1], node.textContent?.slice(0, 180) || "", node.offsetWidth, node.offsetHeight, "css-background");
+          });
+        });
+      imageUrlsFromText(document.documentElement.innerHTML).forEach((src) => addCandidate(src, "", 0, 0, "html"));
+
+      const images = Array.from(candidates.values()).filter((image) => image.src.includes("images.samsung.com"));
+      const isProductGalleryImage = (haystack: string) =>
+        [" front ", "front-", "l-perspective", "perspective", "l-side", " side ", "ports", "dimension"].some((token) =>
+          haystack.includes(token),
+        );
+      const isUsableProductAsset = (image: { alt: string; src: string }) => {
+        const haystack = `${image.src} ${image.alt}`.toLowerCase();
+        if (haystack.includes("thumbnail") || haystack.includes("badge") || haystack.includes("logo")) return false;
+        if (haystack.includes("/wmn-") || haystack.includes("wall-mount")) return false;
+        if (/product image \d/.test(haystack)) return false;
+        return true;
+      };
       const productImages = images
         .filter((image) => {
           const haystack = `${image.src} ${image.alt}`.toLowerCase();
-          return haystack.includes("qn77s90fafxza") || haystack.includes("oled-s90f") || haystack.includes("s90f");
+          return hints.tokens.some((token) => haystack.includes(token)) && isProductGalleryImage(haystack) && isUsableProductAsset(image);
         })
         .sort((a, b) => b.width * b.height - a.width * a.height)
-        .map((image) => image.src);
+        .map((image, index) => ({
+          src: image.src,
+          alt: image.alt,
+          role: index === 0 ? "product" : "gallery",
+          title: index === 0 ? "Live product image" : `Live gallery image ${index + 1}`,
+        }));
+      const isRelevantVisual = (image: { alt: string; height: number; src: string; width: number }) => {
+        const haystack = `${image.src} ${image.alt}`.toLowerCase();
+        return (
+          hints.tokens.some((token) => haystack.includes(token)) ||
+          [
+            "processor",
+            "upscaling",
+            "glare",
+            "hdr",
+            "motion",
+            "xcelerator",
+            "gaming",
+            "g-sync",
+            "gsync",
+            "free-sync",
+            "freesync",
+            "soccer",
+            "lifestyle",
+            "dog",
+            "girl",
+            "gamer",
+          ].some((token) => haystack.includes(token))
+        );
+      };
       const featureSpecs = [
         { id: "section-processor", title: "NQ4 AI Gen3 Processor", keywords: ["processor", "nq4"] },
         { id: "section-upscaling", title: "4K AI Upscaling Pro", keywords: ["upscaling"] },
         { id: "section-hdr", title: "OLED HDR+", keywords: ["hdr"] },
         { id: "section-motion", title: "Motion Xcelerator 144Hz", keywords: ["motion", "xcelerator"] },
+        { id: "section-gaming", title: "Ultimate Gaming Pack", keywords: ["gaming", "gamer", "g-sync", "gsync", "free-sync", "freesync"] },
+        { id: "section-soccer", title: "AI Soccer Mode Pro", keywords: ["soccer"] },
       ];
+      const selectedFeatureSrcs = new Set<string>();
       const sectionComponents = featureSpecs.flatMap((spec) => {
         const image = images.find((candidate) => {
+          if (selectedFeatureSrcs.has(candidate.src)) return false;
           const haystack = `${candidate.src} ${candidate.alt}`.toLowerCase();
           return (
-            haystack.includes("qn77s90fafxza") &&
             spec.keywords.some((keyword) => haystack.includes(keyword)) &&
-            candidate.width >= 1000
+            (hints.tokens.some((token) => haystack.includes(token)) || candidate.src.includes("/feature/")) &&
+            (candidate.width >= 500 || candidate.height >= 300 || candidate.source === "html")
           );
         });
 
         if (!image) return [];
+        selectedFeatureSrcs.add(image.src);
 
         return [
           {
@@ -363,6 +673,34 @@ async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
           },
         ];
       });
+      const usedSectionSrcs = new Set(sectionComponents.map((component) => component.src));
+      const titleForVisual = (image: { alt: string; src: string }) => {
+        const haystack = `${image.src} ${image.alt}`.toLowerCase();
+        if (haystack.includes("g-sync") || haystack.includes("gsync")) return "NVIDIA G-SYNC gaming";
+        if (haystack.includes("free-sync") || haystack.includes("freesync")) return "AMD FreeSync gaming";
+        if (haystack.includes("gaming") || haystack.includes("gamer")) return "Ultimate Gaming Pack";
+        if (haystack.includes("soccer")) return "AI Soccer Mode Pro";
+        if (haystack.includes("dog") || haystack.includes("girl") || haystack.includes("pet")) return "AI upscaling lifestyle";
+        if (haystack.includes("lifestyle")) return "Lifestyle TV";
+        return image.alt?.slice(0, 80) || "Samsung feature visual";
+      };
+      const extraSectionComponents = images
+        .filter((image) => {
+          if (usedSectionSrcs.has(image.src)) return false;
+          if (!isUsableProductAsset(image)) return false;
+          const haystack = `${image.src} ${image.alt}`.toLowerCase();
+          if (isProductGalleryImage(haystack)) return false;
+          return isRelevantVisual(image) && (image.width >= 500 || image.height >= 300 || image.source === "html");
+        })
+        .sort((a, b) => b.width * b.height - a.width * a.height)
+        .slice(0, 12)
+        .map((image, index) => ({
+          id: `section-extra-${index + 1}`,
+          title: titleForVisual(image),
+          src: image.src,
+          alt: image.alt || titleForVisual(image),
+          extraction: "dom-image" as const,
+        }));
       const videoUrls = new Set<string>();
       const videoAttributes = [
         "src",
@@ -465,8 +803,8 @@ async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
         price: prices[0],
         previousPrice: prices.find((price) => price !== prices[0]),
         highlights,
-        images: Array.from(new Set(productImages)).slice(0, 6),
-        sectionComponents,
+        images: productImages.slice(0, 6),
+        sectionComponents: [...sectionComponents, ...extraSectionComponents],
         videos: videos.slice(0, 6),
         design: {
           fonts: Array.from(fonts).slice(0, 12),
@@ -476,7 +814,7 @@ async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
           source: "live-cssom" as const,
         },
       };
-    });
+    }, productHints);
   } finally {
     await browser.close();
   }
@@ -484,29 +822,28 @@ async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
 
 async function mergeScrapeIntoFixture(scrape: ScrapeResult, url: string): Promise<ProductExtraction> {
   const base = fixture as ProductExtraction;
-  const liveAssets =
-    scrape.images.length > 0
-      ? scrape.images.slice(0, 4).map((src, index) => ({
-          id: `asset-live-${index + 1}`,
-          name: index === 0 ? "Live product image" : `Live gallery image ${index + 1}`,
-          src,
-          alt: `${scrape.title} image ${index + 1}`,
-          provenance: "verified" as const,
-          kind: index === 0 ? ("hero" as const) : ("gallery" as const),
-          bgRemoved: false,
-        }))
-      : base.assets;
-  const bgRemovedAssets = (await removeBackgroundForExtractedAssets(liveAssets)).map(normalizeAssetBackgroundFlag);
-  const sectionAssets = await cacheSectionComponentAssets(scrape.sectionComponents);
-  const videoAssets = await cacheVideoAssets(scrape.videos);
+  const productHints = getSamsungProductHints(url);
+  const csvManifest = await loadCsvImageManifest(productHints);
+  const imageAssets = csvManifest?.assets || (await buildLiveImageAssets(scrape, productHints, base));
+  const videoAssets = await cacheVideoAssets(scrape.videos, productHints.cacheNamespace);
+  const assets = await captionAssetsWithOpenAI([...imageAssets, ...videoAssets].map(normalizeAssetMetadata));
+  const model = productHints.sku?.toUpperCase() || base.model;
 
   return {
     ...base,
     url,
     name: scrape.title || base.name,
+    model,
     price: scrape.price || base.price,
     previousPrice: scrape.previousPrice || base.previousPrice,
-    assets: [...bgRemovedAssets, ...sectionAssets, ...videoAssets],
+    facts: mergeLiveFacts(base, {
+      model,
+      price: scrape.price,
+      previousPrice: scrape.previousPrice,
+      title: scrape.title,
+      highlights: scrape.highlights,
+    }),
+    assets,
     designSystem: buildDesignSystem({
       productName: scrape.title || base.name,
       sourceUrl: url,
@@ -517,9 +854,59 @@ async function mergeScrapeIntoFixture(scrape: ScrapeResult, url: string): Promis
     extractedAt: new Date().toISOString(),
     notes: [
       "Live Playwright scrape completed.",
+      csvManifest ? `CSV image manifest loaded from ${csvManifest.path}.` : "CSV image manifest missing; live image extraction used.",
       "OpenAI normalization is skipped unless OPENAI_API_KEY is set.",
     ],
   };
+}
+
+async function buildLiveImageAssets(
+  scrape: ScrapeResult,
+  productHints: SamsungProductHints,
+  base: ProductExtraction,
+): Promise<ProductAsset[]> {
+  const liveAssets =
+    scrape.images.length > 0
+      ? scrape.images.slice(0, 4).map((image, index) => ({
+          id: `asset-live-${index + 1}`,
+          name: image.title,
+          src: image.src,
+          alt: image.alt || `${scrape.title} image ${index + 1}`,
+          provenance: "verified" as const,
+          kind: index === 0 ? ("hero" as const) : ("gallery" as const),
+          bgRemoved: false,
+          caption: image.alt || image.title,
+          semanticGroup: `product-${image.role}-${index + 1}`,
+        }))
+      : base.assets;
+  const bgRemovedAssets = (await removeBackgroundForExtractedAssets(liveAssets, productHints.cacheNamespace)).map(normalizeAssetMetadata);
+  const sectionAssets = await cacheSectionComponentAssets(scrape.sectionComponents, productHints.cacheNamespace);
+
+  return [...bgRemovedAssets, ...sectionAssets];
+}
+
+function mergeLiveFacts(
+  base: ProductExtraction,
+  live: {
+    highlights: string[];
+    model: string;
+    previousPrice?: string;
+    price?: string;
+    title: string;
+  },
+) {
+  const highlightByLabel = (label: string) => live.highlights.find((highlight) => highlight.toLowerCase().includes(label));
+  return base.facts.map((fact) => {
+    if (fact.id === "fact-model") return { ...fact, value: live.model };
+    if (fact.id === "fact-price" && live.price) return { ...fact, value: live.price };
+    if (fact.id === "fact-previous-price" && live.previousPrice) return { ...fact, value: live.previousPrice };
+    if (fact.id === "fact-smart-platform") return { ...fact, value: live.title.includes("Samsung Vision AI") ? "Samsung Vision AI Smart TV" : fact.value };
+    if (fact.id === "fact-processor") return { ...fact, value: highlightByLabel("processor") || fact.value };
+    if (fact.id === "fact-upscaling") return { ...fact, value: highlightByLabel("upscaling") || fact.value };
+    if (fact.id === "fact-hdr") return { ...fact, value: highlightByLabel("hdr") || fact.value };
+    if (fact.id === "fact-motion") return { ...fact, value: highlightByLabel("motion") || fact.value };
+    return fact;
+  });
 }
 
 async function attachDesignSystem(extraction: ProductExtraction): Promise<ProductExtraction> {
@@ -714,6 +1101,90 @@ function parseRgb(color: string): [number, number, number] | null {
   if (!hex) return null;
   const raw = hex[1];
   return [Number.parseInt(raw.slice(0, 2), 16), Number.parseInt(raw.slice(2, 4), 16), Number.parseInt(raw.slice(4, 6), 16)];
+}
+
+const AssetCaptionsSchema = z.object({
+  assets: z.array(
+    z.object({
+      id: z.string(),
+      caption: z.string(),
+      semanticGroup: z.string(),
+    }),
+  ),
+});
+
+async function captionAssetsWithOpenAI(assets: ProductAsset[]): Promise<ProductAsset[]> {
+  if (!process.env.OPENAI_API_KEY || assets.length === 0) return assets;
+
+  try {
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const response = await client.responses.create({
+      model: "gpt-5.4-mini-2026-03-17",
+      input: [
+        {
+          role: "system",
+          content:
+            "Caption product-page image assets for layout diversity. Return concise visible-scene captions and stable semanticGroup keys. Similar or duplicate-looking images must share the same semanticGroup. Do not invent product claims.",
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            assets: assets.map(({ id, name, alt, src, kind, mediaType, bgRemoved, caption, semanticGroup }) => ({
+              id,
+              name,
+              alt,
+              src,
+              kind,
+              mediaType,
+              bgRemoved,
+              currentCaption: caption,
+              currentSemanticGroup: semanticGroup,
+            })),
+          }),
+        },
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "asset_captions",
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            required: ["assets"],
+            properties: {
+              assets: {
+                type: "array",
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["id", "caption", "semanticGroup"],
+                  properties: {
+                    id: { type: "string" },
+                    caption: { type: "string" },
+                    semanticGroup: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const parsed = AssetCaptionsSchema.safeParse(JSON.parse(response.output_text));
+    if (!parsed.success) return assets;
+    const byId = new Map(parsed.data.assets.map((asset) => [asset.id, asset]));
+    return assets.map((asset) => {
+      const captioned = byId.get(asset.id);
+      if (!captioned) return asset;
+      return {
+        ...asset,
+        caption: captioned.caption,
+        semanticGroup: captioned.semanticGroup.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      };
+    });
+  } catch {
+    return assets;
+  }
 }
 
 async function normalizeWithOpenAI(extraction: ProductExtraction): Promise<ProductExtraction> {

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:editor-interactions": "node scripts/assert-editor-interactions.mjs",
     "test:template-composition": "tsx scripts/assert-template-composition.ts",
+    "test:url-specific-extraction": "node scripts/assert-url-specific-extraction.mjs",
     "test:section-crops": "node scripts/assert-section-crops.mjs",
     "test:video-extraction": "node scripts/assert-video-extraction.mjs"
   },

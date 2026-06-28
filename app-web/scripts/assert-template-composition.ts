@@ -6,13 +6,16 @@ import {
   CUTOUT_IMAGE_TYPE,
   GLASS_CARD_TYPE,
   GLASS_TEXT_TYPE,
-} from "../lib/tldraw/shapes/fridgeframe-shapes";
+} from "../lib/tldraw/shapes/adframe-shapes";
 
 const DARK_TONES = new Set(["tile", "ink", "frost", "clear", "accent"]);
 const LIGHT_TONES = new Set(["paper", "orange"]);
 const preset = EXPORT_PRESETS[0];
 const product = fixture as ProductExtraction;
 const assetsWithoutBackgroundFlag = product.assets.filter((asset) => typeof asset.bgRemoved !== "boolean");
+const imageAssetsWithoutCaptionGroup = product.assets.filter(
+  (asset) => asset.mediaType !== "video" && (!asset.caption?.trim() || !asset.semanticGroup?.trim()),
+);
 
 const shapes = composeMainCanvasTemplate(product, preset, "cinema-mosaic");
 const appleShapes = composeMainCanvasTemplate(product, preset, "apple-infographic");
@@ -53,6 +56,12 @@ const verifiedBadges = shapes.filter((shape) => {
 if (assetsWithoutBackgroundFlag.length > 0) {
   throw new Error(
     `Every extracted fixture asset must include an explicit bgRemoved boolean. Missing: ${assetsWithoutBackgroundFlag.map((asset) => asset.id).join(", ")}`,
+  );
+}
+
+if (imageAssetsWithoutCaptionGroup.length > 0) {
+  throw new Error(
+    `Every extracted fixture image asset must include caption and semanticGroup. Missing: ${imageAssetsWithoutCaptionGroup.map((asset) => asset.id).join(", ")}`,
   );
 }
 
@@ -110,19 +119,18 @@ const appleFrame = appleShapes.find((shape) => shape.type === "frame");
 const appleBackgrounds = appleShapes.filter((shape) => shape.type === CANVAS_BG_TYPE);
 const appleImages = appleShapes.filter((shape) => shape.type === CUTOUT_IMAGE_TYPE);
 const appleCards = appleShapes.filter((shape) => shape.type === GLASS_CARD_TYPE);
+const hasAppleShape = (idFragment: string) => appleShapes.some((shape) => String(shape.id).includes(idFragment));
 const appleHero = appleImages.find((shape) => String(shape.id).includes("apple-hero"));
 const appleTopLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-left-asset"));
-const appleTopRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-right-asset"));
-const appleMiddleLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-middle-left-asset"));
-const appleMiddleRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-middle-right-asset"));
+const appleTopAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-asset"));
+const appleTopCopy = appleCards.find((shape) => String(shape.id).includes("apple-top-copy"));
+const appleSecondCopy = appleCards.find((shape) => String(shape.id).includes("apple-second-copy"));
 const appleHeroSideAsset = appleImages.find((shape) => String(shape.id).includes("apple-hero-side-asset"));
-const appleBottomLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-left-asset"));
 const appleBottomCenterAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-center-asset"));
-const appleBottomRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-right-asset"));
+const appleMiddleLeftCopy = appleCards.find((shape) => String(shape.id).includes("apple-middle-left-copy"));
 const appleMiddleCopyTiles = appleCards.filter((shape) => String(shape.id).includes("apple-middle-copy"));
 const appleBottomLeftCopy = appleCards.find((shape) => String(shape.id).includes("apple-bottom-left-copy"));
 const applePrice = appleCards.find((shape) => String(shape.id).includes("apple-price"));
-const appleBottomRightCopy = appleCards.find((shape) => String(shape.id).includes("apple-bottom-right-copy"));
 const appleVideos = appleImages.filter((shape) => {
   const props = shape.props as { src?: string };
   return props.src?.endsWith(".mp4");
@@ -150,8 +158,8 @@ if (!appleHero) {
   throw new Error("Expected Apple infographic preset to include a main hero image.");
 }
 
-if (appleImages.length < 9) {
-  throw new Error(`Expected dense Apple tile-board to include at least 9 image tiles including hero, got ${appleImages.length}`);
+if (appleImages.length < 8) {
+  throw new Error(`Expected Apple tile-board to include the available unique image scenes, got ${appleImages.length}`);
 }
 
 if (appleCards.length < 4) {
@@ -162,45 +170,80 @@ if (appleLightCards.length < 4) {
   throw new Error("Expected Apple infographic tiles to use light paper/orange tones.");
 }
 
-if (!appleTopLeftAsset || !appleTopRightAsset) {
-  throw new Error("Expected dense Apple tile-board to include two large top asset tiles.");
+const appleImageGroups = appleImages.map((shape) => {
+  const props = shape.props as { semanticGroup?: string };
+  return props.semanticGroup;
+});
+if (appleImageGroups.some((group) => !group)) {
+  throw new Error("Expected every Apple image tile to carry a semanticGroup for duplicate prevention.");
+}
+if (new Set(appleImageGroups).size !== appleImageGroups.length) {
+  throw new Error(`Expected Apple image tiles to avoid repeated semantic groups, got ${appleImageGroups.join(", ")}`);
+}
+
+if (!hasAppleShape("apple-top-left-asset") || !hasAppleShape("apple-top-asset") || !appleTopCopy) {
+  throw new Error("Expected dense Apple tile-board to include the sketch's tall top-left slot, top asset slot, and top-right copy tile.");
+}
+
+if (!appleSecondCopy || !hasAppleShape("apple-second-right-asset")) {
+  throw new Error("Expected dense Apple tile-board to include second-row copy plus right asset slot.");
 }
 
 if (!appleHeroSideAsset || !applePrice) {
   throw new Error("Expected dense Apple tile-board to include the sketch's right-side price/asset stack beside the main tile.");
 }
 
-if (!appleMiddleLeftAsset || !appleMiddleRightAsset) {
-  throw new Error("Expected dense Apple tile-board to include left/right middle asset tiles around the copy stack.");
+if (!hasAppleShape("apple-middle-left-asset") || !appleMiddleLeftCopy) {
+  throw new Error("Expected dense Apple tile-board to include the sketch's left asset/copy stack beside the main tile.");
 }
 
-if (!appleBottomLeftAsset || !appleBottomCenterAsset || !appleBottomRightAsset) {
-  throw new Error("Expected dense Apple tile-board to include bottom left, center, and right asset tiles.");
+if (!hasAppleShape("apple-bottom-left-asset") || !hasAppleShape("apple-bottom-center-asset") || !hasAppleShape("apple-bottom-right-asset") || !hasAppleShape("apple-footer-right-asset")) {
+  throw new Error("Expected dense Apple tile-board to include lower left/right slots plus footer center/right slots.");
 }
 
-if (appleMiddleCopyTiles.length < 2 || !appleBottomLeftCopy || !appleBottomRightCopy) {
-  throw new Error("Expected dense Apple tile-board to include middle stacked copy, bottom-left copy, and bottom-right copy/price.");
+if (appleMiddleCopyTiles.length < 2 || !appleBottomLeftCopy) {
+  throw new Error("Expected dense Apple tile-board to include middle stacked copy and footer-left copy.");
 }
 
+if (!appleTopLeftAsset || !appleTopAsset) {
+  throw new Error("Expected top-left and top asset slots to use image assets in the fixture.");
+}
+
+const topAssetProps = appleTopAsset.props as { w?: number };
+const topCopyProps = appleTopCopy.props as { w?: number };
 const topLeftProps = appleTopLeftAsset.props as { h?: number };
-const topRightProps = appleTopRightAsset.props as { h?: number };
-if (Math.abs((topLeftProps.h || 0) - (topRightProps.h || 0)) > 2 || Math.abs((appleTopLeftAsset.y || 0) - (appleTopRightAsset.y || 0)) > 2) {
-  throw new Error("Expected the two top asset tiles to form a balanced top row.");
+if ((topAssetProps.w || 0) <= (topCopyProps.w || 0) || (appleTopCopy.x || 0) <= ((appleTopAsset.x || 0) + (topAssetProps.w || 0)) || (topLeftProps.h || 0) <= 260) {
+  throw new Error("Expected the top area to place a tall left asset plus wide asset before compact copy.");
 }
 
 const heroProps = appleHero.props as { h?: number; w?: number };
 const priceProps = applePrice.props as { h?: number; w?: number };
-if ((heroProps.w || 0) < 650 || (heroProps.h || 0) < 300 || (applePrice.x || 0) <= ((appleHero.x || 0) + (heroProps.w || 0))) {
-  throw new Error("Expected the main tile to be a large left-side asset with price stacked on its right.");
+if ((heroProps.w || 0) < 500 || (heroProps.h || 0) < 300 || (applePrice.x || 0) <= ((appleHero.x || 0) + (heroProps.w || 0))) {
+  throw new Error("Expected the main tile to be centered between a left asset and right price stack.");
+}
+
+const middleLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-middle-left-asset"));
+const middleLeftAssetProps = middleLeftAsset?.props as { h?: number } | undefined;
+const middleLeftCopyProps = appleMiddleLeftCopy.props as { h?: number } | undefined;
+if (
+  !middleLeftAsset ||
+  (middleLeftAssetProps?.h || 0) >= (heroProps.h || 0) ||
+  Math.abs((middleLeftAssetProps?.h || 0) - (middleLeftCopyProps?.h || 0)) > 4
+) {
+  throw new Error("Expected the main-left column to split into similarly sized asset and copy tiles.");
 }
 
 if ((priceProps.w || 0) < 180 || (priceProps.h || 0) < 90) {
   throw new Error("Expected the price tile to be a compact right-side card beside the main asset.");
 }
 
+if (!appleBottomCenterAsset) {
+  throw new Error("Expected footer-center slot to use a dominant image asset in the fixture.");
+}
+
 const bottomCenterProps = appleBottomCenterAsset.props as { h?: number; w?: number };
-if ((bottomCenterProps.w || 0) < 500 || (bottomCenterProps.h || 0) < 300) {
-  throw new Error("Expected the bottom-center asset to be the dominant lower tile.");
+if ((bottomCenterProps.w || 0) < 560 || (bottomCenterProps.h || 0) < 240) {
+  throw new Error("Expected the footer-center asset to be the dominant bottom tile.");
 }
 
 if (appleVideos.length > 0) {

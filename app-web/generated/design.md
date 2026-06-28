@@ -1,11 +1,11 @@
-# Design — 77 Inch Class OLED S90F4K Samsung Vision AI Smart TV (2025)
+# Design — 77  Inch Class OLED S95H4K Samsung Vision AI Smart TV (2026)
 
 Locked product-page design system. Future AdFrame generations should read this file first and preserve the source page's brand DNA unless the user intentionally changes it.
 
 ## Provenance
-- Source · https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/
-- Product · 77 Inch Class OLED S90F4K Samsung Vision AI Smart TV (2025)
-- Generated · 2026-06-28T08:52:54.339Z
+- Source · https://www.samsung.com/us/tvs/oled-tv/77-inch-oled-4k-tv-s95h-sku-qn77s95hafxza/
+- Product · 77  Inch Class OLED S95H4K Samsung Vision AI Smart TV (2026)
+- Generated · 2026-06-28T17:13:15.743Z
 - Confidence · medium
 - Evidence · live-cssom
 

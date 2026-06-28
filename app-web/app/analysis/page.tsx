@@ -31,8 +31,7 @@ export default function AnalysisPage() {
   }
 
   function continueToCanvas() {
-    writeExtraction(extraction);
-    approveExtraction();
+    approveExtraction(extraction);
     router.push("/editor");
   }
 
@@ -156,7 +155,7 @@ export default function AnalysisPage() {
 
           <div className="panel liquid-glass">
             <div className="panel-inner">
-              <p className="section-label">Source images</p>
+              <p className="section-label">Source images ({extraction.assets.length})</p>
               <div className="grid gap-3 md:grid-cols-3">
                 {extraction.assets.map((asset) => (
                   <article className="asset-card" key={asset.id}>
