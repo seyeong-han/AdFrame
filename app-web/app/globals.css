@@ -33,6 +33,22 @@
   --panel: rgba(255, 255, 255, 0.055);
   --panel-strong: rgba(255, 255, 255, 0.105);
   --blue-glass: rgba(145, 172, 202, 0.18);
+
+  /* DESIGN.md — Apple-inspired tile infographic tokens */
+  --ig-bg: #000000;
+  --ig-surface: #0a0a0a;
+  --ig-surface-elevated: #111111;
+  --ig-surface-soft: #171717;
+  --ig-fg: #ffffff;
+  --ig-muted: #a3a3a3;
+  --ig-subtle: #737373;
+  --ig-tile-border: rgba(255, 255, 255, 0.1);
+  --ig-glass-highlight: rgba(255, 255, 255, 0.13);
+  --ig-glass-low: rgba(255, 255, 255, 0.035);
+  --ig-accent: #1677ff;
+  --ig-tile-radius: 40px;
+  --ig-shadow-tile: 0 24px 80px rgba(0, 0, 0, 0.45);
+  --ig-shadow-product: 0 40px 80px rgba(0, 0, 0, 0.6);
 }
 
 @theme inline {
@@ -402,43 +418,70 @@ select {
   display: none !important;
 }
 
+.infograph-canvas-bg {
+  width: 100%;
+  height: 100%;
+  background-color: var(--ig-bg);
+  background-image: radial-gradient(
+    circle at 50% 22%,
+    color-mix(in srgb, var(--brand-accent, var(--ig-accent)) 30%, transparent),
+    transparent 46%
+  );
+}
+
 .glass-card-shape {
   width: 100%;
   height: 100%;
   display: grid;
-  align-content: end;
+  align-content: center;
   gap: 9px;
-  padding: 20px;
-  border-radius: 30px;
-  color: #111;
-  border: 1px solid rgba(0,0,0,0.045);
-  box-shadow: 0 24px 54px rgba(18, 22, 28, 0.10);
+  padding: 24px;
+  border-radius: var(--ig-tile-radius);
+  color: var(--ig-fg);
+  background:
+    linear-gradient(145deg, var(--ig-glass-highlight), var(--ig-glass-low)),
+    var(--ig-surface-elevated);
+  border: 1px solid var(--ig-tile-border);
+  box-shadow: var(--ig-shadow-tile);
   overflow: hidden;
 }
 
 .glass-card-shape.frost {
-  background: #f2f2f0;
-  color: #111;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06)),
+    var(--ig-surface-soft);
+  color: var(--ig-fg);
 }
 
 .glass-card-shape.ink {
-  background: #151515;
-  color: #fff;
+  background: var(--ig-surface);
+  color: var(--ig-fg);
 }
 
 .glass-card-shape.clear {
-  background: rgba(246,246,244,0.86);
-  color: #111;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--ig-fg);
 }
 
 .glass-card-shape.tile {
-  background: #f3f3f1;
-  color: #121212;
+  background:
+    linear-gradient(145deg, var(--ig-glass-highlight), var(--ig-glass-low)),
+    var(--ig-surface-elevated);
+  color: var(--ig-fg);
 }
 
 .glass-card-shape.accent {
-  background: color-mix(in srgb, var(--brand-accent, #ff7a1a) 82%, #fff 18%);
-  color: var(--brand-accent-ink, #111);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--brand-accent, var(--ig-accent)) 30%, transparent),
+      color-mix(in srgb, var(--brand-accent, var(--ig-accent)) 6%, transparent)
+    ),
+    #0d0f14;
+  border-color: color-mix(in srgb, var(--brand-accent, var(--ig-accent)) 42%, transparent);
+  box-shadow: 0 0 80px color-mix(in srgb, var(--brand-accent, var(--ig-accent)) 28%, transparent);
+  color: var(--ig-fg);
 }
 
 .glass-card-title {
@@ -448,25 +491,27 @@ select {
   font-weight: 700;
   letter-spacing: -0.045em;
   line-height: 0.94;
+  color: var(--ig-fg);
 }
 
 .glass-card-body {
-  color: color-mix(in srgb, currentColor 66%, transparent);
+  color: var(--ig-muted);
   font-family: var(--brand-font-body, var(--font-body)), sans-serif;
   font-size: 14px;
   line-height: 1.28;
 }
 
 .adframe-display-text {
-  color: #111;
+  color: var(--ig-fg);
   font-family: var(--brand-font-display, var(--font-body)), system-ui, sans-serif;
   font-weight: 700;
   letter-spacing: -0.06em;
   line-height: 0.9;
+  text-wrap: balance;
 }
 
 .adframe-icon-glyph {
-  color: #111;
+  color: var(--ig-fg);
   font-family: var(--brand-font-body, var(--font-body)), system-ui, sans-serif;
   font-size: 30px;
   font-weight: 700;
@@ -485,7 +530,7 @@ select {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 30px 46px rgba(0,0,0,0.44));
+  filter: drop-shadow(var(--ig-shadow-product));
   -webkit-user-drag: none;
   user-select: none;
 }

@@ -12,6 +12,7 @@ import {
   Layers,
   Maximize2,
   RotateCcw,
+  RotateCw,
   Sparkles,
   WandSparkles,
 } from "lucide-react";
@@ -25,12 +26,12 @@ import {
 } from "tldraw";
 import { AppShell } from "@/components/AppChrome";
 import { ProvenanceChip } from "@/components/ProvenanceChip";
-import { downloadCarouselSlidesZip, downloadFrame, downloadPdfProof } from "@/lib/export";
+import { downloadCarouselFramesZip, downloadCarouselSlidesZip, downloadFrame, downloadPdfProof } from "@/lib/export";
 import { isExtractionApproved, readExtraction, useExtractionSnapshot } from "@/lib/client-store";
 import { removeBackgroundLocally } from "@/lib/segmentation";
 import { EXPORT_PRESETS, type ExportPreset, type ProductAsset, type ProductExtraction } from "@/lib/types";
 import { STYLE_PRESETS, type StylePreset } from "@/lib/presets";
-import { carouselSlides, composeAppleCleanTemplate } from "@/lib/tldraw/templates";
+import { CAROUSEL_FRAME_PREFIX, composeAppleCleanTemplate, composeCarouselSplitTemplate } from "@/lib/tldraw/templates";
 import {
   CUTOUT_IMAGE_TYPE,
   GLASS_CARD_TYPE,
@@ -56,6 +57,7 @@ type InspectorState = {
 
 const DEFAULT_PROMPT = "Premium product asset, preserve source product page typography, palette, and CTA style, no text";
 const ASSET_DRAG_TYPE = "application/x-adframe-asset-id";
+const ENABLE_CAROUSEL_FEATURES = false;
 
 export default function EditorPage() {
   const router = useRouter();
@@ -65,7 +67,6 @@ export default function EditorPage() {
   const [preset, setPreset] = useState<ExportPreset>(EXPORT_PRESETS[0]);
   const [selected, setSelected] = useState<InspectorState | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
-  const [carouselOpen, setCarouselOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
   const [safeMargins, setSafeMargins] = useState(true);
   const [busy, setBusy] = useState("");
@@ -314,13 +315,28 @@ export default function EditorPage() {
     if (!frame) return;
 
     if (format === "pdf") await downloadPdfProof(editor, frame.id, preset);
-    else if (format === "zip") await downloadCarouselSlidesZip(product);
-    else await downloadFrame(editor, frame.id, preset, format);
+    else if (format === "zip") {
+      const carouselFrameIds = getCarouselFrameIds(editor);
+      if (carouselFrameIds.length) await downloadCarouselFramesZip(editor, carouselFrameIds);
+      else await downloadCarouselSlidesZip(product);
+    } else await downloadFrame(editor, frame.id, preset, format);
 
     setBusy("");
   }
 
-  const slides = carouselSlides(product);
+  function generateCarouselSplit() {
+    if (!editor) return;
+    const existingCarouselShapes = editor
+      .getCurrentPageShapes()
+      .filter((shape) => String(shape.id).includes("carousel-"))
+      .map((shape) => shape.id);
+    if (existingCarouselShapes.length) editor.deleteShapes(existingCarouselShapes);
+
+    const { shapes, frameIds } = composeCarouselSplitTemplate(product, EXPORT_PRESETS[0]);
+    editor.createShapes(shapes);
+    if (frameIds[0]) editor.select(frameIds[0]);
+    setBusy(`Created ${frameIds.length} editable carousel slides`);
+  }
 
   return (
     <AppShell>
@@ -409,6 +425,7 @@ export default function EditorPage() {
                   ))}
                 </select>
                 <button
+                  aria-label="Undo"
                   className="btn ghost"
                   onClick={() => editor?.undo()}
                   title="Undo"
@@ -417,6 +434,16 @@ export default function EditorPage() {
                   <RotateCcw size={15} />
                 </button>
                 <button
+                  aria-label="Redo"
+                  className="btn ghost"
+                  onClick={() => editor?.redo()}
+                  title="Redo"
+                  type="button"
+                >
+                  <RotateCw size={15} />
+                </button>
+                <button
+                  aria-label="Duplicate selection"
                   className="btn ghost"
                   onClick={() => editor?.duplicateShapes(editor.getSelectedShapeIds())}
                   title="Duplicate selection"
@@ -470,10 +497,12 @@ export default function EditorPage() {
                   <Maximize2 size={15} />
                   Zoom to fit
                 </button>
-                <button className="btn ghost" onClick={() => setCarouselOpen(true)} type="button">
-                  <Layers size={15} />
-                  Carousel split
-                </button>
+                {ENABLE_CAROUSEL_FEATURES ? (
+                  <button className="btn ghost" onClick={generateCarouselSplit} type="button">
+                    <Layers size={15} />
+                    Carousel split
+                  </button>
+                ) : null}
                 <label className="btn ghost">
                   <ImagePlus size={15} />
                   Upload asset
@@ -652,7 +681,7 @@ export default function EditorPage() {
         <Modal title="Export social assets" onClose={() => setExportOpen(false)}>
           <div className="grid gap-3">
             <p className="text-sm leading-6 text-white/62">
-              Export the current frame as Instagram Feed, Story, PDF proof, or a ZIP bundle.
+              Export the current main canvas as Instagram Feed, Story, or PDF proof.
               {safeMargins
                 ? " Safe margins are preserved by the frame bounds."
                 : " Bleed mode exports the full frame without extra margin guides."}
@@ -697,30 +726,13 @@ export default function EditorPage() {
                 <FileText size={15} />
                 PDF proof
               </button>
-              <button className="btn ghost" onClick={() => exportActive("zip")} type="button">
-                <FileArchive size={15} />
-                Carousel ZIP (3-5 slides)
-              </button>
+              {ENABLE_CAROUSEL_FEATURES ? (
+                <button className="btn ghost" onClick={() => exportActive("zip")} type="button">
+                  <FileArchive size={15} />
+                  Carousel ZIP (3-5 slides)
+                </button>
+              ) : null}
             </div>
-          </div>
-        </Modal>
-      ) : null}
-
-      {carouselOpen ? (
-        <Modal title="Carousel split view" onClose={() => setCarouselOpen(false)}>
-          <div className="grid gap-3">
-            {slides.map((slide, index) => (
-              <article className="feature-row" key={slide.id}>
-                <div className="flex items-center justify-between">
-                  <span className="chip">Slide {index + 1}</span>
-                  <ProvenanceChip provenance={slide.provenance} />
-                </div>
-                <h3 className="mt-3 font-heading text-4xl leading-none tracking-[-.04em]">
-                  {slide.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-white/62">{slide.body}</p>
-              </article>
-            ))}
           </div>
         </Modal>
       ) : null}
@@ -788,4 +800,12 @@ function getAssetPlacement(asset: ProductAsset): {
   }
 
   return { fit: "contain", w: 460, h: 320 };
+}
+
+function getCarouselFrameIds(editor: Editor) {
+  return editor
+    .getCurrentPageShapes()
+    .filter((shape) => shape.type === "frame" && String(shape.id).includes(CAROUSEL_FRAME_PREFIX))
+    .sort((a, b) => a.x - b.x)
+    .map((shape) => shape.id);
 }

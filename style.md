@@ -1,68 +1,54 @@
-# AdFrame Style Guide
+# AdFrame Style Guide (implementation notes)
 
-Reusable visual rules for Apple-style product infographic layouts.
+The canonical design system is [`DESIGN.md`](./DESIGN.md) — Apple-Inspired Tile-Based Infographic System (dark canvas). This file maps that system onto the AdFrame editor implementation. When the two disagree, `DESIGN.md` wins.
 
-## Reference Breakdown
+## Posture
 
-The target style is not a generic collage. It is a disciplined product infographic grid:
+- **Dark, premium canvas.** Export canvas is pure black `#000000`; large dark-glass tiles (`#111111` + subtle white gradient); high-contrast **white** typography. No light/beige/peach backgrounds in the final infographic.
+- **Product first.** One dominant hero cutout with a single accent glow; section visuals become cover-cropped image tiles paired with editable feature copy.
+- **Restraint.** Accent color appears at most 2–3 times per canvas. Every tile must show an extracted asset, a verified spec, or an editable claim — never an empty tile.
 
-- **Canvas**: light warm-gray or white background, no heavy chrome, generous outer margin.
-- **Composition**: asymmetric grid of rounded tiles around one dominant product hero.
-- **Cards**: rounded rectangles with soft gray fill, large radius, almost no visible border, soft ambient shadow.
-- **Images**: cropped tightly and used as tile fills, not floating thumbnails. Visuals should occupy meaningful card area.
-- **Typography**: dark text on light cards; short labels; large numeric/spec moments when possible.
-- **Accent**: one strong brand/accent color, used sparingly for spec numbers, badges, or emphasis.
-- **Spacing**: consistent gutters; cards align to a shared grid; avoid accidental blank tiles.
-- **Content**: every tile must either show an extracted asset, a verified spec, or an editable feature claim.
+## Tone → tldraw mapping
 
-## Layout Rules
+| Tone (`GlassTone`) | Surface | Use |
+| --- | --- | --- |
+| `tile` | dark glass (`#111` + glass gradient), white text | default feature/spec/badge tiles |
+| `ink` | solid near-black `#0a0a0a` | quiet footer / dense areas |
+| `frost` | lighter glass (more white) | elevated callouts |
+| `clear` | subtle low-alpha glass | overlays on imagery |
+| `accent` | dark surface + accent glow + accent border | the ONE primary callout (≤2–3 per canvas) |
 
-Use a 12-column grid on the export frame.
+## Layout
 
-- Outer margin: `72px` on a 1080px-wide frame.
-- Gutter: `24px`.
-- Corner radius: `28px` for image cards, `30px` for text cards, `999px` for pills.
-- Hero zone: center/right dominant product cutout, approximately `55-60%` of frame width.
-- Header zone: top-left headline and source/price pill.
-- Feature mosaic: bottom third with 3-4 tile groups.
-- Supporting media: section visuals become cover-cropped image tiles above or beside their matching feature copy.
+- 12-column grid on the 1080-wide export frame; outer margin `72px`, gutter `20–24px`.
+- Radii: tiles `40px` (`--tile-radius`), hero `56px`, pills `999px`.
+- Hero zone: dominant product cutout (~55–60% width) with one radial accent glow behind it.
+- Header zone: top-left headline + verified/price pill.
+- Feature mosaic: lower third, 3 tiles, each = cover-cropped section visual above an editable dark-glass feature card.
 
-## Card Rules
+## Type
 
-Cards must never be visually empty.
+- Headline (`.adframe-display-text`): white, bold, ~72–92px on 1080 width, tight tracking.
+- Card title (`.glass-card-title`): white, ~28–34px, bold, non-italic.
+- Card body (`.glass-card-body`): muted `#a3a3a3`, ~14–24px, 2–4 short lines.
+- Pills/eyebrows: uppercase, 12–14px, semibold, muted.
 
-- Text cards use `tone: "tile"`: light gray fill, dark text.
-- Primary spec cards use `tone: "accent"`: brand/accent fill, dark or white text depending on contrast.
-- Dark cards use `tone: "ink"` only when placed on image-heavy or dark areas.
-- Do not place white text on white or pale cards.
-- Do not show implementation/provenance badges such as `cutout` inside the export artwork.
+## Asset priority
 
-## Type Rules
+1. `kind: "hero"` (or best gallery cutout) → dominant product, `fit: contain` + drop-shadow.
+2. `kind: "section"` visual crops → feature image tiles, `fit: cover`.
+3. `kind: "gallery"` → secondary detail.
+4. `mediaType: "video"` → source preview only; never placed as a static image shape.
 
-- Headline: large, dark, bold sans; roughly `72-92px` on 1080px width.
-- Subtitle/body: `24-32px`, dark gray, short lines.
-- Card title: `26-34px`, bold, normal style, no decorative italic.
-- Card body: `13-16px`, medium gray, 2-4 lines max.
-- Pills: uppercase or compact spec line, `12-14px`, semibold.
+## Template contract (default editor doc)
 
-## Asset Rules
+The default template must:
 
-Prioritize extracted assets in this order:
-
-1. `kind: "hero"` or best product gallery cutout for the dominant product.
-2. `kind: "section"` visual crops for feature tiles.
-3. `kind: "gallery"` for secondary details.
-4. `mediaType: "video"` as source preview only until a dedicated video shape exists.
-
-Videos should not be placed into the static canvas as image shapes. Use video thumbnails or a future `VideoShapeUtil` if canvas motion support is needed.
-
-## AdFrame Template Contract
-
-The default editor template must:
-
+- Insert the dark canvas-background shape (`ff-canvas-bg`) as the first child of the export frame.
 - Use at least one hero/product asset.
 - Use at least three section visual crops when available.
-- Pair section visuals with editable feature cards.
+- Pair section visuals with editable feature cards (no empty cards).
+- Use `tone: "accent"` at most 2–3 times.
 - Keep all non-frame shapes parented to the export frame.
 - Exclude MP4/video assets from static image placement.
-- Use light-card tones for feature cards on white canvas.
+- Exclude editor-only chrome (provenance/cutout badges) from export artwork.

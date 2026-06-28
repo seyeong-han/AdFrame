@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   BaseBoxShapeUtil,
   HTMLContainer,
@@ -11,12 +12,20 @@ export const GLASS_TEXT_TYPE = "ff-glass-text";
 export const CUTOUT_IMAGE_TYPE = "ff-cutout-image";
 export const BADGE_TYPE = "ff-badge";
 export const ICON_TYPE = "ff-icon";
+export const CANVAS_BG_TYPE = "ff-canvas-bg";
 
 type BaseProps = {
   w: number;
   h: number;
   provenance: Provenance;
 };
+
+export type CanvasBackgroundShape = TLBaseShape<
+  typeof CANVAS_BG_TYPE,
+  BaseProps & {
+    accent: string;
+  }
+>;
 
 export type GlassCardShape = TLBaseShape<
   typeof GLASS_CARD_TYPE,
@@ -69,6 +78,7 @@ declare module "@tldraw/tlschema" {
     [CUTOUT_IMAGE_TYPE]: CutoutImageShape["props"];
     [BADGE_TYPE]: BadgeShape["props"];
     [ICON_TYPE]: IconShape["props"];
+    [CANVAS_BG_TYPE]: CanvasBackgroundShape["props"];
   }
 }
 
@@ -76,6 +86,46 @@ function indicatorPath(w: number, h: number) {
   const path = new Path2D();
   path.roundRect(0, 0, w, h, 24);
   return path;
+}
+
+export class CanvasBackgroundShapeUtil extends BaseBoxShapeUtil<CanvasBackgroundShape> {
+  static override type = CANVAS_BG_TYPE;
+
+  override canResize() {
+    return true;
+  }
+
+  override isAspectRatioLocked() {
+    return false;
+  }
+
+  override hideRotateHandle() {
+    return true;
+  }
+
+  override getDefaultProps(): CanvasBackgroundShape["props"] {
+    return {
+      w: 1080,
+      h: 1920,
+      accent: "#1677ff",
+      provenance: "generated",
+    };
+  }
+
+  override component(shape: CanvasBackgroundShape) {
+    return (
+      <HTMLContainer id={shape.id} style={{ pointerEvents: "all" }}>
+        <div
+          className="infograph-canvas-bg"
+          style={{ "--brand-accent": shape.props.accent } as CSSProperties}
+        />
+      </HTMLContainer>
+    );
+  }
+
+  override getIndicatorPath(shape: CanvasBackgroundShape) {
+    return indicatorPath(shape.props.w, shape.props.h);
+  }
 }
 
 export class GlassCardShapeUtil extends BaseBoxShapeUtil<GlassCardShape> {
@@ -289,6 +339,7 @@ export class IconShapeUtil extends BaseBoxShapeUtil<IconShape> {
 }
 
 export const fridgeFrameShapeUtils = [
+  CanvasBackgroundShapeUtil,
   GlassCardShapeUtil,
   GlassTextShapeUtil,
   CutoutImageShapeUtil,
@@ -297,6 +348,7 @@ export const fridgeFrameShapeUtils = [
 ];
 
 export type AdFrameShape =
+  | CanvasBackgroundShape
   | GlassCardShape
   | GlassTextShape
   | CutoutImageShape

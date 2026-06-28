@@ -53,6 +53,22 @@ export async function downloadCarouselZip(editor: Editor, frameId: TLShapeId) {
   downloadBlob(zipped, "adframe-carousel-pack.zip");
 }
 
+export async function downloadCarouselFramesZip(editor: Editor, frameIds: TLShapeId[]) {
+  const zip = new JSZip();
+
+  for (const [index, frameId] of frameIds.entries()) {
+    const result = await editor.toImage([frameId], {
+      format: "png",
+      scale: 1,
+      background: true,
+    });
+    zip.file(`slide-${String(index + 1).padStart(2, "0")}.png`, result.blob);
+  }
+
+  const zipped = await zip.generateAsync({ type: "blob" });
+  downloadBlob(zipped, "adframe-editable-carousel-slides.zip");
+}
+
 export async function downloadCarouselSlidesZip(product: ProductExtraction) {
   const zip = new JSZip();
   const features = product.features.slice(0, 5);
