@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function AmbientBackground() {
   return (
@@ -23,6 +25,13 @@ export function AmbientBackground() {
 }
 
 export function AppNav() {
+  const pathname = usePathname();
+  const steps = [
+    { href: "/", label: "Import", active: pathname === "/" },
+    { href: "/analysis", label: "Analysis", active: pathname.startsWith("/analysis") },
+    { href: "/editor", label: "Editor", active: pathname.startsWith("/editor") },
+  ];
+
   return (
     <nav className="nav" aria-label="Main navigation">
       <div className="nav-inner">
@@ -46,12 +55,16 @@ export function AppNav() {
         </Link>
 
         <div className="nav-pill liquid-glass">
-          <Link href="/">Import</Link>
-          <Link href="/analysis">Analysis</Link>
-          <Link href="/editor">Editor</Link>
-          <Link className="solid" href="/editor">
-            Open studio <ArrowUpRight size={13} />
-          </Link>
+          {steps.map((step) => (
+            <Link
+              aria-current={step.active ? "page" : undefined}
+              className={step.active ? "active" : undefined}
+              href={step.href}
+              key={step.href}
+            >
+              {step.label}
+            </Link>
+          ))}
         </div>
       </div>
     </nav>

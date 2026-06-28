@@ -1,6 +1,6 @@
 import fixture from "../fixtures/samsung-s90f.json";
 import { EXPORT_PRESETS, type ProductExtraction } from "../lib/types";
-import { CAROUSEL_FRAME_PREFIX, composeAppleCleanTemplate, composeCarouselSplitTemplate } from "../lib/tldraw/templates";
+import { CAROUSEL_FRAME_PREFIX, composeCarouselSplitTemplate, composeMainCanvasTemplate } from "../lib/tldraw/templates";
 import {
   CANVAS_BG_TYPE,
   CUTOUT_IMAGE_TYPE,
@@ -9,9 +9,15 @@ import {
 } from "../lib/tldraw/shapes/fridgeframe-shapes";
 
 const DARK_TONES = new Set(["tile", "ink", "frost", "clear", "accent"]);
+const LIGHT_TONES = new Set(["paper", "orange"]);
+const preset = EXPORT_PRESETS[0];
+const product = fixture as ProductExtraction;
 
-const shapes = composeAppleCleanTemplate(fixture as ProductExtraction, EXPORT_PRESETS[0]);
-const carousel = composeCarouselSplitTemplate(fixture as ProductExtraction, EXPORT_PRESETS[0]);
+const shapes = composeMainCanvasTemplate(product, preset, "cinema-mosaic");
+const appleShapes = composeMainCanvasTemplate(product, preset, "apple-infographic");
+const hiddenPriceShapes = composeMainCanvasTemplate(product, preset, "cinema-mosaic", { showPrice: false });
+const hiddenApplePriceShapes = composeMainCanvasTemplate(product, preset, "apple-infographic", { showPrice: false });
+const carousel = composeCarouselSplitTemplate(product, preset);
 
 const imageShapes = shapes.filter((shape) => shape.type === CUTOUT_IMAGE_TYPE);
 const sectionVisuals = imageShapes.filter((shape) => {
@@ -38,9 +44,17 @@ const accentShapes = shapes.filter((shape) => {
   const props = shape.props as { tone?: string };
   return props.tone === "accent";
 });
+const verifiedBadges = shapes.filter((shape) => {
+  const props = shape.props as { text?: string };
+  return props.text === "Verified PDP facts";
+});
 
 if (canvasBackgrounds.length !== 1) {
   throw new Error(`Expected exactly one dark canvas-background shape, got ${canvasBackgrounds.length}`);
+}
+
+if (verifiedBadges.length > 0) {
+  throw new Error("The canvas should not include the old 'Verified PDP facts' badge.");
 }
 
 const firstChild = shapes.find((shape) => shape.type !== "frame");
@@ -78,6 +92,75 @@ if (textShapes.length < 2) {
 
 if (!framed) {
   throw new Error("Every template shape except the frame should be parented to the export frame.");
+}
+
+const hiddenPriceText = hiddenPriceShapes.some((shape) => JSON.stringify(shape.props).includes(product.price));
+if (hiddenPriceText) {
+  throw new Error("Cinema mosaic should not include price text when showPrice=false.");
+}
+
+const appleFrame = appleShapes.find((shape) => shape.type === "frame");
+const appleBackgrounds = appleShapes.filter((shape) => shape.type === CANVAS_BG_TYPE);
+const appleImages = appleShapes.filter((shape) => shape.type === CUTOUT_IMAGE_TYPE);
+const appleCards = appleShapes.filter((shape) => shape.type === GLASS_CARD_TYPE);
+const appleHero = appleImages.find((shape) => String(shape.id).includes("apple-hero"));
+const appleVideos = appleImages.filter((shape) => {
+  const props = shape.props as { src?: string };
+  return props.src?.endsWith(".mp4");
+});
+const appleLightCards = appleCards.filter((shape) => {
+  const props = shape.props as { tone?: string };
+  return props.tone ? LIGHT_TONES.has(props.tone) : false;
+});
+const appleFramed = appleShapes.filter((shape) => shape.type !== "frame").every((shape) => Boolean(shape.parentId));
+
+if (!appleFrame) {
+  throw new Error("Expected Apple infographic preset to include an export frame.");
+}
+
+if (appleBackgrounds.length !== 1) {
+  throw new Error(`Expected one Apple infographic canvas background, got ${appleBackgrounds.length}`);
+}
+
+const appleBgProps = appleBackgrounds[0]?.props as { variant?: string };
+if (appleBgProps.variant !== "light") {
+  throw new Error("Expected Apple infographic background to use light variant.");
+}
+
+if (!appleHero) {
+  throw new Error("Expected Apple infographic preset to include a centered hero image.");
+}
+
+const appleHeroProps = appleHero.props as { w?: number };
+const appleHeroCenter = (appleHero.x || 0) + (appleHeroProps.w || 0) / 2;
+const frameCenter = preset.width / 2;
+if (Math.abs(appleHeroCenter - frameCenter) > 2) {
+  throw new Error(`Expected Apple hero to be centered at ${frameCenter}, got ${appleHeroCenter}`);
+}
+
+if (appleImages.length < 4) {
+  throw new Error(`Expected Apple infographic to include surrounding image/detail tiles, got ${appleImages.length}`);
+}
+
+if (appleCards.length < 5) {
+  throw new Error(`Expected Apple infographic to include multiple editable text/spec tiles, got ${appleCards.length}`);
+}
+
+if (appleLightCards.length < 5) {
+  throw new Error("Expected Apple infographic tiles to use light paper/orange tones.");
+}
+
+if (appleVideos.length > 0) {
+  throw new Error("Apple infographic must not place MP4/video assets as static image shapes.");
+}
+
+if (!appleFramed) {
+  throw new Error("Every Apple infographic shape except the frame should be parented to the export frame.");
+}
+
+const hiddenApplePriceText = hiddenApplePriceShapes.some((shape) => JSON.stringify(shape.props).includes(product.price));
+if (hiddenApplePriceText) {
+  throw new Error("Apple infographic should not include price text when showPrice=false.");
 }
 
 const carouselFrames = carousel.shapes.filter((shape) => shape.type === "frame");
@@ -125,6 +208,6 @@ if (!carouselFramed) {
 }
 
 console.log(
-  `template composition ok: dark canvas bg + ${sectionVisuals.length} section visuals, ${featureCards.length} feature cards, ${accentShapes.length} accent shapes, ${textShapes.length} text shapes; carousel split ${carousel.frameIds.length} editable frames`,
+  `template composition ok: cinema mosaic + Apple infographic (${appleImages.length} images, centered hero) + carousel split ${carousel.frameIds.length} editable frames`,
 );
 process.exit(0);

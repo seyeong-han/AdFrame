@@ -24,6 +24,7 @@ export type CanvasBackgroundShape = TLBaseShape<
   typeof CANVAS_BG_TYPE,
   BaseProps & {
     accent: string;
+    variant?: "dark" | "light";
   }
 >;
 
@@ -108,6 +109,7 @@ export class CanvasBackgroundShapeUtil extends BaseBoxShapeUtil<CanvasBackground
       w: 1080,
       h: 1920,
       accent: "#1677ff",
+      variant: "dark",
       provenance: "generated",
     };
   }
@@ -116,7 +118,7 @@ export class CanvasBackgroundShapeUtil extends BaseBoxShapeUtil<CanvasBackground
     return (
       <HTMLContainer id={shape.id} style={{ pointerEvents: "all" }}>
         <div
-          className="infograph-canvas-bg"
+          className={`infograph-canvas-bg ${shape.props.variant || "dark"}`}
           style={{ "--brand-accent": shape.props.accent } as CSSProperties}
         />
       </HTMLContainer>

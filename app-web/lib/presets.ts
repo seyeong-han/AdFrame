@@ -1,5 +1,13 @@
 import type { GlassTone } from "@/lib/types";
 
+export type PositionPresetId = "cinema-mosaic" | "apple-infographic";
+
+export type PositionPreset = {
+  id: PositionPresetId;
+  label: string;
+  description: string;
+};
+
 export type StylePreset = {
   id: "apple-clean" | "luxury-premium" | "pastel-editorial" | "bold-social" | "trust-clinical";
   label: string;
@@ -8,6 +16,19 @@ export type StylePreset = {
   headlineScale: number;
   shadowDepth: "soft" | "medium" | "deep";
 };
+
+export const POSITION_PRESETS: PositionPreset[] = [
+  {
+    id: "cinema-mosaic",
+    label: "Cinema mosaic",
+    description: "Current dark AdFrame story layout with editorial copy, product cutout, and lower feature mosaic.",
+  },
+  {
+    id: "apple-infographic",
+    label: "Apple infographic",
+    description: "Light rounded tile board with a centered hero image, surrounding feature/spec tiles, and sparse orange accent.",
+  },
+];
 
 export const STYLE_PRESETS: StylePreset[] = [
   {

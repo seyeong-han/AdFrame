@@ -30,8 +30,8 @@ import { downloadCarouselFramesZip, downloadCarouselSlidesZip, downloadFrame, do
 import { isExtractionApproved, readExtraction, useExtractionSnapshot } from "@/lib/client-store";
 import { removeBackgroundLocally } from "@/lib/segmentation";
 import { EXPORT_PRESETS, type ExportPreset, type ProductAsset, type ProductExtraction } from "@/lib/types";
-import { STYLE_PRESETS, type StylePreset } from "@/lib/presets";
-import { CAROUSEL_FRAME_PREFIX, composeAppleCleanTemplate, composeCarouselSplitTemplate } from "@/lib/tldraw/templates";
+import { POSITION_PRESETS, STYLE_PRESETS, type PositionPresetId, type StylePreset } from "@/lib/presets";
+import { CAROUSEL_FRAME_PREFIX, composeCarouselSplitTemplate, composeMainCanvasTemplate } from "@/lib/tldraw/templates";
 import {
   CUTOUT_IMAGE_TYPE,
   GLASS_CARD_TYPE,
@@ -65,6 +65,8 @@ export default function EditorPage() {
   const [extraAssets, setExtraAssets] = useState<ProductAsset[]>([]);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [preset, setPreset] = useState<ExportPreset>(EXPORT_PRESETS[0]);
+  const [positionPreset, setPositionPreset] = useState<PositionPresetId>("cinema-mosaic");
+  const [showPrice, setShowPrice] = useState(true);
   const [selected, setSelected] = useState<InspectorState | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
@@ -100,10 +102,18 @@ export default function EditorPage() {
   }, []);
 
   const composeCanvas = useCallback(
-    (nextEditor: Editor, nextProduct: ProductExtraction, nextPreset: ExportPreset) => {
+    (
+      nextEditor: Editor,
+      nextProduct: ProductExtraction,
+      nextPreset: ExportPreset,
+      nextPositionPreset: PositionPresetId,
+      nextShowPrice: boolean,
+    ) => {
       const currentShapes = nextEditor.getCurrentPageShapes().map((shape) => shape.id);
       if (currentShapes.length) nextEditor.deleteShapes(currentShapes);
-      nextEditor.createShapes(composeAppleCleanTemplate(nextProduct, nextPreset));
+      nextEditor.createShapes(
+        composeMainCanvasTemplate(nextProduct, nextPreset, nextPositionPreset, { showPrice: nextShowPrice }),
+      );
       nextEditor.selectNone();
       nextEditor.zoomToFit();
       setSelected(null);
@@ -114,14 +124,24 @@ export default function EditorPage() {
   function handleMount(nextEditor: Editor) {
     setEditor(nextEditor);
     const extraction = readExtraction();
-    composeCanvas(nextEditor, extraction, preset);
+    composeCanvas(nextEditor, extraction, preset, positionPreset, showPrice);
     nextEditor.store.listen(() => syncSelection(nextEditor), { scope: "document" });
   }
 
   function updatePreset(id: ExportPreset["id"]) {
     const nextPreset = EXPORT_PRESETS.find((item) => item.id === id) || EXPORT_PRESETS[0];
     setPreset(nextPreset);
-    if (editor && product) composeCanvas(editor, product, nextPreset);
+    if (editor && product) composeCanvas(editor, product, nextPreset, positionPreset, showPrice);
+  }
+
+  function updatePositionPreset(id: PositionPresetId) {
+    setPositionPreset(id);
+    if (editor && product) composeCanvas(editor, product, preset, id, showPrice);
+  }
+
+  function updateShowPrice(nextShowPrice: boolean) {
+    setShowPrice(nextShowPrice);
+    if (editor && product) composeCanvas(editor, product, preset, positionPreset, nextShowPrice);
   }
 
   function placeFeature(index: number) {
@@ -344,7 +364,7 @@ export default function EditorPage() {
         <aside className="grid content-start gap-4">
           <div className="panel liquid-glass">
             <div className="panel-inner">
-              <p className="section-label">Assets</p>
+              <p className="section-label">Assets ({assets.length})</p>
               <div className="grid gap-3 scroll-list">
                 {assets.map((asset) => (
                   <button
@@ -381,7 +401,7 @@ export default function EditorPage() {
 
           <div className="panel liquid-glass">
             <div className="panel-inner">
-              <p className="section-label">Copy</p>
+              <p className="section-label">Copy ({product.features.length})</p>
               <div className="grid gap-3 scroll-list">
                 {product.features.map((feature, index) => (
                   <button
@@ -424,6 +444,27 @@ export default function EditorPage() {
                     </option>
                   ))}
                 </select>
+                <select
+                  aria-label="Position preset"
+                  className="w-auto"
+                  onChange={(event) => updatePositionPreset(event.target.value as PositionPresetId)}
+                  value={positionPreset}
+                >
+                  {POSITION_PRESETS.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+                <label className="btn ghost">
+                  <input
+                    checked={showPrice}
+                    className="h-4 w-4 accent-white"
+                    onChange={(event) => updateShowPrice(event.target.checked)}
+                    type="checkbox"
+                  />
+                  Price
+                </label>
                 <button
                   aria-label="Undo"
                   className="btn ghost"
@@ -622,6 +663,8 @@ export default function EditorPage() {
                         <option value="clear">Clear</option>
                         <option value="tile">Tile</option>
                         <option value="accent">Accent</option>
+                        <option value="paper">Paper</option>
+                        <option value="orange">Orange</option>
                       </select>
                     </div>
                   ) : null}
