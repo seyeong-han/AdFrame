@@ -19,12 +19,13 @@ Paste a PDP URL and AdFrame starts a guided creative pipeline instead of a blank
 
 ### Automated Asset Processing
 
-AdFrame reads the page with Playwright, collects gallery images and section visuals, caches stable demo assets through CSV manifests, extracts design tokens, and prepares product cutouts with remove.bg/local segmentation.
+Design system extraction samples live PDP CSSOM—computed fonts, colors, and border radii from headings, buttons, and CTAs, plus stylesheet/CSS-variable color tokens—then maps the evidence into locked `generated/design.md` and `generated/tokens.source.json` for the editor.
 
 ![AdFrame extraction processing](docs/assets/readme/extracting.png)
 
 ### Verified Facts Before Generation
 
+AdFrame reads the page with Playwright + VLM, collects gallery images and section visuals, caches stable demo assets through CSV manifests, extracts design tokens, and prepares product cutouts with remove.bg/local segmentation.
 Facts, prices, feature claims, source images, and page style tokens are separated from generated copy so the final ad does not invent product details.
 
 ![AdFrame analysis screen](docs/assets/readme/analysis.png)
