@@ -96,6 +96,7 @@ export default function EditorPage() {
   const [showPrice, setShowPrice] = useState(true);
   const [selected, setSelected] = useState<InspectorState | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [exportPresetId, setExportPresetId] = useState<ExportPreset["id"]>(EXPORT_PRESETS[0].id);
   const [styleOpen, setStyleOpen] = useState(false);
   const [safeMargins, setSafeMargins] = useState(true);
   const [busy, setBusy] = useState("");
@@ -181,6 +182,25 @@ export default function EditorPage() {
   function updateShowPrice(nextShowPrice: boolean) {
     setShowPrice(nextShowPrice);
     if (editor && product) composeCanvas(editor, product, preset, positionPreset, nextShowPrice);
+  }
+
+  function openExportModal() {
+    setExportPresetId(preset.id);
+    setExportOpen(true);
+  }
+
+  function updateExportPreset(id: ExportPreset["id"]) {
+    setExportPresetId(id);
+  }
+
+  function resolveExportPreset() {
+    return EXPORT_PRESETS.find((item) => item.id === exportPresetId) || EXPORT_PRESETS[0];
+  }
+
+  async function ensureCanvasMatchesExportPreset(targetPreset: ExportPreset) {
+    if (!editor || !product || targetPreset.id === preset.id) return;
+    setPreset(targetPreset);
+    composeCanvas(editor, product, targetPreset, positionPreset, showPrice);
   }
 
   function placeFeature(index: number) {
@@ -462,17 +482,20 @@ export default function EditorPage() {
   async function exportActive(format: "png" | "jpeg" | "pdf" | "zip") {
     if (!editor) return;
     setBusy("Preparing export...");
+    const targetPreset = resolveExportPreset();
+    await ensureCanvasMatchesExportPreset(targetPreset);
     const frame = editor.getCurrentPageShapes().find((shape) => shape.type === "frame");
     if (!frame) return;
 
-    if (format === "pdf") await downloadPdfProof(editor, frame.id, preset);
+    if (format === "pdf") await downloadPdfProof(editor, frame.id, targetPreset);
     else if (format === "zip") {
       const carouselFrameIds = getCarouselFrameIds(editor);
       if (carouselFrameIds.length) await downloadCarouselFramesZip(editor, carouselFrameIds);
       else await downloadCarouselSlidesZip(product);
-    } else await downloadFrame(editor, frame.id, preset, format);
+    } else await downloadFrame(editor, frame.id, targetPreset, format);
 
     setBusy("");
+    setExportOpen(false);
   }
 
   function generateCarouselSplit() {
@@ -631,7 +654,7 @@ export default function EditorPage() {
                   <CheckCircle2 size={15} />
                   Review layout
                 </button>
-                <button className="btn liquid-glass-strong" onClick={() => setExportOpen(true)} type="button">
+                <button className="btn liquid-glass-strong" onClick={openExportModal} type="button">
                   <ArrowDownToLine size={15} />
                   Export
                 </button>
@@ -856,7 +879,7 @@ export default function EditorPage() {
         <Modal title="Export social assets" onClose={() => setExportOpen(false)}>
           <div className="grid gap-3">
             <p className="text-sm leading-6 text-white/62">
-              Export the current main canvas as Instagram Feed, Story, or PDF proof.
+              Choose a layout format, then export the canvas as PNG, JPG, or PDF proof.
               {safeMargins
                 ? " Safe margins are preserved by the frame bounds."
                 : " Bleed mode exports the full frame without extra margin guides."}
@@ -871,27 +894,40 @@ export default function EditorPage() {
               />
             </label>
             <div className="grid gap-3 md:grid-cols-3">
-              {EXPORT_PRESETS.map((item) => (
-                <div className="rounded-3xl border border-white/10 bg-white/[.045] p-4" key={item.id}>
-                  <div
-                    className="mx-auto rounded-2xl border border-white/20 bg-black/50"
-                    style={{
-                      aspectRatio: item.ratio,
-                      width: item.id === "story" ? 56 : 74,
-                    }}
-                  />
-                  <p className="mt-3 text-center text-xs text-white/55">
-                    {item.label}
-                    <br />
-                    {item.width}x{item.height}
-                  </p>
-                </div>
-              ))}
+              {EXPORT_PRESETS.map((item) => {
+                const selected = exportPresetId === item.id;
+                return (
+                  <button
+                    aria-pressed={selected}
+                    className={`rounded-3xl border p-4 text-left transition ${
+                      selected
+                        ? "border-white/35 bg-white/[.12] ring-1 ring-white/20"
+                        : "border-white/10 bg-white/[.045] hover:border-white/20 hover:bg-white/[.07]"
+                    }`}
+                    key={item.id}
+                    onClick={() => updateExportPreset(item.id)}
+                    type="button"
+                  >
+                    <div
+                      className="mx-auto rounded-2xl border border-white/20 bg-black/50"
+                      style={{
+                        aspectRatio: item.ratio,
+                        width: item.id === "story" ? 56 : 74,
+                      }}
+                    />
+                    <p className="mt-3 text-center text-xs text-white/55">
+                      {item.label}
+                      <br />
+                      {item.width}x{item.height}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <button className="btn white" onClick={() => exportActive("png")} type="button">
                 <FileImage size={15} />
-                PNG {preset.width}x{preset.height}
+                PNG {resolveExportPreset().width}x{resolveExportPreset().height}
               </button>
               <button className="btn ghost" onClick={() => exportActive("jpeg")} type="button">
                 <FileImage size={15} />
@@ -945,8 +981,14 @@ function Modal({
   title: string;
 }) {
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/72 p-5">
-      <div className="panel liquid-glass w-full max-w-2xl">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-5">
+      <button
+        aria-label="Close modal"
+        className="app-modal-backdrop"
+        onClick={onClose}
+        type="button"
+      />
+      <div aria-modal="true" className="app-modal panel w-full max-w-2xl" role="dialog">
         <div className="panel-inner">
           <div className="mb-6 flex items-start justify-between gap-4">
             <h2 className="font-heading text-5xl leading-none tracking-[-.05em]">{title}</h2>

@@ -266,6 +266,22 @@ button {
   background: rgba(255,255,255,0.045);
 }
 
+.app-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.app-modal {
+  position: relative;
+  z-index: 1;
+  background: #121820;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.62);
+}
+
 .panel {
   border-radius: 32px;
   border: 1px solid rgba(255,255,255,0.1);

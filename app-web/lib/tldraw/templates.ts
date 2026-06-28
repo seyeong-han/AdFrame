@@ -75,9 +75,15 @@ function composeCinemaMosaicTemplate(
   const frameId = createShapeId("frame-social");
   const margin = 72 * scale;
   const gutter = 24 * scale;
-  const bottomY = preset.height - 430 * scale;
   const tileW = (preset.width - margin * 2 - gutter * 2) / 3;
-  const visualH = 132 * scale;
+  const visualH = tileW;
+  const copyGap = 14 * scale;
+  const bottomFeatures = features.slice(0, 3);
+  const maxCopyH = bottomFeatures.length
+    ? Math.max(...bottomFeatures.map((feature) => estimateFeatureCardHeight(feature.title, feature.body, tileW, scale)))
+    : 116 * scale;
+  const bottomPadding = 115 * scale;
+  const bottomY = preset.height - visualH - copyGap - maxCopyH - bottomPadding;
   const showPrice = options.showPrice ?? true;
 
   const accent = product.designSystem?.tokens.accent || DEFAULT_ACCENT;
@@ -238,7 +244,7 @@ function composeCinemaMosaicTemplate(
       parentId: frameId,
       type: GLASS_CARD_TYPE,
       x: cardX,
-      y: bottomY + visualH + 14 * scale,
+      y: bottomY + visualH + copyGap,
       props: {
         w: tileW,
         h: cardH,
