@@ -1,13 +1,47 @@
 # AdFrame
 
-<p align="center">
-  <img src="docs/assets/readme/adframe-cinema.png" alt="AdFrame Cinema mosaic export" width="49%" />
-  <img src="docs/assets/readme/adframe-apple.png" alt="AdFrame Apple infographic export" width="49%" />
-</p>
+<table align="center">
+  <tr>
+    <td align="center" width="44%">
+      <img src="docs/assets/readme/product-page.gif" alt="Samsung PDP source page" width="100%" />
+      <br />
+      <sub>Product page</sub>
+    </td>
+    <td align="center" width="8%" style="font-size: 2rem; line-height: 1;">→</td>
+    <td align="center" width="44%">
+      <img src="docs/assets/readme/adframe-apple.png" alt="AdFrame Apple infographic export" width="100%" />
+      <br />
+      <sub>Apple infographic</sub>
+    </td>
+  </tr>
+</table>
 
 AdFrame turns any product detail page into an editable, Apple-style infographic ad studio.
 
 It extracts verified facts, product images, section visuals, videos, and design tokens from a PDP, then composes them into a tldraw canvas for social export.
+
+## Two Layout Styles
+
+AdFrame currently offers two **position presets** in the editor. Switch between them from the canvas toolbar without re-importing the product.
+
+<table align="center">
+  <tr>
+    <td align="center" width="48%" valign="top">
+      <img src="docs/assets/readme/adframe-cinema.png" alt="Cinema mosaic export" width="100%" />
+      <br />
+      <strong>Cinema mosaic</strong>
+      <br />
+      <sub>Dark editorial canvas, floating hero cutout, square feature-image mosaic, and glass copy cards.</sub>
+    </td>
+    <td align="center" width="48%" valign="top">
+      <img src="docs/assets/readme/adframe-apple.png" alt="Apple infographic export" width="100%" />
+      <br />
+      <strong>Apple infographic</strong>
+      <br />
+      <sub>Light rounded tile board, centered hero, dense feature/spec tiles, and sparse orange accent.</sub>
+    </td>
+  </tr>
+</table>
 
 ## What It Offers
 
@@ -17,16 +51,15 @@ Paste a PDP URL and AdFrame starts a guided creative pipeline instead of a blank
 
 ![AdFrame import screen](docs/assets/readme/import.png)
 
-### Automated Asset Processing
+### Extract Design System from Original Source
 
 Design system extraction samples live PDP CSSOM—computed fonts, colors, and border radii from headings, buttons, and CTAs, plus stylesheet/CSS-variable color tokens—then maps the evidence into locked `generated/design.md` and `generated/tokens.source.json` for the editor.
 
 ![AdFrame extraction processing](docs/assets/readme/extracting.png)
 
-### Verified Facts Before Generation
+### Automated Asset Processing
 
 AdFrame reads the page with Playwright + VLM, collects gallery images and section visuals, caches stable demo assets through CSV manifests, extracts design tokens, and prepares product cutouts with remove.bg/local segmentation.
-Facts, prices, feature claims, source images, and page style tokens are separated from generated copy so the final ad does not invent product details.
 
 ![AdFrame analysis screen](docs/assets/readme/analysis.png)
 
@@ -97,6 +130,8 @@ Click **Review layout** in the editor to run `/api/layout-review`:
 ![AdFrame layout intelligence flowchart](docs/assets/readme/agent-flowchart.png)
 
 ## Run
+
+```bash
 cd app-web
 npm install
 npm run dev
