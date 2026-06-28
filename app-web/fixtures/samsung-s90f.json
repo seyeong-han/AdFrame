@@ -1,0 +1,238 @@
+{
+  "url": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/",
+  "name": "Samsung 77\" Class OLED S90F 4K Vision AI Smart TV (2025)",
+  "model": "QN77S90FAFXZA",
+  "price": "$1,799.99",
+  "previousPrice": "$3,499.99",
+  "headline": "OLED, staged for cinema.",
+  "subtitle": "A premium social story built from verified Samsung S90F highlights, price, and product imagery.",
+  "facts": [
+    {
+      "id": "fact-model",
+      "label": "Model",
+      "value": "QN77S90FAFXZA",
+      "provenance": "verified",
+      "source": "Samsung PDP product identifier"
+    },
+    {
+      "id": "fact-price",
+      "label": "Current price",
+      "value": "$1,799.99",
+      "provenance": "verified",
+      "source": "Samsung PDP purchase panel"
+    },
+    {
+      "id": "fact-previous-price",
+      "label": "Was price",
+      "value": "$3,499.99",
+      "provenance": "verified",
+      "source": "Samsung PDP purchase panel"
+    },
+    {
+      "id": "fact-ai",
+      "label": "Smart platform",
+      "value": "Samsung Vision AI Smart TV",
+      "provenance": "verified",
+      "source": "Samsung PDP title"
+    },
+    {
+      "id": "fact-processor",
+      "label": "Processor",
+      "value": "NQ4 AI Gen3 Processor",
+      "provenance": "verified",
+      "source": "Samsung PDP highlights"
+    },
+    {
+      "id": "fact-upscaling",
+      "label": "Upscaling",
+      "value": "4K AI Upscaling Pro",
+      "provenance": "verified",
+      "source": "Samsung PDP highlights"
+    },
+    {
+      "id": "fact-hdr",
+      "label": "HDR",
+      "value": "OLED HDR+",
+      "provenance": "verified",
+      "source": "Samsung PDP highlights"
+    },
+    {
+      "id": "fact-motion",
+      "label": "Motion",
+      "value": "Motion Xcelerator 144Hz",
+      "provenance": "verified",
+      "source": "Samsung PDP highlights"
+    },
+    {
+      "id": "fact-sizes",
+      "label": "Available sizes",
+      "value": "42\", 48\", 55\", 65\", 77\", 83\"",
+      "provenance": "verified",
+      "source": "Samsung PDP size selector"
+    }
+  ],
+  "features": [
+    {
+      "id": "feature-oled-hdr",
+      "title": "OLED HDR+",
+      "body": "High-contrast OLED picture quality designed to keep bright scenes vivid and dark scenes detailed.",
+      "provenance": "inferred",
+      "sourceFactIds": ["fact-hdr"]
+    },
+    {
+      "id": "feature-vision-ai",
+      "title": "Samsung Vision AI",
+      "body": "AI-assisted viewing features help optimize the experience around what is playing.",
+      "provenance": "inferred",
+      "sourceFactIds": ["fact-ai", "fact-processor"]
+    },
+    {
+      "id": "feature-motion",
+      "title": "Motion Xcelerator 144Hz",
+      "body": "Fast motion handling for sports, games, and high-frame-rate entertainment.",
+      "provenance": "inferred",
+      "sourceFactIds": ["fact-motion"]
+    },
+    {
+      "id": "feature-upscaling",
+      "title": "4K AI Upscaling Pro",
+      "body": "AI-powered upscaling helps lower-resolution content feel sharper on the 77-inch display.",
+      "provenance": "inferred",
+      "sourceFactIds": ["fact-upscaling"]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset-live-1",
+      "name": "Live product image (bg removed)",
+      "src": "/generated/removebg/samsung-s90f/asset-1.png",
+      "alt": "front Black",
+      "provenance": "verified",
+      "kind": "hero",
+      "bgRemoved": true
+    },
+    {
+      "id": "asset-live-2",
+      "name": "Live gallery image 2 (bg removed)",
+      "src": "/generated/removebg/samsung-s90f/asset-2.png",
+      "alt": "l-perspective Black",
+      "provenance": "verified",
+      "kind": "gallery",
+      "bgRemoved": true
+    },
+    {
+      "id": "asset-live-3",
+      "name": "Live gallery image 3 (bg removed)",
+      "src": "/generated/removebg/samsung-s90f/asset-3.png",
+      "alt": "l-side Black",
+      "provenance": "verified",
+      "kind": "gallery",
+      "bgRemoved": true
+    },
+    {
+      "id": "asset-live-4",
+      "name": "Live gallery image 4 (bg removed)",
+      "src": "/generated/removebg/samsung-s90f/asset-4.png",
+      "alt": "QN83S90FAEXZA Ports",
+      "provenance": "verified",
+      "kind": "gallery",
+      "bgRemoved": true
+    },
+    {
+      "id": "section-processor",
+      "name": "NQ4 AI Gen3 Processor visual tile",
+      "src": "/generated/sections/samsung-s90f/01-section-processor-visual.jpg",
+      "alt": "QN83S90FAEXZA processor",
+      "provenance": "verified",
+      "kind": "section",
+      "bgRemoved": false
+    },
+    {
+      "id": "section-upscaling",
+      "name": "4K AI Upscaling Pro visual tile",
+      "src": "/generated/sections/samsung-s90f/02-section-upscaling-visual.jpg",
+      "alt": "QN83S90FAEXZA upscaling",
+      "provenance": "verified",
+      "kind": "section",
+      "bgRemoved": false
+    },
+    {
+      "id": "section-hdr",
+      "name": "OLED HDR+ visual tile",
+      "src": "/generated/sections/samsung-s90f/03-section-hdr-visual.jpg",
+      "alt": "QN83S90FAEXZA HDR",
+      "provenance": "verified",
+      "kind": "section",
+      "bgRemoved": false
+    },
+    {
+      "id": "section-motion",
+      "name": "Motion Xcelerator 144Hz visual tile",
+      "src": "/generated/sections/samsung-s90f/04-section-motion-visual.jpg",
+      "alt": "QN83S90FAEXZA Motion Xcelerator",
+      "provenance": "verified",
+      "kind": "section",
+      "bgRemoved": false
+    },
+    {
+      "id": "video-us-feature-nbsp-545617705",
+      "name": "Feature motion video",
+      "src": "/generated/videos/samsung-s90f/01-us-feature--nbsp--545617705.mp4",
+      "alt": "Feature motion",
+      "provenance": "verified",
+      "kind": "video",
+      "mediaType": "video"
+    },
+    {
+      "id": "video-us-feature-nbsp-545617677",
+      "name": "Feature motion video",
+      "src": "/generated/videos/samsung-s90f/02-us-feature--nbsp--545617677.mp4",
+      "alt": "Feature motion",
+      "provenance": "verified",
+      "kind": "video",
+      "mediaType": "video"
+    },
+    {
+      "id": "video-us-feature-nbsp-545617809",
+      "name": "Feature motion video",
+      "src": "/generated/videos/samsung-s90f/03-us-feature--nbsp--545617809.mp4",
+      "alt": "Feature motion",
+      "provenance": "verified",
+      "kind": "video",
+      "mediaType": "video"
+    },
+    {
+      "id": "video-us-feature-catch-hidden-details-in-dark-scenes-545617641",
+      "name": "Catch Hidden Details In Dark Scenes video",
+      "src": "/generated/videos/samsung-s90f/04-us-feature-catch-hidden-details-in-dark-scenes-545617641.mp4",
+      "alt": "Catch Hidden Details In Dark Scenes",
+      "provenance": "verified",
+      "kind": "video",
+      "mediaType": "video"
+    },
+    {
+      "id": "video-us-feature-tv-and-soundbar-play-together-in-smooth-harmony-545617719",
+      "name": "Tv And Soundbar Play Together In Smooth Harmony video",
+      "src": "/generated/videos/samsung-s90f/05-us-feature-tv-and-soundbar-play-together-in-smooth-harmony-545617719.mp4",
+      "alt": "Tv And Soundbar Play Together In Smooth Harmony",
+      "provenance": "verified",
+      "kind": "video",
+      "mediaType": "video"
+    },
+    {
+      "id": "video-us-feature-a-next-level-dolby-atmos-experience-545617725",
+      "name": "A Next Level Dolby Atmos Experience video",
+      "src": "/generated/videos/samsung-s90f/06-us-feature-a-next-level-dolby-atmos-experience-545617725.mp4",
+      "alt": "A Next Level Dolby Atmos Experience",
+      "provenance": "verified",
+      "kind": "video",
+      "mediaType": "video"
+    }
+  ],
+  "extractedAt": "2026-06-28T00:00:00.000Z",
+  "extractionMode": "fixture",
+  "notes": [
+    "Cached fixture keeps the demo stable if Samsung blocks headless scraping.",
+    "Marketing copy is inferred only from verified PDP facts."
+  ]
+}

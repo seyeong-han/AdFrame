@@ -1,0 +1,66 @@
+[
+  {
+    "captionRemoved": true,
+    "id": "section-processor",
+    "title": "NQ4 AI Gen3 Processor",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-processor-545665875?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA processor",
+    "extraction": "dom-image",
+    "cachedSrc": "/generated/sections/samsung-s90f/01-section-processor-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/samsung-s90f/01-section-processor-full.jpg",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "NQ4 AI Gen3 Processor",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "captionRemoved": true,
+    "id": "section-upscaling",
+    "title": "4K AI Upscaling Pro",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-upscaling-545665877?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA upscaling",
+    "extraction": "dom-image",
+    "cachedSrc": "/generated/sections/samsung-s90f/02-section-upscaling-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/samsung-s90f/02-section-upscaling-full.jpg",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "4K AI Upscaling Pro",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "captionRemoved": true,
+    "id": "section-hdr",
+    "title": "OLED HDR+",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-hdr-545665867?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA HDR",
+    "extraction": "dom-image",
+    "cachedSrc": "/generated/sections/samsung-s90f/03-section-hdr-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/samsung-s90f/03-section-hdr-full.jpg",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "OLED HDR+",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  },
+  {
+    "captionRemoved": true,
+    "id": "section-motion",
+    "title": "Motion Xcelerator 144Hz",
+    "src": "https://images.samsung.com/is/image/samsung/p6pim/us/qn77s90fafxza/gallery/us-oled-tv-qn77s90fafxza-qn--s--faexza-motion-xcelerator-545665869?$product-details-jpg$",
+    "alt": "QN83S90FAEXZA Motion Xcelerator",
+    "extraction": "dom-image",
+    "cachedSrc": "/generated/sections/samsung-s90f/04-section-motion-visual.jpg",
+    "sourceFullCardSrc": "/generated/sections/samsung-s90f/04-section-motion-full.jpg",
+    "editableRecreation": {
+      "type": "feature-card",
+      "title": "Motion Xcelerator 144Hz",
+      "sourceImageRole": "visual",
+      "textExtraction": "dom-label-inference"
+    }
+  }
+]

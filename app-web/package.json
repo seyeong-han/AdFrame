@@ -1,0 +1,39 @@
+{
+  "name": "adframe-app-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:template-composition": "tsx scripts/assert-template-composition.ts",
+    "test:section-crops": "node scripts/assert-section-crops.mjs",
+    "test:video-extraction": "node scripts/assert-video-extraction.mjs"
+  },
+  "dependencies": {
+    "@imgly/background-removal": "^1.7.0",
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
+    "lucide-react": "^1.21.0",
+    "next": "16.2.9",
+    "openai": "^6.45.0",
+    "playwright": "^1.61.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sharp": "^0.35.2",
+    "tldraw": "^5.1.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "tailwindcss": "^4",
+    "tsx": "^4.22.4",
+    "typescript": "^5"
+  }
+}

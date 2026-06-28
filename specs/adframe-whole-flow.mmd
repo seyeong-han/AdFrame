@@ -1,0 +1,58 @@
+flowchart TD
+  subgraph frontend [Frontend]
+    Landing["Landing / Import Screen"]
+    Upload["Upload Fallback"]
+    Analysis["Analysis / Parse Preview"]
+    Approve["Approve Facts"]
+    Editor["Tldraw Editor Canvas"]
+    Inspector["Inspector / Assets / Copy Panels"]
+    ExportModal["Export Modal"]
+    CarouselView["Carousel Split View"]
+    StyleDrawer["Style Preset Drawer"]
+  end
+
+  subgraph backend [Backend]
+    ExtractAPI["/api/extract"]
+    Playwright["Playwright PDP Scraper"]
+    Fixture["Cached Samsung Fixture"]
+    GenerateImageAPI["/api/generate-image"]
+    ExportHelpers["Client Export Helpers"]
+  end
+
+  subgraph ai [AI]
+    OpenAINormalize["OpenAI Copy Normalization"]
+    ImageGen["OpenAI Image Generation"]
+    LocalSegmentation["Local AI Background Removal"]
+  end
+
+  Landing -->|"Submit Samsung URL"| ExtractAPI
+  Landing -->|"Upload images"| Upload
+  Upload -->|"Store uploaded assets"| Analysis
+
+  ExtractAPI --> Playwright
+  Playwright -->|"Success"| OpenAINormalize
+  Playwright -->|"Blocked or failed"| Fixture
+  Fixture --> OpenAINormalize
+  OpenAINormalize -->|"Facts, features, headline"| Analysis
+
+  Analysis -->|"Review verified vs inferred claims"| Approve
+  Approve -->|"Approved extraction"| Editor
+
+  Editor --> Inspector
+  Inspector -->|"Place assets / edit copy"| Editor
+  Editor -->|"Remove background"| LocalSegmentation
+  LocalSegmentation -->|"Cutout asset"| Editor
+
+  Editor -->|"Generate missing visual"| GenerateImageAPI
+  GenerateImageAPI --> ImageGen
+  ImageGen -->|"Generated asset or fallback"| Editor
+
+  Editor --> StyleDrawer
+  StyleDrawer -->|"Apply preset"| Editor
+
+  Editor --> CarouselView
+  CarouselView -->|"One message per slide"| ExportModal
+
+  Editor --> ExportModal
+  ExportModal --> ExportHelpers
+  ExportHelpers -->|"PNG / JPG / PDF / ZIP"| FinalAssets["Social-ready assets"]

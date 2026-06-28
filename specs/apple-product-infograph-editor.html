@@ -1,0 +1,1733 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product Infograph Studio</title>
+  <style>
+    :root {
+      --black: #000000;
+      --gray: #f5f5f7;
+      --ink: #1d1d1f;
+      --blue: #0071e3;
+      --link: #0066cc;
+      --bright: #2997ff;
+      --white: #ffffff;
+      --graphite-a: #272729;
+      --graphite-b: #262629;
+      --graphite-c: #28282b;
+      --graphite-d: #2a2a2c;
+      --muted: #6e6e73;
+      --border: #d2d2d7;
+      --border-strong: #86868b;
+      --utility: #424245;
+
+      --display: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --text: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --page-pad: clamp(14px, 2.8vw, 36px);
+      --radius-field: 12px;
+      --radius-card: 18px;
+      --radius-large: 32px;
+      --radius-pill: 980px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--gray);
+      color: var(--ink);
+      font-family: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--gray);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--page-pad);
+      background: var(--black);
+      color: var(--white);
+      border-bottom: 1px solid var(--graphite-d);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      letter-spacing: -0.08px;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--white);
+      display: grid;
+      place-items: center;
+    }
+
+    .brand-mark::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--black);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      border: 0;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--border);
+      font-size: 12px;
+      min-height: 34px;
+      padding: 8px 10px;
+    }
+
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      color: var(--white);
+      outline: 1px solid var(--border-strong);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: var(--radius-pill);
+      min-height: 36px;
+      padding: 8px 15px;
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+      transition: transform 160ms ease;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .btn.primary {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .btn.dark {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .btn.secondary {
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+
+    .btn.subtle {
+      background: var(--gray);
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+
+    .icon-btn {
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--ink);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(306px, 390px) minmax(390px, 1fr) minmax(286px, 330px);
+      gap: 14px;
+      padding: 16px var(--page-pad) 36px;
+      max-width: 1540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-body {
+      padding: 16px 18px 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.33;
+      letter-spacing: -0.12px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: 1.03;
+      letter-spacing: -0.8px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-family: var(--display);
+      font-size: 24px;
+      line-height: 1.17;
+      letter-spacing: -0.2px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    h3 {
+      font-family: var(--display);
+      font-size: 17px;
+      line-height: 1.24;
+      letter-spacing: -0.374px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .lede {
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+      margin-bottom: 0;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label,
+    .label {
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+      font-weight: 600;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.33;
+      letter-spacing: -0.12px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-field);
+      background: var(--white);
+      color: var(--ink);
+      padding: 12px 13px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+      font-size: 14px;
+      line-height: 1.47;
+    }
+
+    .source-card {
+      background: var(--black);
+      color: var(--white);
+      border-radius: 28px;
+      padding: 22px;
+      margin-bottom: 14px;
+    }
+
+    .source-card .eyebrow,
+    .source-card .lede {
+      color: var(--border);
+    }
+
+    .source-card input {
+      margin-top: 18px;
+      background: var(--graphite-a);
+      color: var(--white);
+      border-color: var(--graphite-d);
+    }
+
+    .source-card input::placeholder {
+      color: var(--border-strong);
+    }
+
+    .source-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .extraction-status {
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--gray);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.38;
+      margin-bottom: 14px;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      margin-top: 4px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .feature-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--white);
+      display: grid;
+      gap: 8px;
+    }
+
+    .feature-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .feature-title {
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .feature-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.38;
+      margin: 0;
+    }
+
+    .review-pill {
+      flex: 0 0 auto;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--gray);
+      padding: 4px 8px;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .feature-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--link);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .asset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .asset-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--gray);
+      min-height: 132px;
+      padding: 10px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 8px;
+    }
+
+    .asset-thumb {
+      border-radius: 12px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      min-height: 82px;
+      overflow: hidden;
+    }
+
+    .asset-thumb img,
+    .asset-thumb svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .asset-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-rows: auto minmax(600px, 1fr);
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .hero {
+      background: var(--black);
+      color: var(--white);
+      border-radius: var(--radius-large);
+      padding: clamp(24px, 4vw, 46px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      gap: 28px;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero .eyebrow,
+    .hero .lede {
+      color: var(--border);
+    }
+
+    .hero h1 {
+      max-width: 760px;
+    }
+
+    .hero-device {
+      border-radius: 28px;
+      background: var(--graphite-a);
+      border: 1px solid var(--graphite-d);
+      aspect-ratio: 4 / 5;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .hero-tile {
+      border-radius: 18px;
+      background: var(--graphite-c);
+      border: 1px solid var(--graphite-d);
+    }
+
+    .hero-tile:first-child {
+      background: var(--white);
+    }
+
+    .editor-shell {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-large);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .editor-toolbar {
+      min-height: 58px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--white);
+    }
+
+    .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .canvas-stage {
+      background: var(--gray);
+      min-height: 640px;
+      overflow: auto;
+      padding: clamp(16px, 2vw, 28px);
+      display: grid;
+      place-items: center;
+    }
+
+    .artboard {
+      width: min(92vw, 520px);
+      aspect-ratio: 4 / 5;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 36px;
+      position: relative;
+      overflow: hidden;
+      transform-origin: center;
+    }
+
+    .artboard.dark {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .artboard-header {
+      position: absolute;
+      left: 34px;
+      right: 34px;
+      top: 34px;
+      z-index: 1;
+      display: grid;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .artboard-kicker {
+      color: var(--bright);
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+      font-weight: 600;
+    }
+
+    .artboard-title {
+      font-family: var(--display);
+      font-size: clamp(34px, 5vw, 50px);
+      line-height: 1.04;
+      letter-spacing: -0.5px;
+      font-weight: 600;
+      max-width: 10ch;
+    }
+
+    .artboard-subtitle {
+      color: var(--border);
+      font-size: 15px;
+      line-height: 1.38;
+      max-width: 28ch;
+    }
+
+    .canvas-element {
+      position: absolute;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .canvas-element.selected {
+      border-color: var(--blue);
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .element-tile {
+      background: var(--gray);
+      border-color: var(--border);
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+      align-content: end;
+      color: var(--ink);
+    }
+
+    .element-tile.dark {
+      background: var(--graphite-a);
+      color: var(--white);
+      border-color: var(--graphite-d);
+    }
+
+    .element-tile.blue {
+      background: var(--blue);
+      color: var(--white);
+      border-color: var(--blue);
+    }
+
+    .element-title {
+      font-family: var(--display);
+      font-size: 26px;
+      line-height: 1.08;
+      letter-spacing: -0.2px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .element-body {
+      font-size: 13px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .element-tile.dark .element-body,
+    .element-tile.blue .element-body {
+      color: var(--border);
+    }
+
+    .element-image {
+      display: grid;
+      place-items: center;
+      overflow: visible;
+      pointer-events: auto;
+    }
+
+    .element-image img,
+    .element-image svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    .cutout-note {
+      position: absolute;
+      right: -8px;
+      top: -8px;
+      background: var(--white);
+      color: var(--link);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 4px 7px;
+      font-size: 10px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .layer-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .layer-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--white);
+      padding: 10px 11px;
+      display: grid;
+      gap: 2px;
+    }
+
+    .layer-item.active {
+      border-color: var(--blue);
+    }
+
+    .layer-name {
+      font-size: 13px;
+      line-height: 1.29;
+      font-weight: 600;
+    }
+
+    .layer-type {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .inspector {
+      display: grid;
+      gap: 14px;
+      align-self: start;
+      position: sticky;
+      top: 64px;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 3px;
+      background: var(--gray);
+      margin-bottom: 12px;
+    }
+
+    .segment {
+      border: 0;
+      min-height: 34px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .segment.active {
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+
+    .property-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.47;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--gray);
+    }
+
+    .tone-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .tone {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-height: 38px;
+      background: var(--white);
+    }
+
+    .tone[data-tone="gray"] {
+      background: var(--gray);
+    }
+
+    .tone[data-tone="dark"] {
+      background: var(--graphite-a);
+    }
+
+    .tone[data-tone="blue"] {
+      background: var(--blue);
+    }
+
+    .tone.active {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .upload-box {
+      border: 1px dashed var(--border-strong);
+      background: var(--gray);
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 100;
+      right: 20px;
+      bottom: 20px;
+      background: var(--ink);
+      color: var(--white);
+      border-radius: var(--radius-pill);
+      padding: 12px 16px;
+      font-size: 14px;
+      line-height: 1.29;
+      opacity: 0;
+      transform: translateY(18px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 1240px) {
+      .layout {
+        grid-template-columns: minmax(300px, 370px) minmax(420px, 1fr);
+      }
+
+      .inspector {
+        grid-column: 1 / -1;
+        position: static;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .inspector .panel:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace {
+        grid-template-rows: auto auto;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-device {
+        display: none;
+      }
+
+      .inspector {
+        grid-template-columns: 1fr;
+      }
+
+      .source-card {
+        border-radius: 24px;
+      }
+
+      .artboard {
+        width: min(100%, 500px);
+      }
+
+      .editor-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topbar .nav-link {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar {
+        height: auto;
+        min-height: 48px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+
+      .top-actions .btn.secondary {
+        display: none;
+      }
+
+      .asset-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .canvas-stage {
+        padding: 12px;
+      }
+
+      .artboard {
+        border-radius: 26px;
+      }
+
+      .artboard-header {
+        left: 24px;
+        right: 24px;
+        top: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Product Infograph Studio</span>
+      </div>
+      <div class="top-actions">
+        <button class="nav-link" type="button">Templates</button>
+        <button class="nav-link" type="button">Assets</button>
+        <button class="btn secondary" type="button" id="copyBtn">Copy text</button>
+        <button class="btn primary" type="button" id="exportBtn">Export</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="source-column">
+        <section class="source-card">
+          <p class="eyebrow">Product source</p>
+          <h2>Paste a product page.</h2>
+          <p class="lede">Extract the product name, feature claims, and image candidates, then stitch them into editable tiles.</p>
+          <label class="sr-only" for="productUrl">Product URL</label>
+          <input id="productUrl" type="url" value="https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/" placeholder="https://www.brand.com/product">
+          <div class="source-actions">
+            <button class="btn primary" id="extractBtn" type="button">Extract product</button>
+            <button class="btn secondary" id="sampleBtn" type="button">Reload example</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Extraction</p>
+            <h2>Review product features.</h2>
+          </div>
+          <div class="panel-body">
+            <div class="extraction-status">
+              <span class="pulse" aria-hidden="true"></span>
+              <span id="extractStatus">Ready to extract from the product page URL.</span>
+            </div>
+            <div class="feature-list" id="featureList"></div>
+          </div>
+        </section>
+
+        <section class="panel" style="margin-top:14px">
+          <div class="panel-header">
+            <p class="eyebrow">Cutout assets</p>
+            <h2>Images prepared for tiles.</h2>
+          </div>
+          <div class="panel-body">
+            <div class="upload-box">
+              <label for="imageUpload">Add product image</label>
+              <input id="imageUpload" type="file" accept="image/*">
+              <span class="hint">Uploaded images are added to the asset tray and can be placed on the canvas.</span>
+            </div>
+            <div class="asset-grid" id="assetGrid"></div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">Social-ready product storytelling</p>
+            <h1>Generate an editable product infographic from one link.</h1>
+            <p class="lede">The editor turns extracted features and background-removed product images into draggable Apple-style tiles for Instagram feed, story, and post layouts.</p>
+          </div>
+          <div class="hero-device" aria-hidden="true">
+            <div class="hero-tile"></div>
+            <div class="hero-tile"></div>
+            <div class="hero-tile"></div>
+          </div>
+        </section>
+
+        <section class="editor-shell">
+          <div class="editor-toolbar">
+            <div class="tool-group">
+              <button class="btn subtle" id="addHeadlineBtn" type="button">Add headline</button>
+              <button class="btn subtle" id="addTileBtn" type="button">Add tile</button>
+              <button class="btn subtle" id="addImageBtn" type="button">Add image</button>
+            </div>
+            <div class="tool-group">
+              <label class="sr-only" for="formatSelect">Format</label>
+              <select id="formatSelect" aria-label="Format">
+                <option value="feed">Instagram feed 4:5</option>
+                <option value="story">Instagram story 9:16</option>
+                <option value="square">Square post 1:1</option>
+              </select>
+              <button class="btn dark" id="composeBtn" type="button">Compose tiles</button>
+            </div>
+          </div>
+
+          <div class="canvas-stage" id="stage">
+            <article class="artboard dark" id="artboard" aria-label="Editable infographic canvas">
+              <div class="artboard-header">
+                <div class="artboard-kicker" id="canvasKicker">Samsung OLED TV</div>
+                <div class="artboard-title" id="canvasTitle">OLED made for cinematic rooms.</div>
+                <div class="artboard-subtitle" id="canvasSubtitle">Key product features extracted from the source page and arranged for a social post.</div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <aside class="inspector">
+        <section class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Inspector</p>
+            <h2>Edit selected item.</h2>
+          </div>
+          <div class="panel-body">
+            <div id="emptyInspector" class="empty-state">Select a canvas element to edit its text, size, tone, and layer position.</div>
+
+            <div id="activeInspector" hidden>
+              <div class="field">
+                <label for="propTitle">Title</label>
+                <input id="propTitle" type="text">
+              </div>
+              <div class="field">
+                <label for="propBody">Body</label>
+                <textarea id="propBody"></textarea>
+              </div>
+              <div class="property-grid">
+                <div class="field">
+                  <label for="propWidth">Width</label>
+                  <input id="propWidth" type="number" min="60" max="520">
+                </div>
+                <div class="field">
+                  <label for="propHeight">Height</label>
+                  <input id="propHeight" type="number" min="50" max="650">
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">Tone</div>
+                <div class="tone-row" id="toneRow">
+                  <button class="tone" type="button" data-tone="gray" aria-label="Gray"></button>
+                  <button class="tone" type="button" data-tone="white" aria-label="White"></button>
+                  <button class="tone" type="button" data-tone="dark" aria-label="Dark"></button>
+                  <button class="tone" type="button" data-tone="blue" aria-label="Blue"></button>
+                </div>
+              </div>
+              <div class="tool-group">
+                <button class="btn primary" id="applyPropsBtn" type="button">Apply changes</button>
+                <button class="btn secondary" id="deleteBtn" type="button">Delete</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Layers</p>
+            <h2>Canvas order</h2>
+          </div>
+          <div class="panel-body">
+            <div class="layer-list" id="layerList"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <p class="eyebrow">Product fields</p>
+            <h2>Editable source copy</h2>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="productNameInput">Product name</label>
+              <input id="productNameInput" type="text" value="Samsung 77&quot; Class OLED S90F">
+            </div>
+            <div class="field">
+              <label for="headlineInput">Infographic headline</label>
+              <input id="headlineInput" type="text" value="OLED made for cinematic rooms.">
+            </div>
+            <div class="field">
+              <label for="subtitleInput">Subhead</label>
+              <textarea id="subtitleInput">Key product features extracted from the source page and arranged for a social post.</textarea>
+            </div>
+            <button class="btn primary" id="applyHeaderBtn" type="button">Update header</button>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Updated</div>
+
+  <script>
+    const productUrl = document.querySelector("#productUrl");
+    const extractBtn = document.querySelector("#extractBtn");
+    const sampleBtn = document.querySelector("#sampleBtn");
+    const extractStatus = document.querySelector("#extractStatus");
+    const featureList = document.querySelector("#featureList");
+    const assetGrid = document.querySelector("#assetGrid");
+    const artboard = document.querySelector("#artboard");
+    const stage = document.querySelector("#stage");
+    const addHeadlineBtn = document.querySelector("#addHeadlineBtn");
+    const addTileBtn = document.querySelector("#addTileBtn");
+    const addImageBtn = document.querySelector("#addImageBtn");
+    const composeBtn = document.querySelector("#composeBtn");
+    const formatSelect = document.querySelector("#formatSelect");
+    const emptyInspector = document.querySelector("#emptyInspector");
+    const activeInspector = document.querySelector("#activeInspector");
+    const propTitle = document.querySelector("#propTitle");
+    const propBody = document.querySelector("#propBody");
+    const propWidth = document.querySelector("#propWidth");
+    const propHeight = document.querySelector("#propHeight");
+    const applyPropsBtn = document.querySelector("#applyPropsBtn");
+    const deleteBtn = document.querySelector("#deleteBtn");
+    const toneRow = document.querySelector("#toneRow");
+    const layerList = document.querySelector("#layerList");
+    const productNameInput = document.querySelector("#productNameInput");
+    const headlineInput = document.querySelector("#headlineInput");
+    const subtitleInput = document.querySelector("#subtitleInput");
+    const applyHeaderBtn = document.querySelector("#applyHeaderBtn");
+    const canvasKicker = document.querySelector("#canvasKicker");
+    const canvasTitle = document.querySelector("#canvasTitle");
+    const canvasSubtitle = document.querySelector("#canvasSubtitle");
+    const imageUpload = document.querySelector("#imageUpload");
+    const copyBtn = document.querySelector("#copyBtn");
+    const exportBtn = document.querySelector("#exportBtn");
+
+    const tvSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+        <rect x="54" y="34" width="532" height="300" rx="20" fill="#000000"/>
+        <rect x="74" y="54" width="492" height="260" rx="12" fill="#272729"/>
+        <path d="M180 370h280" stroke="#86868b" stroke-width="20" stroke-linecap="round"/>
+        <path d="M320 328v44" stroke="#86868b" stroke-width="20" stroke-linecap="round"/>
+        <rect x="112" y="86" width="416" height="196" rx="18" fill="#1d1d1f"/>
+        <circle cx="206" cy="178" r="58" fill="#0071e3"/>
+        <circle cx="428" cy="176" r="72" fill="#2997ff"/>
+      </svg>
+    `);
+
+    const remoteSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 420">
+        <rect x="92" y="20" width="96" height="380" rx="48" fill="#1d1d1f"/>
+        <circle cx="140" cy="72" r="14" fill="#424245"/>
+        <rect x="120" y="112" width="40" height="148" rx="20" fill="#272729"/>
+        <circle cx="140" cy="318" r="24" fill="#0071e3"/>
+      </svg>
+    `);
+
+    const panelSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360">
+        <rect x="42" y="44" width="436" height="236" rx="32" fill="#000000"/>
+        <rect x="70" y="72" width="380" height="180" rx="22" fill="#272729"/>
+        <path d="M92 296h336" stroke="#86868b" stroke-width="18" stroke-linecap="round"/>
+        <path d="M118 118h284M118 166h214M118 214h154" stroke="#f5f5f7" stroke-width="18" stroke-linecap="round"/>
+      </svg>
+    `);
+
+    let features = [];
+    let assets = [];
+    let elements = [];
+    let selectedId = null;
+    let selectedTone = "gray";
+    let dragState = null;
+    let zCounter = 10;
+
+    function makeId(prefix) {
+      return prefix + "-" + Math.random().toString(36).slice(2, 9);
+    }
+
+    function toast(message) {
+      const node = document.querySelector("#toast");
+      node.textContent = message;
+      node.classList.add("visible");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => node.classList.remove("visible"), 1800);
+    }
+
+    function getExampleProduct() {
+      return {
+        name: "Samsung 77\" Class OLED S90F",
+        headline: "OLED made for cinematic rooms.",
+        subtitle: "A premium TV story stitched from extracted product features and clean product cutouts.",
+        features: [
+          {
+            title: "OLED HDR+",
+            body: "High-contrast OLED picture quality designed to keep bright scenes vivid and dark scenes detailed."
+          },
+          {
+            title: "Samsung Vision AI",
+            body: "AI-assisted viewing features help optimize picture and sound around what is playing."
+          },
+          {
+            title: "Motion Xcelerator 144Hz",
+            body: "Fast motion handling for sports, games, and high-frame-rate entertainment."
+          },
+          {
+            title: "NQ4 AI Gen3 Processor",
+            body: "An AI-powered processor improves clarity, depth, and scene-by-scene performance."
+          },
+          {
+            title: "LaserSlim design",
+            body: "A slim profile keeps the product visually quiet when mounted or placed in a living room."
+          },
+          {
+            title: "Gaming Hub",
+            body: "Game streaming and console access are organized in one TV-native destination."
+          }
+        ],
+        assets: [
+          { name: "OLED TV front", src: "data:image/svg+xml," + tvSvg, cutout: true },
+          { name: "Slim remote", src: "data:image/svg+xml," + remoteSvg, cutout: true },
+          { name: "Feature panel", src: "data:image/svg+xml," + panelSvg, cutout: true }
+        ]
+      };
+    }
+
+    function simulateExtraction() {
+      const url = productUrl.value.trim();
+      if (!url) {
+        toast("Paste a product URL first");
+        return;
+      }
+
+      extractStatus.textContent = "Reading product title, feature modules, gallery images, and media metadata…";
+
+      window.setTimeout(() => {
+        const product = getExampleProduct();
+        productNameInput.value = product.name;
+        headlineInput.value = product.headline;
+        subtitleInput.value = product.subtitle;
+        canvasKicker.textContent = product.name;
+        canvasTitle.textContent = product.headline;
+        canvasSubtitle.textContent = product.subtitle;
+        features = product.features;
+        assets = product.assets.map(asset => ({ ...asset, id: makeId("asset") }));
+        extractStatus.textContent = "Product features and image candidates extracted. Review, add to canvas, or replace with uploaded images.";
+        renderFeatures();
+        renderAssets();
+        composeInitialCanvas();
+        toast("Product extracted");
+      }, 620);
+    }
+
+    function renderFeatures() {
+      featureList.innerHTML = "";
+
+      features.forEach((feature, index) => {
+        const node = document.createElement("article");
+        node.className = "feature-item";
+        node.innerHTML = `
+          <div class="feature-top">
+            <div>
+              <p class="feature-title"></p>
+              <p class="feature-copy"></p>
+            </div>
+            <span class="review-pill">Review</span>
+          </div>
+          <div class="feature-actions">
+            <button class="mini-btn" type="button" data-action="tile">Add tile</button>
+            <button class="mini-btn" type="button" data-action="headline">Use headline</button>
+          </div>
+        `;
+        node.querySelector(".feature-title").textContent = feature.title;
+        node.querySelector(".feature-copy").textContent = feature.body;
+        node.querySelector('[data-action="tile"]').addEventListener("click", () => {
+          addFeatureTile(index);
+        });
+        node.querySelector('[data-action="headline"]').addEventListener("click", () => {
+          headlineInput.value = feature.title;
+          subtitleInput.value = feature.body;
+          applyHeader();
+          toast("Header updated");
+        });
+        featureList.appendChild(node);
+      });
+    }
+
+    function renderAssets() {
+      assetGrid.innerHTML = "";
+
+      assets.forEach(asset => {
+        const node = document.createElement("article");
+        node.className = "asset-card";
+        node.innerHTML = `
+          <div class="asset-thumb"><img alt=""></div>
+          <div class="asset-meta">
+            <span></span>
+            <button class="mini-btn" type="button">Place</button>
+          </div>
+        `;
+        node.querySelector("img").src = asset.src;
+        node.querySelector("img").alt = asset.name;
+        node.querySelector("span").textContent = asset.cutout ? "Cutout ready" : "Image";
+        node.querySelector("button").addEventListener("click", () => addAssetToCanvas(asset.id));
+        assetGrid.appendChild(node);
+      });
+    }
+
+    function addElement(partial) {
+      const element = {
+        id: makeId("el"),
+        type: partial.type || "tile",
+        title: partial.title || "Feature",
+        body: partial.body || "Describe the product benefit.",
+        x: partial.x ?? 40,
+        y: partial.y ?? 260,
+        w: partial.w ?? 190,
+        h: partial.h ?? 132,
+        tone: partial.tone || "gray",
+        src: partial.src || "",
+        cutout: partial.cutout || false,
+        z: ++zCounter
+      };
+
+      elements.push(element);
+      selectedId = element.id;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      return element;
+    }
+
+    function addFeatureTile(index) {
+      const feature = features[index] || { title: "Feature", body: "Describe the product benefit." };
+      const offset = elements.filter(item => item.type === "tile").length * 18;
+      addElement({
+        type: "tile",
+        title: feature.title,
+        body: feature.body,
+        x: 28 + offset,
+        y: 292 + offset,
+        w: 212,
+        h: 138,
+        tone: index % 3 === 0 ? "blue" : "gray"
+      });
+      toast("Feature tile added");
+    }
+
+    function addAssetToCanvas(assetId) {
+      const asset = assets.find(item => item.id === assetId) || assets[0];
+      if (!asset) return;
+      addElement({
+        type: "image",
+        title: asset.name,
+        body: "",
+        x: 212,
+        y: 178,
+        w: 250,
+        h: 170,
+        src: asset.src,
+        cutout: asset.cutout,
+        tone: "white"
+      });
+      toast("Image placed");
+    }
+
+    function composeInitialCanvas() {
+      elements = [];
+      selectedId = null;
+      zCounter = 10;
+
+      if (assets[0]) {
+        addElement({
+          type: "image",
+          title: assets[0].name,
+          src: assets[0].src,
+          cutout: true,
+          x: 145,
+          y: 176,
+          w: 320,
+          h: 210,
+          tone: "white"
+        });
+      }
+
+      features.slice(0, 3).forEach((feature, index) => {
+        addElement({
+          type: "tile",
+          title: feature.title,
+          body: feature.body,
+          x: 28 + index * 154,
+          y: 430,
+          w: 146,
+          h: 164,
+          tone: index === 1 ? "blue" : "gray"
+        });
+      });
+
+      selectedId = null;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+    }
+
+    function renderCanvas() {
+      artboard.querySelectorAll(".canvas-element").forEach(node => node.remove());
+
+      elements
+        .slice()
+        .sort((a, b) => a.z - b.z)
+        .forEach(element => {
+          const node = document.createElement("div");
+          node.className = "canvas-element";
+          node.dataset.id = element.id;
+          node.style.left = element.x + "px";
+          node.style.top = element.y + "px";
+          node.style.width = element.w + "px";
+          node.style.height = element.h + "px";
+          node.style.zIndex = String(element.z);
+
+          if (element.id === selectedId) node.classList.add("selected");
+
+          if (element.type === "image") {
+            node.classList.add("element-image");
+            const img = document.createElement("img");
+            img.src = element.src;
+            img.alt = element.title;
+            node.appendChild(img);
+            if (element.cutout) {
+              const badge = document.createElement("span");
+              badge.className = "cutout-note";
+              badge.textContent = "Cutout";
+              node.appendChild(badge);
+            }
+          } else {
+            node.classList.add("element-tile");
+            if (element.tone === "dark") node.classList.add("dark");
+            if (element.tone === "blue") node.classList.add("blue");
+
+            const title = document.createElement("div");
+            title.className = "element-title";
+            title.textContent = element.title;
+
+            const body = document.createElement("div");
+            body.className = "element-body";
+            body.textContent = element.body;
+
+            node.appendChild(title);
+            node.appendChild(body);
+          }
+
+          node.addEventListener("pointerdown", startDrag);
+          node.addEventListener("click", event => {
+            event.stopPropagation();
+            selectElement(element.id);
+          });
+
+          artboard.appendChild(node);
+        });
+    }
+
+    function selectElement(id) {
+      selectedId = id;
+      const element = elements.find(item => item.id === id);
+      if (element) {
+        element.z = ++zCounter;
+      }
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+    }
+
+    function startDrag(event) {
+      const node = event.currentTarget;
+      const element = elements.find(item => item.id === node.dataset.id);
+      if (!element) return;
+
+      selectedId = element.id;
+      element.z = ++zCounter;
+      renderLayers();
+      syncInspector();
+
+      dragState = {
+        id: element.id,
+        startX: event.clientX,
+        startY: event.clientY,
+        baseX: element.x,
+        baseY: element.y
+      };
+
+      node.setPointerCapture(event.pointerId);
+      window.addEventListener("pointermove", onDrag);
+      window.addEventListener("pointerup", endDrag, { once: true });
+    }
+
+    function onDrag(event) {
+      if (!dragState) return;
+
+      const element = elements.find(item => item.id === dragState.id);
+      if (!element) return;
+
+      const rect = artboard.getBoundingClientRect();
+      const scale = rect.width / 520;
+      const dx = (event.clientX - dragState.startX) / scale;
+      const dy = (event.clientY - dragState.startY) / scale;
+
+      element.x = Math.max(0, Math.min(520 - element.w, dragState.baseX + dx));
+      element.y = Math.max(0, Math.min(650 - element.h, dragState.baseY + dy));
+
+      const node = artboard.querySelector(`[data-id="${element.id}"]`);
+      if (node) {
+        node.style.left = element.x + "px";
+        node.style.top = element.y + "px";
+        node.style.zIndex = String(element.z);
+        node.classList.add("selected");
+      }
+    }
+
+    function endDrag() {
+      dragState = null;
+      window.removeEventListener("pointermove", onDrag);
+      renderCanvas();
+      renderLayers();
+    }
+
+    function renderLayers() {
+      layerList.innerHTML = "";
+
+      elements
+        .slice()
+        .sort((a, b) => b.z - a.z)
+        .forEach(element => {
+          const node = document.createElement("button");
+          node.type = "button";
+          node.className = "layer-item";
+          if (element.id === selectedId) node.classList.add("active");
+          node.innerHTML = `
+            <span class="layer-name"></span>
+            <span class="layer-type"></span>
+          `;
+          node.querySelector(".layer-name").textContent = element.title || "Untitled";
+          node.querySelector(".layer-type").textContent = element.type === "image" ? "Product cutout" : "Text tile";
+          node.addEventListener("click", () => selectElement(element.id));
+          layerList.appendChild(node);
+        });
+
+      if (!elements.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No layers yet. Add a feature tile or product image.";
+        layerList.appendChild(empty);
+      }
+    }
+
+    function syncInspector() {
+      const element = elements.find(item => item.id === selectedId);
+
+      if (!element) {
+        emptyInspector.hidden = false;
+        activeInspector.hidden = true;
+        return;
+      }
+
+      emptyInspector.hidden = true;
+      activeInspector.hidden = false;
+
+      propTitle.value = element.title || "";
+      propBody.value = element.body || "";
+      propWidth.value = Math.round(element.w);
+      propHeight.value = Math.round(element.h);
+      selectedTone = element.tone || "gray";
+
+      toneRow.querySelectorAll(".tone").forEach(button => {
+        button.classList.toggle("active", button.dataset.tone === selectedTone);
+      });
+
+      propBody.disabled = element.type === "image";
+    }
+
+    function applyProperties() {
+      const element = elements.find(item => item.id === selectedId);
+      if (!element) {
+        toast("Select an element first");
+        return;
+      }
+
+      element.title = propTitle.value.trim() || "Untitled";
+      element.body = propBody.value.trim();
+      element.w = Math.max(60, Math.min(520, Number(propWidth.value) || element.w));
+      element.h = Math.max(50, Math.min(650, Number(propHeight.value) || element.h));
+      element.tone = selectedTone;
+
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      toast("Element updated");
+    }
+
+    function deleteSelected() {
+      if (!selectedId) return;
+      elements = elements.filter(item => item.id !== selectedId);
+      selectedId = null;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      toast("Element deleted");
+    }
+
+    function applyHeader() {
+      canvasKicker.textContent = productNameInput.value.trim() || "Product";
+      canvasTitle.textContent = headlineInput.value.trim() || "Product story";
+      canvasSubtitle.textContent = subtitleInput.value.trim() || "Feature copy ready for social export.";
+    }
+
+    function setFormat() {
+      const value = formatSelect.value;
+      if (value === "story") {
+        artboard.style.aspectRatio = "9 / 16";
+        artboard.style.width = "min(86vw, 390px)";
+      } else if (value === "square") {
+        artboard.style.aspectRatio = "1 / 1";
+        artboard.style.width = "min(92vw, 520px)";
+      } else {
+        artboard.style.aspectRatio = "4 / 5";
+        artboard.style.width = "min(92vw, 520px)";
+      }
+      toast("Format updated");
+    }
+
+    function copyText() {
+      const lines = [
+        canvasKicker.textContent,
+        canvasTitle.textContent,
+        canvasSubtitle.textContent,
+        "",
+        ...elements
+          .filter(item => item.type === "tile")
+          .map(item => `${item.title}: ${item.body}`)
+      ];
+
+      navigator.clipboard.writeText(lines.join("\n")).then(() => {
+        toast("Infographic copy copied");
+      }).catch(() => {
+        toast("Copy unavailable");
+      });
+    }
+
+    function handleUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        assets.unshift({
+          id: makeId("asset"),
+          name: file.name.replace(/\.[^.]+$/, ""),
+          src: String(reader.result || ""),
+          cutout: true
+        });
+        renderAssets();
+        toast("Image added to assets");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    artboard.addEventListener("click", () => {
+      selectedId = null;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+    });
+
+    extractBtn.addEventListener("click", simulateExtraction);
+    sampleBtn.addEventListener("click", simulateExtraction);
+
+    addHeadlineBtn.addEventListener("click", () => {
+      addElement({
+        type: "tile",
+        title: "New headline",
+        body: "Edit this tile in the inspector.",
+        x: 42,
+        y: 170,
+        w: 238,
+        h: 118,
+        tone: "dark"
+      });
+    });
+
+    addTileBtn.addEventListener("click", () => addFeatureTile(0));
+    addImageBtn.addEventListener("click", () => {
+      if (assets[0]) addAssetToCanvas(assets[0].id);
+      else toast("Extract or upload an image first");
+    });
+
+    composeBtn.addEventListener("click", composeInitialCanvas);
+    formatSelect.addEventListener("change", setFormat);
+    applyPropsBtn.addEventListener("click", applyProperties);
+    deleteBtn.addEventListener("click", deleteSelected);
+    applyHeaderBtn.addEventListener("click", () => {
+      applyHeader();
+      toast("Header updated");
+    });
+    imageUpload.addEventListener("change", handleUpload);
+    copyBtn.addEventListener("click", copyText);
+    exportBtn.addEventListener("click", () => toast("Export prepared"));
+
+    toneRow.addEventListener("click", event => {
+      const button = event.target.closest(".tone");
+      if (!button) return;
+      selectedTone = button.dataset.tone;
+      toneRow.querySelectorAll(".tone").forEach(item => {
+        item.classList.toggle("active", item === button);
+      });
+    });
+
+    simulateExtraction();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2000 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liquid Glass Product Infograph Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: 213 45% 67%;
+      --foreground: 0 0% 100%;
+      --card: 213 45% 62%;
+      --card-foreground: 0 0% 100%;
+      --primary: 0 0% 100%;
+      --primary-foreground: 213 45% 67%;
+      --secondary: 213 45% 72%;
+      --secondary-foreground: 0 0% 100%;
+      --muted: 213 35% 60%;
+      --muted-foreground: 0 0% 100% / 0.7;
+      --accent: 213 45% 72%;
+      --accent-foreground: 0 0% 100%;
+      --destructive: 0 84.2% 60.2%;
+      --border: 0 0% 100% / 0.2;
+      --input: 0 0% 100% / 0.2;
+      --ring: 0 0% 100% / 0.3;
+      --radius: 9999px;
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+      --glass-blur: 16px;
+
+      --white: #ffffff;
+      --black: #000000;
+      --ink-soft: rgba(255, 255, 255, 0.72);
+      --ink-muted: rgba(255, 255, 255, 0.56);
+      --line: rgba(255, 255, 255, 0.16);
+      --line-strong: rgba(255, 255, 255, 0.28);
+      --panel: rgba(255, 255, 255, 0.055);
+      --panel-strong: rgba(255, 255, 255, 0.105);
+      --blue-glass: rgba(145, 172, 202, 0.18);
+      --stage-w: 520;
+      --stage-h: 650;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #000;
+      color: #fff;
+      font-family: "Barlow", sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #000;
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .font-heading {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+    }
+
+    .font-body {
+      font-family: "Barlow", sans-serif;
+    }
+
+    .liquid-glass {
+      background: rgba(255,255,255,0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.06), rgba(255,255,255,0), rgba(255,255,255,0.5));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .liquid-glass-strong {
+      background: rgba(255,255,255,0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow: 4px 4px 4px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass-strong::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.08), rgba(255,255,255,0), rgba(255,255,255,0.5));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .app {
+      position: relative;
+      min-height: 100vh;
+      isolation: isolate;
+    }
+
+    .ambient-video,
+    .ambient-fallback {
+      position: fixed;
+      inset: 0;
+      z-index: -4;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.42;
+      filter: saturate(0.72) contrast(1.06);
+      pointer-events: none;
+    }
+
+    .ambient-fallback {
+      background:
+        radial-gradient(circle at 18% 12%, rgba(168, 192, 224, 0.34), transparent 32%),
+        radial-gradient(circle at 78% 26%, rgba(255, 255, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 40% 90%, rgba(120, 145, 175, 0.2), transparent 36%),
+        #000;
+    }
+
+    .fade-top,
+    .fade-bottom {
+      position: fixed;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .fade-top {
+      top: 0;
+      height: 220px;
+      background: linear-gradient(to bottom, #000, transparent);
+    }
+
+    .fade-bottom {
+      bottom: 0;
+      height: 260px;
+      background: linear-gradient(to top, #000, transparent);
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.16;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, black, transparent 78%);
+    }
+
+    .nav {
+      position: fixed;
+      top: 16px;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 0 clamp(16px, 4vw, 64px);
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .nav-inner {
+      width: min(1280px, 100%);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 18px;
+      pointer-events: auto;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-mark svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .logo span {
+      display: none;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.82);
+      font-weight: 500;
+    }
+
+    .nav-pill {
+      justify-self: center;
+      border-radius: 9999px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .nav-pill a,
+    .nav-pill button {
+      position: relative;
+      z-index: 3;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      border: 0;
+      background: transparent;
+      border-radius: 9999px;
+      padding: 9px 14px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-pill .solid {
+      background: #fff;
+      color: #000;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 4px;
+      padding: 9px 15px;
+    }
+
+    .hero-action {
+      justify-self: end;
+    }
+
+    .btn {
+      position: relative;
+      z-index: 1;
+      min-height: 42px;
+      border: 0;
+      border-radius: 9999px;
+      padding: 11px 18px;
+      color: #fff;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn.white {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn.ghost {
+      color: rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .btn:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid rgba(255,255,255,0.72);
+      outline-offset: 3px;
+    }
+
+    .page {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      padding: 116px clamp(14px, 3vw, 38px) 48px;
+    }
+
+    .hero {
+      min-height: 520px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: clamp(22px, 5vw, 72px);
+      align-items: center;
+      padding: clamp(32px, 5vw, 76px);
+      border-radius: 44px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      width: fit-content;
+      border-radius: 9999px;
+      padding: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: rgba(255,255,255,0.74);
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .badge strong {
+      position: relative;
+      z-index: 3;
+      display: inline-flex;
+      background: #fff;
+      color: #000;
+      border-radius: 9999px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge span {
+      position: relative;
+      z-index: 3;
+      padding-right: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: clamp(60px, 9vw, 128px);
+      line-height: 0.82;
+      letter-spacing: -0.055em;
+      font-weight: 400;
+      max-width: 760px;
+    }
+
+    .blur-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(48px);
+      filter: blur(10px);
+      transition: opacity 800ms ease, transform 800ms ease, filter 800ms ease;
+      transition-delay: calc(var(--i) * 95ms);
+    }
+
+    .in .blur-word {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .lead {
+      margin: 26px 0 0;
+      max-width: 610px;
+      color: rgba(255,255,255,0.68);
+      font-size: clamp(16px, 2vw, 21px);
+      line-height: 1.42;
+      font-weight: 300;
+    }
+
+    .hero-ctas {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .source-card {
+      border-radius: 32px;
+      padding: 18px;
+    }
+
+    .source-frame {
+      position: relative;
+      z-index: 3;
+      border-radius: 28px;
+      background: rgba(0,0,0,0.34);
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .source-frame h2,
+    .panel h2,
+    .editor-title h2 {
+      margin: 0 0 8px;
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 38px;
+      line-height: 0.9;
+      letter-spacing: -0.035em;
+      font-weight: 400;
+    }
+
+    .source-frame p,
+    .panel-copy {
+      margin: 0;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .url-field {
+      margin-top: 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .input-shell {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-radius: 9999px;
+      padding: 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.28);
+      color: #fff;
+      border-radius: 22px;
+      padding: 13px 15px;
+      outline: 0;
+      min-height: 46px;
+    }
+
+    .input-shell input {
+      border: 0;
+      background: transparent;
+      border-radius: 9999px;
+      min-height: 42px;
+      padding-left: 14px;
+      color: #fff;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(255,255,255,0.42);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 94px;
+      line-height: 1.45;
+    }
+
+    select {
+      appearance: none;
+      border-radius: 9999px;
+      padding-right: 36px;
+      background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.8) 50%), linear-gradient(135deg, rgba(255,255,255,0.8) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 20px, calc(100% - 13px) 20px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .mini-status {
+      margin-top: 14px;
+      border-radius: 22px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 10px 1fr;
+      gap: 11px;
+      align-items: start;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.66);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .dot {
+      margin-top: 5px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 20px rgba(255,255,255,0.8);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(304px, 382px) minmax(480px, 1fr) minmax(292px, 348px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      border-radius: 30px;
+      padding: 18px;
+    }
+
+    .panel-inner {
+      position: relative;
+      z-index: 3;
+    }
+
+    .section-label {
+      margin: 0 0 12px;
+      color: rgba(255,255,255,0.54);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-weight: 500;
+    }
+
+    .features {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .feature {
+      border-radius: 22px;
+      padding: 14px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+
+    .feature:hover {
+      background: rgba(255,255,255,0.085);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .feature-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+    }
+
+    .feature-title {
+      margin: 0;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.18;
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.58);
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    .feature-body {
+      margin: 0 0 12px;
+      color: rgba(255,255,255,0.58);
+      font-size: 13px;
+      line-height: 1.38;
+    }
+
+    .feature-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      min-height: 30px;
+      border: 1px solid rgba(255,255,255,0.16);
+      color: rgba(255,255,255,0.86);
+      background: rgba(255,255,255,0.055);
+      border-radius: 9999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .asset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .asset {
+      border-radius: 22px;
+      padding: 10px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: grid;
+      gap: 9px;
+      min-height: 134px;
+    }
+
+    .asset-thumb {
+      min-height: 88px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.045) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.045) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.045) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.045) 75%);
+      background-size: 18px 18px;
+      background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .asset-thumb img,
+    .asset-thumb svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .asset-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.55);
+      font-size: 11px;
+    }
+
+    .upload-box {
+      margin-top: 16px;
+      border-radius: 22px;
+      border: 1px dashed rgba(255,255,255,0.24);
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .upload-box label {
+      color: rgba(255,255,255,0.82);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .upload-box input {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      min-height: auto;
+      color: rgba(255,255,255,0.58);
+      font-size: 12px;
+    }
+
+    .editor {
+      border-radius: 36px;
+      overflow: hidden;
+      min-height: 770px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .toolbar {
+      position: relative;
+      z-index: 3;
+      min-height: 68px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .tool-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .editor-title {
+      display: grid;
+      gap: 2px;
+    }
+
+    .editor-title h2 {
+      font-size: 31px;
+      margin: 0;
+    }
+
+    .editor-title span {
+      color: rgba(255,255,255,0.52);
+      font-size: 12px;
+    }
+
+    .stage {
+      position: relative;
+      z-index: 3;
+      min-height: 700px;
+      display: grid;
+      place-items: center;
+      padding: clamp(16px, 3vw, 34px);
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 44%),
+        rgba(0,0,0,0.16);
+      overflow: auto;
+    }
+
+    .artboard {
+      position: relative;
+      width: min(92vw, 520px);
+      aspect-ratio: 4 / 5;
+      background:
+        radial-gradient(circle at 72% 26%, rgba(255,255,255,0.16), transparent 26%),
+        linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.025) 45%, rgba(255,255,255,0.07)),
+        #000;
+      border-radius: 42px;
+      overflow: hidden;
+      box-shadow: 0 34px 100px rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.16);
+      transform-origin: center;
+    }
+
+    .artboard::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.2), transparent 24%, transparent 74%, rgba(0,0,0,0.38)),
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: auto, 26px 26px, 26px 26px;
+    }
+
+    .canvas-header {
+      position: absolute;
+      left: 34px;
+      right: 34px;
+      top: 34px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .canvas-kicker {
+      color: rgba(255,255,255,0.66);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 11px;
+    }
+
+    .canvas-title {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: clamp(40px, 5vw, 58px);
+      line-height: 0.86;
+      letter-spacing: -0.045em;
+      max-width: 340px;
+    }
+
+    .canvas-subtitle {
+      margin-top: 14px;
+      max-width: 312px;
+      color: rgba(255,255,255,0.58);
+      line-height: 1.34;
+      font-size: 14px;
+    }
+
+    .canvas-element {
+      position: absolute;
+      z-index: 5;
+      border-radius: 24px;
+      user-select: none;
+      touch-action: none;
+      border: 1px solid transparent;
+    }
+
+    .canvas-element.selected {
+      outline: 1.5px solid rgba(255,255,255,0.92);
+      outline-offset: 4px;
+    }
+
+    .canvas-element.selected::after {
+      content: "";
+      position: absolute;
+      right: -8px;
+      bottom: -8px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.5);
+    }
+
+    .tile {
+      padding: 16px;
+      display: grid;
+      align-content: end;
+      gap: 9px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.13), 0 18px 44px rgba(0,0,0,0.18);
+    }
+
+    .tile.frost {
+      background: rgba(255,255,255,0.16);
+    }
+
+    .tile.ink {
+      background: rgba(0,0,0,0.52);
+    }
+
+    .tile.clear {
+      background: rgba(255,255,255,0.035);
+    }
+
+    .tile-title {
+      pointer-events: none;
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 30px;
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+      color: #fff;
+    }
+
+    .tile-body {
+      pointer-events: none;
+      color: rgba(255,255,255,0.63);
+      font-size: 13px;
+      line-height: 1.32;
+    }
+
+    .image-el {
+      display: grid;
+      place-items: center;
+      overflow: visible;
+    }
+
+    .image-el img,
+    .image-el svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      filter: drop-shadow(0 30px 46px rgba(0,0,0,0.44));
+    }
+
+    .cutout-badge {
+      position: absolute;
+      right: -10px;
+      top: -10px;
+      border-radius: 9999px;
+      padding: 5px 8px;
+      color: #000;
+      background: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .inspector {
+      position: sticky;
+      top: 96px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .field label,
+    .label {
+      color: rgba(255,255,255,0.76);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .property-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .tone {
+      min-height: 42px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.055);
+      color: rgba(255,255,255,0.78);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .tone.active {
+      background: #fff;
+      color: #000;
+    }
+
+    .empty {
+      border-radius: 22px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 14px;
+      color: rgba(255,255,255,0.58);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .layers {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .layer {
+      text-align: left;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      border-radius: 18px;
+      padding: 11px 12px;
+    }
+
+    .layer.active {
+      border-color: rgba(255,255,255,0.58);
+      background: rgba(255,255,255,0.11);
+    }
+
+    .layer strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .layer span {
+      display: block;
+      color: rgba(255,255,255,0.48);
+      font-size: 11px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 100;
+      border-radius: 9999px;
+      padding: 13px 17px;
+      color: #fff;
+      font-size: 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(24px);
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 180ms ease, transform 180ms ease;
+      pointer-events: none;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      filter: blur(10px);
+      transition: opacity 800ms ease, transform 800ms ease, filter 800ms ease;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1240px) {
+      .main-grid {
+        grid-template-columns: minmax(300px, 370px) minmax(480px, 1fr);
+      }
+
+      .inspector {
+        grid-column: 1 / -1;
+        position: static;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .inspector .panel:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 940px) {
+      .nav-pill {
+        display: none;
+      }
+
+      .logo span {
+        display: inline;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        border-radius: 34px;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .editor {
+        min-height: auto;
+      }
+
+      .inspector {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        padding-top: 96px;
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 62px;
+      }
+
+      .input-shell {
+        grid-template-columns: 1fr;
+        border-radius: 26px;
+      }
+
+      .input-shell .btn {
+        width: 100%;
+      }
+
+      .asset-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .artboard {
+        border-radius: 32px;
+      }
+
+      .canvas-header {
+        left: 24px;
+        right: 24px;
+        top: 24px;
+      }
+
+      .canvas-title {
+        font-size: 42px;
+      }
+
+      .hero-action .btn {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal,
+      .blur-word {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="ambient-fallback"></div>
+    <video class="ambient-video" autoplay loop muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Crect width='1600' height='900' fill='%23000'/%3E%3CradialGradient id='g' cx='50%25' cy='35%25' r='60%25'%3E%3Cstop stop-color='%2390abc9' stop-opacity='.5'/%3E%3Cstop offset='.55' stop-color='%23121a24' stop-opacity='.3'/%3E%3Cstop offset='1' stop-color='%23000'/%3E%3C/radialGradient%3E%3Crect width='1600' height='900' fill='url(%23g)'/%3E%3C/svg%3E">
+      <source src="https://plugin-assets.open-design.ai/plugins/liquid-glass-agency/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8-b7258e.mp4" type="video/mp4">
+    </video>
+    <div class="fade-top"></div>
+    <div class="fade-bottom"></div>
+    <div class="grain"></div>
+
+    <nav class="nav" aria-label="Main navigation">
+      <div class="nav-inner">
+        <a class="logo" href="#">
+          <span class="logo-mark liquid-glass-strong" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 14.5C5 9.8 8.8 6 13.5 6H19v5.5C19 16.2 15.2 20 10.5 20H5v-5.5Z" stroke="white" stroke-width="1.6"/>
+              <path d="M8 16c3.9-.5 6.5-3.1 7.4-7" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Infograph Studio</span>
+        </a>
+
+        <div class="nav-pill liquid-glass">
+          <a href="#source">Source</a>
+          <a href="#features">Features</a>
+          <a href="#editor">Editor</a>
+          <a href="#layers">Layers</a>
+          <button class="solid" type="button" id="navExtract">Extract
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="hero-action">
+          <button class="btn liquid-glass-strong" id="topExport" type="button">Export post</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page">
+      <section class="hero liquid-glass reveal">
+        <div>
+          <div class="badge liquid-glass">
+            <strong>New</strong>
+            <span>Product-link infographics with editable glass tiles.</span>
+          </div>
+          <h1 data-blur>Extract. Cut out. Compose.</h1>
+          <p class="lead reveal">Paste a product page, pull the features and images, remove backgrounds, then arrange a premium social infographic with Figma-like drag-and-drop editing.</p>
+          <div class="hero-ctas reveal">
+            <button class="btn liquid-glass-strong" id="heroExtract" type="button">Extract product
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button class="btn ghost" id="heroCompose" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              Compose tiles
+            </button>
+          </div>
+        </div>
+
+        <aside class="source-card liquid-glass" id="source">
+          <div class="source-frame">
+            <p class="section-label">Product source</p>
+            <h2>Start from a URL.</h2>
+            <p>Extraction is shown as an implementation-ready prototype: title, feature modules, product images, and cutout assets are staged for editing.</p>
+
+            <div class="url-field">
+              <label class="sr-only" for="productUrl">Product URL</label>
+              <div class="input-shell">
+                <input id="productUrl" type="url" value="https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/" placeholder="https://brand.com/product-page">
+                <button class="btn white" id="extractBtn" type="button">Extract</button>
+              </div>
+            </div>
+
+            <div class="mini-status">
+              <span class="dot" aria-hidden="true"></span>
+              <span id="extractStatus">Ready to parse the product page, collect image candidates, and prepare background-removed cutouts.</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="main-grid">
+        <aside class="stack">
+          <section class="panel liquid-glass reveal" id="features">
+            <div class="panel-inner">
+              <p class="section-label">Feature extraction</p>
+              <h2>Claims worth showing.</h2>
+              <p class="panel-copy">Review the product benefits, then place them as liquid-glass text tiles on the canvas.</p>
+              <div class="features" id="featureList"></div>
+            </div>
+          </section>
+
+          <section class="panel liquid-glass reveal">
+            <div class="panel-inner">
+              <p class="section-label">Image cutouts</p>
+              <h2>Product assets.</h2>
+              <p class="panel-copy">Images are staged as transparent cutouts so they can float above or between tiles.</p>
+              <div class="upload-box">
+                <label for="imageUpload">Add your own product image</label>
+                <input id="imageUpload" type="file" accept="image/*">
+              </div>
+              <div class="asset-grid" id="assetGrid"></div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="editor liquid-glass reveal" id="editor">
+          <div class="toolbar">
+            <div class="editor-title">
+              <h2>Glass canvas</h2>
+              <span>Drag elements. Select one to edit size, copy, and tone.</span>
+            </div>
+            <div class="tool-group">
+              <button class="btn ghost" id="addTileBtn" type="button">Add tile</button>
+              <button class="btn ghost" id="addImageBtn" type="button">Add image</button>
+              <select id="formatSelect" aria-label="Post format">
+                <option value="feed">Instagram feed 4:5</option>
+                <option value="story">Story 9:16</option>
+                <option value="square">Square 1:1</option>
+              </select>
+              <button class="btn liquid-glass-strong" id="composeBtn" type="button">Compose</button>
+            </div>
+          </div>
+
+          <div class="stage">
+            <article class="artboard" id="artboard" aria-label="Editable infographic artboard">
+              <header class="canvas-header">
+                <div class="canvas-kicker" id="canvasKicker">Samsung OLED TV</div>
+                <div class="canvas-title" id="canvasTitle">OLED, staged for cinema.</div>
+                <div class="canvas-subtitle" id="canvasSubtitle">A liquid-glass social story assembled from extracted product features and cutout imagery.</div>
+              </header>
+            </article>
+          </div>
+        </section>
+
+        <aside class="stack inspector" id="layers">
+          <section class="panel liquid-glass reveal">
+            <div class="panel-inner">
+              <p class="section-label">Inspector</p>
+              <h2>Edit selected.</h2>
+              <div class="empty" id="emptyInspector">Select a tile or image on the canvas to edit text, size, tone, or remove it.</div>
+
+              <div id="activeInspector" hidden>
+                <div class="field">
+                  <label for="propTitle">Title</label>
+                  <input id="propTitle" type="text">
+                </div>
+                <div class="field">
+                  <label for="propBody">Body</label>
+                  <textarea id="propBody"></textarea>
+                </div>
+                <div class="property-grid">
+                  <div class="field">
+                    <label for="propWidth">Width</label>
+                    <input id="propWidth" type="number" min="64" max="520">
+                  </div>
+                  <div class="field">
+                    <label for="propHeight">Height</label>
+                    <input id="propHeight" type="number" min="48" max="650">
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="label">Glass tone</div>
+                  <div class="tones" id="toneRow">
+                    <button class="tone active" type="button" data-tone="frost">Frost</button>
+                    <button class="tone" type="button" data-tone="ink">Ink</button>
+                    <button class="tone" type="button" data-tone="clear">Clear</button>
+                  </div>
+                </div>
+                <div class="tool-group" style="margin-top:14px">
+                  <button class="btn white" id="applyPropsBtn" type="button">Apply</button>
+                  <button class="btn ghost" id="deleteBtn" type="button">Delete</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel liquid-glass reveal">
+            <div class="panel-inner">
+              <p class="section-label">Source copy</p>
+              <h2>Header fields.</h2>
+              <div class="field">
+                <label for="productNameInput">Product name</label>
+                <input id="productNameInput" type="text" value="Samsung 77&quot; Class OLED S90F">
+              </div>
+              <div class="field">
+                <label for="headlineInput">Infographic headline</label>
+                <input id="headlineInput" type="text" value="OLED, staged for cinema.">
+              </div>
+              <div class="field">
+                <label for="subtitleInput">Subhead</label>
+                <textarea id="subtitleInput">A liquid-glass social story assembled from extracted product features and cutout imagery.</textarea>
+              </div>
+              <button class="btn white" id="applyHeaderBtn" type="button">Update header</button>
+            </div>
+          </section>
+
+          <section class="panel liquid-glass reveal">
+            <div class="panel-inner">
+              <p class="section-label">Layers</p>
+              <h2>Stack order.</h2>
+              <div class="layers" id="layerList"></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Updated</div>
+
+  <script>
+    const tvSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 430">
+        <defs>
+          <linearGradient id="screen" x1="0" x2="1" y1="0" y2="1">
+            <stop stop-color="#ffffff" stop-opacity=".88"/>
+            <stop offset=".28" stop-color="#9fb7d1" stop-opacity=".36"/>
+            <stop offset="1" stop-color="#000000"/>
+          </linearGradient>
+        </defs>
+        <rect x="56" y="38" width="568" height="314" rx="28" fill="#050505"/>
+        <rect x="82" y="64" width="516" height="262" rx="18" fill="url(#screen)"/>
+        <path d="M210 384h260" stroke="rgba(255,255,255,.78)" stroke-width="18" stroke-linecap="round"/>
+        <path d="M340 345v42" stroke="rgba(255,255,255,.68)" stroke-width="18" stroke-linecap="round"/>
+        <circle cx="240" cy="180" r="62" fill="rgba(255,255,255,.36)"/>
+        <circle cx="438" cy="172" r="86" fill="rgba(255,255,255,.18)"/>
+      </svg>
+    `);
+
+    const remoteSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 420">
+        <rect x="90" y="20" width="100" height="380" rx="50" fill="#0b0b0b"/>
+        <rect x="111" y="96" width="58" height="164" rx="29" fill="rgba(255,255,255,.12)"/>
+        <circle cx="140" cy="70" r="15" fill="rgba(255,255,255,.72)"/>
+        <circle cx="140" cy="320" r="25" fill="rgba(255,255,255,.86)"/>
+      </svg>
+    `);
+
+    const panelSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360">
+        <rect x="42" y="44" width="436" height="236" rx="36" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.34)" stroke-width="3"/>
+        <path d="M116 122h288M116 172h218M116 222h154" stroke="rgba(255,255,255,.82)" stroke-width="18" stroke-linecap="round"/>
+        <path d="M100 302h320" stroke="rgba(255,255,255,.38)" stroke-width="16" stroke-linecap="round"/>
+      </svg>
+    `);
+
+    const els = {
+      productUrl: document.querySelector("#productUrl"),
+      extractBtn: document.querySelector("#extractBtn"),
+      navExtract: document.querySelector("#navExtract"),
+      heroExtract: document.querySelector("#heroExtract"),
+      heroCompose: document.querySelector("#heroCompose"),
+      extractStatus: document.querySelector("#extractStatus"),
+      featureList: document.querySelector("#featureList"),
+      assetGrid: document.querySelector("#assetGrid"),
+      imageUpload: document.querySelector("#imageUpload"),
+      artboard: document.querySelector("#artboard"),
+      addTileBtn: document.querySelector("#addTileBtn"),
+      addImageBtn: document.querySelector("#addImageBtn"),
+      composeBtn: document.querySelector("#composeBtn"),
+      formatSelect: document.querySelector("#formatSelect"),
+      emptyInspector: document.querySelector("#emptyInspector"),
+      activeInspector: document.querySelector("#activeInspector"),
+      propTitle: document.querySelector("#propTitle"),
+      propBody: document.querySelector("#propBody"),
+      propWidth: document.querySelector("#propWidth"),
+      propHeight: document.querySelector("#propHeight"),
+      toneRow: document.querySelector("#toneRow"),
+      applyPropsBtn: document.querySelector("#applyPropsBtn"),
+      deleteBtn: document.querySelector("#deleteBtn"),
+      layerList: document.querySelector("#layerList"),
+      productNameInput: document.querySelector("#productNameInput"),
+      headlineInput: document.querySelector("#headlineInput"),
+      subtitleInput: document.querySelector("#subtitleInput"),
+      applyHeaderBtn: document.querySelector("#applyHeaderBtn"),
+      canvasKicker: document.querySelector("#canvasKicker"),
+      canvasTitle: document.querySelector("#canvasTitle"),
+      canvasSubtitle: document.querySelector("#canvasSubtitle"),
+      topExport: document.querySelector("#topExport"),
+      toast: document.querySelector("#toast")
+    };
+
+    let features = [];
+    let assets = [];
+    let elements = [];
+    let selectedId = null;
+    let selectedTone = "frost";
+    let zCounter = 10;
+    let drag = null;
+
+    function id(prefix) {
+      return prefix + "-" + Math.random().toString(36).slice(2, 9);
+    }
+
+    function toast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("visible");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => els.toast.classList.remove("visible"), 1800);
+    }
+
+    function exampleProduct() {
+      return {
+        name: "Samsung 77\" Class OLED S90F",
+        headline: "OLED, staged for cinema.",
+        subtitle: "A liquid-glass social story assembled from extracted product features and cutout imagery.",
+        features: [
+          {
+            title: "OLED HDR+",
+            body: "High-contrast OLED picture quality designed to keep bright scenes vivid and dark scenes detailed."
+          },
+          {
+            title: "Samsung Vision AI",
+            body: "AI-assisted viewing features help optimize picture and sound around what is playing."
+          },
+          {
+            title: "Motion Xcelerator 144Hz",
+            body: "Fast motion handling for sports, games, and high-frame-rate entertainment."
+          },
+          {
+            title: "NQ4 AI Gen3 Processor",
+            body: "An AI-powered processor improves clarity, depth, and scene-by-scene performance."
+          },
+          {
+            title: "LaserSlim Design",
+            body: "A slim profile keeps the product visually quiet when mounted or placed in a living room."
+          }
+        ],
+        assets: [
+          { name: "OLED TV cutout", src: "data:image/svg+xml," + tvSvg, cutout: true },
+          { name: "Remote cutout", src: "data:image/svg+xml," + remoteSvg, cutout: true },
+          { name: "Feature panel cutout", src: "data:image/svg+xml," + panelSvg, cutout: true }
+        ]
+      };
+    }
+
+    function extractProduct() {
+      const url = els.productUrl.value.trim();
+
+      if (!url) {
+        toast("Paste a product URL first");
+        return;
+      }
+
+      els.extractStatus.textContent = "Reading product modules, gallery images, alt text, and feature claims…";
+
+      setTimeout(() => {
+        const product = exampleProduct();
+
+        els.productNameInput.value = product.name;
+        els.headlineInput.value = product.headline;
+        els.subtitleInput.value = product.subtitle;
+
+        features = product.features;
+        assets = product.assets.map(asset => ({ ...asset, id: id("asset") }));
+
+        applyHeader();
+        renderFeatures();
+        renderAssets();
+        composeCanvas();
+
+        els.extractStatus.textContent = "Extraction complete. Feature tiles and transparent product cutouts are ready for canvas editing.";
+        toast("Product extracted");
+      }, 650);
+    }
+
+    function renderFeatures() {
+      els.featureList.innerHTML = "";
+
+      features.forEach((feature, index) => {
+        const node = document.createElement("article");
+        node.className = "feature";
+        node.innerHTML = `
+          <div class="feature-head">
+            <p class="feature-title"></p>
+            <span class="chip">Extracted</span>
+          </div>
+          <p class="feature-body"></p>
+          <div class="feature-actions">
+            <button class="mini-btn" type="button" data-action="tile">Place tile</button>
+            <button class="mini-btn" type="button" data-action="headline">Use as headline</button>
+          </div>
+        `;
+
+        node.querySelector(".feature-title").textContent = feature.title;
+        node.querySelector(".feature-body").textContent = feature.body;
+
+        node.querySelector('[data-action="tile"]').addEventListener("click", () => {
+          addFeatureTile(index);
+        });
+
+        node.querySelector('[data-action="headline"]').addEventListener("click", () => {
+          els.headlineInput.value = feature.title;
+          els.subtitleInput.value = feature.body;
+          applyHeader();
+          toast("Headline updated");
+        });
+
+        els.featureList.appendChild(node);
+      });
+    }
+
+    function renderAssets() {
+      els.assetGrid.innerHTML = "";
+
+      assets.forEach(asset => {
+        const node = document.createElement("article");
+        node.className = "asset";
+        node.innerHTML = `
+          <div class="asset-thumb"><img alt=""></div>
+          <div class="asset-meta">
+            <span></span>
+            <button class="mini-btn" type="button">Place</button>
+          </div>
+        `;
+        node.querySelector("img").src = asset.src;
+        node.querySelector("img").alt = asset.name;
+        node.querySelector("span").textContent = asset.cutout ? "Background removed" : "Image";
+        node.querySelector("button").addEventListener("click", () => addAsset(asset.id));
+        els.assetGrid.appendChild(node);
+      });
+    }
+
+    function addElement(partial) {
+      const element = {
+        id: id("el"),
+        type: partial.type || "tile",
+        title: partial.title || "Feature title",
+        body: partial.body || "Feature description goes here.",
+        src: partial.src || "",
+        x: partial.x ?? 40,
+        y: partial.y ?? 300,
+        w: partial.w ?? 188,
+        h: partial.h ?? 140,
+        tone: partial.tone || "frost",
+        cutout: Boolean(partial.cutout),
+        z: ++zCounter
+      };
+
+      elements.push(element);
+      selectedId = element.id;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      return element;
+    }
+
+    function addFeatureTile(index) {
+      const feature = features[index] || features[0] || { title: "Product feature", body: "Add a product benefit." };
+      const count = elements.filter(el => el.type === "tile").length;
+      addElement({
+        type: "tile",
+        title: feature.title,
+        body: feature.body,
+        x: 28 + (count % 3) * 156,
+        y: 412 + Math.floor(count / 3) * 34,
+        w: 148,
+        h: 168,
+        tone: count % 2 ? "clear" : "frost"
+      });
+      toast("Tile placed");
+    }
+
+    function addAsset(assetId) {
+      const asset = assets.find(item => item.id === assetId) || assets[0];
+      if (!asset) {
+        toast("Extract or upload an image first");
+        return;
+      }
+
+      addElement({
+        type: "image",
+        title: asset.name,
+        src: asset.src,
+        cutout: asset.cutout,
+        x: 180,
+        y: 170,
+        w: 280,
+        h: 190,
+        tone: "clear"
+      });
+      toast("Cutout placed");
+    }
+
+    function composeCanvas() {
+      elements = [];
+      selectedId = null;
+      zCounter = 10;
+
+      if (assets[0]) {
+        addElement({
+          type: "image",
+          title: assets[0].name,
+          src: assets[0].src,
+          cutout: true,
+          x: 146,
+          y: 174,
+          w: 330,
+          h: 224,
+          tone: "clear"
+        });
+      }
+
+      features.slice(0, 3).forEach((feature, index) => {
+        addElement({
+          type: "tile",
+          title: feature.title,
+          body: feature.body,
+          x: 28 + index * 156,
+          y: 430,
+          w: 146,
+          h: 170,
+          tone: index === 1 ? "ink" : "frost"
+        });
+      });
+
+      selectedId = null;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      toast("Canvas composed");
+    }
+
+    function renderCanvas() {
+      els.artboard.querySelectorAll(".canvas-element").forEach(node => node.remove());
+
+      elements
+        .slice()
+        .sort((a, b) => a.z - b.z)
+        .forEach(element => {
+          const node = document.createElement("div");
+          node.className = "canvas-element";
+          node.dataset.id = element.id;
+          node.style.left = element.x + "px";
+          node.style.top = element.y + "px";
+          node.style.width = element.w + "px";
+          node.style.height = element.h + "px";
+          node.style.zIndex = String(element.z);
+
+          if (element.id === selectedId) node.classList.add("selected");
+
+          if (element.type === "image") {
+            node.classList.add("image-el");
+            const img = document.createElement("img");
+            img.src = element.src;
+            img.alt = element.title;
+            node.appendChild(img);
+
+            if (element.cutout) {
+              const badge = document.createElement("span");
+              badge.className = "cutout-badge";
+              badge.textContent = "cutout";
+              node.appendChild(badge);
+            }
+          } else {
+            node.classList.add("tile", element.tone || "frost");
+            const title = document.createElement("div");
+            title.className = "tile-title";
+            title.textContent = element.title;
+
+            const body = document.createElement("div");
+            body.className = "tile-body";
+            body.textContent = element.body;
+
+            node.appendChild(title);
+            node.appendChild(body);
+          }
+
+          node.addEventListener("pointerdown", startDrag);
+          node.addEventListener("click", event => {
+            event.stopPropagation();
+            selectElement(element.id);
+          });
+
+          els.artboard.appendChild(node);
+        });
+    }
+
+    function selectElement(elementId) {
+      selectedId = elementId;
+      const element = elements.find(item => item.id === selectedId);
+      if (element) element.z = ++zCounter;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+    }
+
+    function startDrag(event) {
+      const node = event.currentTarget;
+      const element = elements.find(item => item.id === node.dataset.id);
+      if (!element) return;
+
+      selectedId = element.id;
+      element.z = ++zCounter;
+
+      const rect = els.artboard.getBoundingClientRect();
+      const scale = rect.width / 520;
+
+      drag = {
+        id: element.id,
+        scale,
+        startX: event.clientX,
+        startY: event.clientY,
+        baseX: element.x,
+        baseY: element.y
+      };
+
+      node.setPointerCapture(event.pointerId);
+      renderLayers();
+      syncInspector();
+
+      window.addEventListener("pointermove", onDrag);
+      window.addEventListener("pointerup", endDrag, { once: true });
+    }
+
+    function onDrag(event) {
+      if (!drag) return;
+
+      const element = elements.find(item => item.id === drag.id);
+      if (!element) return;
+
+      const dx = (event.clientX - drag.startX) / drag.scale;
+      const dy = (event.clientY - drag.startY) / drag.scale;
+
+      element.x = Math.max(0, Math.min(520 - element.w, drag.baseX + dx));
+      element.y = Math.max(0, Math.min(650 - element.h, drag.baseY + dy));
+
+      const node = els.artboard.querySelector(`[data-id="${element.id}"]`);
+      if (node) {
+        node.style.left = element.x + "px";
+        node.style.top = element.y + "px";
+        node.style.zIndex = String(element.z);
+        node.classList.add("selected");
+      }
+    }
+
+    function endDrag() {
+      drag = null;
+      window.removeEventListener("pointermove", onDrag);
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+    }
+
+    function renderLayers() {
+      els.layerList.innerHTML = "";
+
+      if (!elements.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No layers yet. Extract a product or add a tile.";
+        els.layerList.appendChild(empty);
+        return;
+      }
+
+      elements
+        .slice()
+        .sort((a, b) => b.z - a.z)
+        .forEach(element => {
+          const node = document.createElement("button");
+          node.className = "layer";
+          node.type = "button";
+          if (element.id === selectedId) node.classList.add("active");
+          node.innerHTML = `<strong></strong><span></span>`;
+          node.querySelector("strong").textContent = element.title || "Untitled";
+          node.querySelector("span").textContent = element.type === "image" ? "Product cutout" : "Glass text tile";
+          node.addEventListener("click", () => selectElement(element.id));
+          els.layerList.appendChild(node);
+        });
+    }
+
+    function syncInspector() {
+      const element = elements.find(item => item.id === selectedId);
+
+      if (!element) {
+        els.emptyInspector.hidden = false;
+        els.activeInspector.hidden = true;
+        return;
+      }
+
+      els.emptyInspector.hidden = true;
+      els.activeInspector.hidden = false;
+      els.propTitle.value = element.title || "";
+      els.propBody.value = element.body || "";
+      els.propBody.disabled = element.type === "image";
+      els.propWidth.value = Math.round(element.w);
+      els.propHeight.value = Math.round(element.h);
+      selectedTone = element.tone || "frost";
+
+      els.toneRow.querySelectorAll(".tone").forEach(button => {
+        button.classList.toggle("active", button.dataset.tone === selectedTone);
+      });
+    }
+
+    function applyProperties() {
+      const element = elements.find(item => item.id === selectedId);
+      if (!element) {
+        toast("Select an element first");
+        return;
+      }
+
+      element.title = els.propTitle.value.trim() || "Untitled";
+      element.body = els.propBody.value.trim();
+      element.w = Math.max(64, Math.min(520, Number(els.propWidth.value) || element.w));
+      element.h = Math.max(48, Math.min(650, Number(els.propHeight.value) || element.h));
+      element.tone = selectedTone;
+
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      toast("Element updated");
+    }
+
+    function deleteSelected() {
+      if (!selectedId) return;
+      elements = elements.filter(item => item.id !== selectedId);
+      selectedId = null;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+      toast("Element deleted");
+    }
+
+    function applyHeader() {
+      els.canvasKicker.textContent = els.productNameInput.value.trim() || "Product";
+      els.canvasTitle.textContent = els.headlineInput.value.trim() || "Product story";
+      els.canvasSubtitle.textContent = els.subtitleInput.value.trim() || "Extracted product features arranged for social.";
+    }
+
+    function setFormat() {
+      const value = els.formatSelect.value;
+
+      if (value === "story") {
+        els.artboard.style.aspectRatio = "9 / 16";
+        els.artboard.style.width = "min(84vw, 390px)";
+      } else if (value === "square") {
+        els.artboard.style.aspectRatio = "1 / 1";
+        els.artboard.style.width = "min(92vw, 520px)";
+      } else {
+        els.artboard.style.aspectRatio = "4 / 5";
+        els.artboard.style.width = "min(92vw, 520px)";
+      }
+
+      toast("Format updated");
+    }
+
+    function uploadImage(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        assets.unshift({
+          id: id("asset"),
+          name: file.name.replace(/\.[^.]+$/, ""),
+          src: String(reader.result || ""),
+          cutout: true
+        });
+        renderAssets();
+        toast("Image added as cutout");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function exportPost() {
+      toast("Export prepared");
+    }
+
+    function setupMotion() {
+      document.querySelectorAll("[data-blur]").forEach(node => {
+        const words = node.textContent.trim().split(/\s+/);
+        node.textContent = "";
+        words.forEach((word, index) => {
+          const span = document.createElement("span");
+          span.className = "blur-word";
+          span.style.setProperty("--i", index);
+          span.textContent = word;
+          node.appendChild(span);
+          if (index < words.length - 1) node.append(" ");
+        });
+      });
+
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add("in");
+        });
+      }, { threshold: 0.16 });
+
+      document.querySelectorAll(".reveal, [data-blur]").forEach(node => io.observe(node));
+    }
+
+    els.extractBtn.addEventListener("click", extractProduct);
+    els.navExtract.addEventListener("click", extractProduct);
+    els.heroExtract.addEventListener("click", extractProduct);
+    els.heroCompose.addEventListener("click", composeCanvas);
+    els.composeBtn.addEventListener("click", composeCanvas);
+    els.addTileBtn.addEventListener("click", () => addFeatureTile(0));
+    els.addImageBtn.addEventListener("click", () => addAsset(assets[0] && assets[0].id));
+    els.imageUpload.addEventListener("change", uploadImage);
+    els.applyPropsBtn.addEventListener("click", applyProperties);
+    els.deleteBtn.addEventListener("click", deleteSelected);
+    els.applyHeaderBtn.addEventListener("click", () => {
+      applyHeader();
+      toast("Header updated");
+    });
+    els.formatSelect.addEventListener("change", setFormat);
+    els.topExport.addEventListener("click", exportPost);
+
+    els.toneRow.addEventListener("click", event => {
+      const button = event.target.closest(".tone");
+      if (!button) return;
+
+      selectedTone = button.dataset.tone;
+      els.toneRow.querySelectorAll(".tone").forEach(item => {
+        item.classList.toggle("active", item === button);
+      });
+    });
+
+    els.artboard.addEventListener("click", () => {
+      selectedId = null;
+      renderCanvas();
+      renderLayers();
+      syncInspector();
+    });
+
+    setupMotion();
+    extractProduct();
+  </script>
+</body>
+</html>

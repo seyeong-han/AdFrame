@@ -1,0 +1,43 @@
+{
+  "sourceUrl": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/",
+  "generatedAt": "2026-06-28T08:44:58.474Z",
+  "confidence": "medium",
+  "tokens": {
+    "paper": "rgb(255, 255, 255)",
+    "paper2": "#f7f7f7",
+    "ink": "rgb(0, 0, 0)",
+    "ink2": "rgb(29, 78, 216)",
+    "rule": "rgb(33, 137, 255)",
+    "accent": "rgb(33, 137, 255)",
+    "accentInk": "#000000",
+    "focus": "rgb(33, 137, 255)",
+    "fontDisplay": "SamsungOneLatinWeb, SamsungSans, Interface_bd, Arial, Helvetica, San-Serif",
+    "fontBody": "SamsungOne",
+    "fontMono": "\"SFMono-Regular\", \"JetBrains Mono\", monospace",
+    "radiusCard": "24px",
+    "radiusPill": "9999px",
+    "radiusInput": "12px"
+  },
+  "evidence": {
+    "fonts": [
+      "SamsungOneLatinWeb, SamsungSans, Interface_bd, Arial, Helvetica, San-Serif",
+      "SamsungOne"
+    ],
+    "colors": [
+      "rgb(0, 0, 0)",
+      "rgb(255, 255, 255)",
+      "rgb(33, 137, 255)",
+      "rgb(117, 117, 117)",
+      "rgb(29, 78, 216)",
+      "rgb(54, 153, 241)",
+      "#2189ff",
+      "#007aff"
+    ],
+    "radii": [
+      "24px",
+      "9999px",
+      "12px"
+    ],
+    "source": "live-cssom"
+  }
+}

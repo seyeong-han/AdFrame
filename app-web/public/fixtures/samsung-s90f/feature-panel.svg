@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" role="img" aria-label="Stylized product feature panel">
+  <rect x="42" y="44" width="436" height="236" rx="36" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.34)" stroke-width="3"/>
+  <path d="M116 122h288M116 172h218M116 222h154" stroke="rgba(255,255,255,.82)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M100 302h320" stroke="rgba(255,255,255,.38)" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="410" cy="104" r="22" fill="rgba(255,255,255,.18)"/>
+</svg>
