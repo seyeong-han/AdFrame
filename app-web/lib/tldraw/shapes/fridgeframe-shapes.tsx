@@ -189,6 +189,8 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            draggable={false}
+            onDragStart={(event) => event.preventDefault()}
             src={shape.props.src}
             alt={shape.props.alt}
             style={{

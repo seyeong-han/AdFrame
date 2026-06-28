@@ -329,7 +329,7 @@ export default function EditorPage() {
           <div className="panel liquid-glass">
             <div className="panel-inner">
               <p className="section-label">Assets</p>
-              <div className="grid gap-3">
+              <div className="grid gap-3 scroll-list">
                 {assets.map((asset) => (
                   <button
                     className="asset-card text-left"
@@ -366,7 +366,7 @@ export default function EditorPage() {
           <div className="panel liquid-glass">
             <div className="panel-inner">
               <p className="section-label">Copy</p>
-              <div className="grid gap-3">
+              <div className="grid gap-3 scroll-list">
                 {product.features.map((feature, index) => (
                   <button
                     className="feature-row text-left"
@@ -388,12 +388,12 @@ export default function EditorPage() {
           </div>
         </aside>
 
-        <section className="grid gap-4">
+        <section className="grid gap-4" style={{ width: "100%", maxWidth: 720, margin: "0 auto" }}>
           <div className="panel liquid-glass">
             <div className="panel-inner flex flex-wrap items-center justify-between gap-3 py-4">
               <div>
                 <p className="section-label mb-1">Glass canvas</p>
-                <h1 className="font-heading text-4xl leading-none tracking-[-.04em]">{product.name}</h1>
+                <h1 className="font-heading text-2xl leading-tight tracking-[-.03em]">{product.name}</h1>
               </div>
               <div className="flex flex-wrap gap-2">
                 <select
@@ -441,16 +441,19 @@ export default function EditorPage() {
             onDragOverCapture={handleCanvasDragOver}
             onDropCapture={handleCanvasDrop}
             style={
-              product.designSystem
-                ? ({
-                    "--brand-accent": product.designSystem.tokens.accent,
-                    "--brand-ink": product.designSystem.tokens.ink,
-                    "--brand-paper": product.designSystem.tokens.paper,
-                    "--brand-rule": product.designSystem.tokens.rule,
-                    "--brand-font-display": product.designSystem.tokens.fontDisplay,
-                    "--brand-font-body": product.designSystem.tokens.fontBody,
-                  } as CSSProperties)
-                : undefined
+              {
+                "--stage-ratio": preset.ratio,
+                ...(product.designSystem
+                  ? {
+                      "--brand-accent": product.designSystem.tokens.accent,
+                      "--brand-ink": product.designSystem.tokens.ink,
+                      "--brand-paper": product.designSystem.tokens.paper,
+                      "--brand-rule": product.designSystem.tokens.rule,
+                      "--brand-font-display": product.designSystem.tokens.fontDisplay,
+                      "--brand-font-body": product.designSystem.tokens.fontBody,
+                    }
+                  : {}),
+              } as CSSProperties
             }
           >
             <Tldraw
