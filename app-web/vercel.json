@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "functions": {
+    "app/api/extract/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "app/api/layout-review/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/remove-background/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}

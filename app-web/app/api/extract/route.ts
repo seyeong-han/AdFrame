@@ -3,15 +3,15 @@ import { createHash } from "node:crypto";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import OpenAI from "openai";
-import { chromium } from "playwright";
 import sharp from "sharp";
 import { z } from "zod";
 import fixture from "@/fixtures/samsung-s90f.json";
-import { getRemoveBgApiKey } from "@/lib/server-env";
+import { getRemoveBgApiKey, isServerlessDeploy } from "@/lib/server-env";
 import type { ProductAsset, ProductDesignSystem, ProductExtraction, ProductFeature } from "@/lib/types";
 import { SAMSUNG_DEMO_URL } from "@/lib/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const RequestSchema = z.object({
   url: z.string().url().default(SAMSUNG_DEMO_URL),
@@ -86,10 +86,7 @@ export async function POST(request: Request) {
 
   let extraction = fixture as ProductExtraction;
 
-  try {
-    const scrape = await scrapeSamsungPage(url);
-    extraction = await mergeScrapeIntoFixture(scrape, url);
-  } catch (error) {
+  if (isServerlessDeploy()) {
     extraction = {
       ...(fixture as ProductExtraction),
       url,
@@ -97,9 +94,25 @@ export async function POST(request: Request) {
       extractedAt: new Date().toISOString(),
       notes: [
         ...(fixture as ProductExtraction).notes,
-        `Live scrape failed; cached fixture used. ${error instanceof Error ? error.message : ""}`.trim(),
+        "Serverless deploy: using cached Samsung fixture (Playwright unavailable on Vercel).",
       ],
     };
+  } else {
+    try {
+      const scrape = await scrapeSamsungPage(url);
+      extraction = await mergeScrapeIntoFixture(scrape, url);
+    } catch (error) {
+      extraction = {
+        ...(fixture as ProductExtraction),
+        url,
+        extractionMode: "fixture",
+        extractedAt: new Date().toISOString(),
+        notes: [
+          ...(fixture as ProductExtraction).notes,
+          `Live scrape failed; cached fixture used. ${error instanceof Error ? error.message : ""}`.trim(),
+        ],
+      };
+    }
   }
 
   if (process.env.OPENAI_API_KEY) {
@@ -480,6 +493,7 @@ function getSamsungProductHints(url: string): SamsungProductHints {
 }
 
 async function scrapeSamsungPage(url: string): Promise<ScrapeResult> {
+  const { chromium } = await import("playwright");
   const browser = await chromium.launch({ headless: true });
   const productHints = getSamsungProductHints(url);
 
@@ -994,6 +1008,8 @@ async function writeDesignSystemFiles(
   designSystem: ProductDesignSystem,
   extraction: ProductExtraction,
 ) {
+  if (isServerlessDeploy()) return;
+
   const outputDir = path.join(process.cwd(), "generated");
   await mkdir(outputDir, { recursive: true });
   await Promise.all([

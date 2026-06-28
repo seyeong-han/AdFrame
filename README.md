@@ -65,7 +65,7 @@ AdFrame reads the page with Playwright + VLM, collects gallery images and sectio
 
 ### Editable Apple-Style Canvas
 
-The editor creates a tldraw infographic with custom image tiles, copy cards, price blocks, and source assets. Assets can be dragged in, resized from center, switched in-place, reviewed by the layout agent, and exported.
+The editor creates a tldraw infographic with custom image tiles, copy cards, price blocks, and source assets. Assets can be dragged in, resized from center, switched in-place, reviewed by **FrameAgent**, and exported.
 
 ![AdFrame editor screen](docs/assets/readme/editor.png)
 
@@ -77,7 +77,9 @@ Export the active canvas as PNG, JPG, or PDF proof for Instagram feed/story form
 
 ## How Layout Intelligence Works
 
-AdFrame separates **ingest-time image understanding**, **deterministic tile composition**, and **optional layout review** into three layers.
+AdFrame's AI agent is **FrameAgent**. It labels images at extract time, scores assets into layout slots at compose time, and scores the canvas during optional layout review.
+
+AdFrame separates **FrameAgent labeling**, **deterministic tile composition**, and **layout review** into three layers.
 
 ### 1. Image understanding at extraction
 
@@ -85,25 +87,25 @@ When a PDP is scraped, AdFrame builds structured asset metadata before any canva
 
 - **Playwright scrape** collects gallery heroes, section visuals, videos, and raw CSSOM design signals.
 - **Section crops** isolate feature-card visuals from the PDP (DOM image, crop detection, or OCR recreation).
-- **Captions + semantic groups** label each asset for later slot matching:
-  - OpenAI captions visible scene text and assigns stable `semanticGroup` keys (e.g. `processor-chip`, `glare-free-hdr`).
+- **FrameAgent labeling** captions each asset and assigns a stable `semanticGroup` (e.g. `processor-chip`, `glare-free-hdr`) for later slot matching:
+  - OpenAI captions visible scene text when `OPENAI_API_KEY` is set.
   - Deterministic keyword rules fill gaps when the model is unavailable.
 - **Verified facts vs inferred copy** stay separated so feature titles/bodies can be scored against assets without inventing claims.
 
 ### 2. Automatic tile organization
 
-Initial canvas layout is composed in `lib/tldraw/templates.ts` — no LLM required.
+Initial canvas layout is composed in `lib/tldraw/templates.ts`. **FrameAgent scoring** (via `scoreAssetForSlot()`) ranks assets per slot before placement.
 
 | Step | What happens |
 |------|----------------|
 | Preset grid | **Cinema mosaic** or **Apple infographic** defines fixed zones (hero, bottom mosaic, tile board). |
-| Slot scoring | `scoreAssetForSlot()` ranks assets per slot (`hero`, `feature`, `detail`) using kind, `bgRemoved`, caption keywords, and feature-title word overlap. |
+| FrameAgent slot scoring | `scoreAssetForSlot()` ranks assets per slot (`hero`, `feature`, `detail`) using kind, `bgRemoved`, caption keywords, and feature-title word overlap. |
 | Dedup | Apple preset tracks `usedAssetIds` + `semanticGroup` so the same scene is not placed twice. |
 | Feature match | Cinema mosaic uses `findSectionAssetForFeature()` (HDR → processor → motion keyword rules) to pair section visuals with copy. |
 | Copy sizing | `estimateFeatureCardHeight()` sizes `ff-glass-card` tiles from title/body line-wrap estimates. |
 | Tile presentation | `getAssetTilePresentation()` picks `contain`/`cover`, padding, radius, and paper/glass style per role. |
 
-**Slot scoring example (simplified):**
+**FrameAgent slot scoring example (simplified):**
 
 - `hero`: +70 kind=hero, +25 bgRemoved, +14 "front", −35 section asset
 - `feature`: +50 section asset, +12 per matching feature-title word
@@ -120,7 +122,7 @@ Click **Review layout** in the editor to run `/api/layout-review`:
    - Apple board metrics: hero centering, tile count, grid occupancy, zone coverage, hero adjacency
 3. **Score (0–100)** when no OpenAI key or on fallback:
    - `100 − 20 × errors − 6 × total findings`
-4. **With `OPENAI_API_KEY`**, three specialist agents run in parallel:
+4. **With `OPENAI_API_KEY`**, FrameAgent runs three specialist passes in parallel during layout review:
    - **Image Understanding** — reads the screenshot for product prominence, hierarchy, readability
    - **Layout Geometry** — uses `measure_layout` tool on bounds
    - **Design Compliance** — checks preset semantics + `rank_assets_for_slot` tool
@@ -138,6 +140,22 @@ npm run dev
 ```
 
 Open `http://localhost:3000`.
+
+## Deploy on Vercel
+
+The Next.js app lives in **`app-web/`**, not the repository root. If Root Directory is wrong, Vercel serves `NOT_FOUND` for every route (including `/`).
+
+1. [Vercel](https://vercel.com) → project **ad-frame** → **Settings** → **Build and Deployment**
+2. Set **Root Directory** to `app-web` → **Save**
+3. Set **Framework Preset** to **Next.js** (not **Other**). If it stays on Other, Vercel serves `public/` as a static site and every route 404s even when `next build` succeeds in the logs.
+4. Leave **Output Directory** empty (Next.js default). Do not set `.next` or `public`.
+5. **Environment Variables** (Production):
+   - `OPENAI_API_KEY`
+   - `REMOVEBG_KEY` (also accepts `REMOVE_BG_API_KEY`, `REMOVEBG_API_KEY`, `REMOVE_BG_KEY`)
+   - `NEXT_PUBLIC_TLDRAW_LICENSE_KEY` — **required for the Editor tab on Vercel**. Without it, tldraw shows the canvas briefly then goes blank after ~5 seconds. Get a free 100-day trial key at [tldraw.dev/get-a-license/trial](https://tldraw.dev/get-a-license/trial).
+6. **Deployments** → **Redeploy** latest `main` (redeploy after adding env vars so `NEXT_PUBLIC_*` is baked into the build)
+
+Live scrape needs Playwright + Chromium; Vercel serverless does not ship a browser, so `/api/extract` falls back to the cached Samsung fixture when scrape fails. Local `npm run dev` is still the path for arbitrary PDP URLs.
 
 ## Capabilities
 

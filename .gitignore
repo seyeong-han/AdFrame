@@ -18,3 +18,5 @@ yarn-error.log*
 
 .vercel/
 .cursor/
+.vercel
+.env*

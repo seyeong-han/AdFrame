@@ -414,6 +414,7 @@ select {
 }
 
 .editor-stage {
+  position: relative;
   height: min(74vh, 720px);
   aspect-ratio: var(--stage-ratio, 4 / 5);
   width: auto;
@@ -422,6 +423,23 @@ select {
   border-radius: 34px;
   overflow: hidden;
   background: rgba(255,255,255,0.035);
+}
+
+.editor-license-banner {
+  position: absolute;
+  inset: 12px 12px auto;
+  z-index: 20;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 196, 120, 0.35);
+  background: rgba(20, 12, 0, 0.82);
+  color: rgba(255, 236, 210, 0.92);
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.editor-license-banner a {
+  color: #ffd08a;
 }
 
 .tl-container {

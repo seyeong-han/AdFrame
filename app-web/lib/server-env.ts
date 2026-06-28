@@ -3,6 +3,10 @@ import path from "node:path";
 
 const REMOVE_BG_KEYS = ["REMOVE_BG_API_KEY", "REMOVEBG_API_KEY", "REMOVEBG_KEY", "REMOVE_BG_KEY"];
 
+export function isServerlessDeploy() {
+  return Boolean(process.env.VERCEL);
+}
+
 export async function getRemoveBgApiKey() {
   for (const key of REMOVE_BG_KEYS) {
     if (process.env[key]) return process.env[key];

@@ -85,6 +85,7 @@ type LayoutReviewResult = {
 const DEFAULT_PROMPT = "Premium product asset, preserve source product page typography, palette, and CTA style, no text";
 const ASSET_DRAG_TYPE = "application/x-adframe-asset-id";
 const ENABLE_CAROUSEL_FEATURES = false;
+const TLDRAW_LICENSE_KEY = process.env.NEXT_PUBLIC_TLDRAW_LICENSE_KEY;
 
 export default function EditorPage() {
   const router = useRouter();
@@ -682,8 +683,19 @@ export default function EditorPage() {
               } as CSSProperties
             }
           >
+            {!TLDRAW_LICENSE_KEY ? (
+              <div className="editor-license-banner">
+                Add <code>NEXT_PUBLIC_TLDRAW_LICENSE_KEY</code> in Vercel and redeploy. tldraw blanks the
+                canvas on production without a license after ~5 seconds.{" "}
+                <a href="https://tldraw.dev/get-a-license/trial" rel="noreferrer" target="_blank">
+                  Get a free 100-day trial key
+                </a>
+                .
+              </div>
+            ) : null}
             <Tldraw
               hideUi
+              licenseKey={TLDRAW_LICENSE_KEY}
               onMount={handleMount}
               shapeUtils={adFrameShapeUtils}
             />
