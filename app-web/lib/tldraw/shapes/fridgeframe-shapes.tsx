@@ -138,14 +138,11 @@ export class GlassTextShapeUtil extends BaseBoxShapeUtil<GlassTextShape> {
     return (
       <HTMLContainer id={shape.id} style={{ pointerEvents: "all" }}>
         <div
-          className="font-heading"
+          className="adframe-display-text"
           style={{
             width: "100%",
             height: "100%",
-            color: "#fff",
             fontSize: shape.props.size,
-            lineHeight: 0.88,
-            letterSpacing: "-0.055em",
             textAlign: shape.props.align,
           }}
         >
@@ -200,7 +197,6 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
               width: isCover ? "100%" : undefined,
             }}
           />
-          {shape.props.bgRemoved ? <span className="cutout-badge">cutout</span> : null}
         </div>
       </HTMLContainer>
     );
@@ -279,7 +275,7 @@ export class IconShapeUtil extends BaseBoxShapeUtil<IconShape> {
           className={`glass-card-shape ${shape.props.tone}`}
           style={{ alignContent: "center", borderRadius: 9999, justifyItems: "center", padding: 0 }}
         >
-          <span style={{ color: "#fff", fontSize: 30 }}>{iconGlyph(shape.props.icon)}</span>
+          <span className="adframe-icon-glyph">{iconGlyph(shape.props.icon)}</span>
         </div>
       </HTMLContainer>
     );

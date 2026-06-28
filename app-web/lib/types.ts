@@ -92,4 +92,4 @@ export const EXPORT_PRESETS: ExportPreset[] = [
   { id: "square", label: "Square 1:1", width: 1080, height: 1080, ratio: "1 / 1" },
 ];
 
-export type GlassTone = "frost" | "ink" | "clear";
+export type GlassTone = "frost" | "ink" | "clear" | "tile" | "accent";

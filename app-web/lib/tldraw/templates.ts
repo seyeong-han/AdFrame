@@ -15,12 +15,17 @@ export function composeAppleCleanTemplate(
   preset: ExportPreset,
 ): TLShapePartial[] {
   const scale = preset.width / DESIGN_W;
-  const cardY = preset.height - 312 * scale;
   const imageAssets = product.assets.filter((asset) => asset.mediaType !== "video");
   const sectionAssets = imageAssets.filter((asset) => asset.kind === "section");
   const hero = imageAssets.find((asset) => asset.kind === "hero") || imageAssets[0];
   const features = product.features.slice(0, 4);
   const frameId = createShapeId("frame-social");
+  const margin = 72 * scale;
+  const gutter = 24 * scale;
+  const bottomY = preset.height - 430 * scale;
+  const tileW = (preset.width - margin * 2 - gutter * 2) / 3;
+  const visualH = 132 * scale;
+  const copyH = 208 * scale;
 
   const shapes: TLShapePartial[] = [
     {
@@ -42,11 +47,11 @@ export function composeAppleCleanTemplate(
       id: createShapeId("section-ambient-panel"),
       parentId: frameId,
       type: CUTOUT_IMAGE_TYPE,
-      x: 710 * scale,
-      y: 102 * scale,
+      x: 718 * scale,
+      y: 96 * scale,
       props: {
-        w: 285 * scale,
-        h: 205 * scale,
+        w: 290 * scale,
+        h: 184 * scale,
         src: ambientSection.src,
         alt: ambientSection.alt,
         fit: "cover",
@@ -61,13 +66,13 @@ export function composeAppleCleanTemplate(
       id: createShapeId("badge-verified"),
       parentId: frameId,
       type: BADGE_TYPE,
-      x: 72 * scale,
+      x: margin,
       y: 72 * scale,
       props: {
         w: 260 * scale,
         h: 56 * scale,
         text: "Verified PDP facts",
-        tone: "clear",
+        tone: "tile",
         provenance: "verified",
       },
     },
@@ -75,13 +80,13 @@ export function composeAppleCleanTemplate(
       id: createShapeId("headline"),
       parentId: frameId,
       type: GLASS_TEXT_TYPE,
-      x: 72 * scale,
-      y: 150 * scale,
+      x: margin,
+      y: 146 * scale,
       props: {
         w: 650 * scale,
-        h: 168 * scale,
+        h: 176 * scale,
         text: product.headline,
-        size: 90 * scale,
+        size: 82 * scale,
         align: "left",
         provenance: "inferred",
       },
@@ -90,13 +95,13 @@ export function composeAppleCleanTemplate(
       id: createShapeId("subtitle"),
       parentId: frameId,
       type: GLASS_TEXT_TYPE,
-      x: 76 * scale,
-      y: 332 * scale,
+      x: margin,
+      y: 318 * scale,
       props: {
-        w: 545 * scale,
+        w: 520 * scale,
         h: 95 * scale,
         text: product.subtitle,
-        size: 29 * scale,
+        size: 27 * scale,
         align: "left",
         provenance: "inferred",
       },
@@ -105,13 +110,13 @@ export function composeAppleCleanTemplate(
       id: createShapeId("badge-price-model"),
       parentId: frameId,
       type: BADGE_TYPE,
-      x: 72 * scale,
-      y: 450 * scale,
+      x: margin,
+      y: 438 * scale,
       props: {
         w: 350 * scale,
         h: 52 * scale,
         text: `${product.price} / ${product.model}`,
-        tone: "ink",
+        tone: "accent",
         provenance: "verified",
       },
     },
@@ -119,11 +124,11 @@ export function composeAppleCleanTemplate(
       id: createShapeId("hero-cutout"),
       parentId: frameId,
       type: CUTOUT_IMAGE_TYPE,
-      x: 380 * scale,
-      y: 390 * scale,
+      x: 338 * scale,
+      y: 392 * scale,
       props: {
-        w: 620 * scale,
-        h: 410 * scale,
+        w: 650 * scale,
+        h: 390 * scale,
         src: hero?.src || "/fixtures/samsung-s90f/oled-tv.svg",
         alt: hero?.alt || product.name,
         fit: "contain",
@@ -134,7 +139,7 @@ export function composeAppleCleanTemplate(
   );
 
   features.slice(0, 3).forEach((feature, index) => {
-    const cardX = (72 + index * 315) * scale;
+    const cardX = margin + index * (tileW + gutter);
     const sectionAsset = findSectionAssetForFeature(sectionAssets, feature.title, index);
     if (sectionAsset) {
       shapes.push({
@@ -142,10 +147,10 @@ export function composeAppleCleanTemplate(
         parentId: frameId,
         type: CUTOUT_IMAGE_TYPE,
         x: cardX,
-        y: cardY - 150 * scale,
+        y: bottomY,
         props: {
-          w: 286 * scale,
-          h: 132 * scale,
+          w: tileW,
+          h: visualH,
           src: sectionAsset.src,
           alt: sectionAsset.alt,
           fit: "cover",
@@ -160,13 +165,13 @@ export function composeAppleCleanTemplate(
       parentId: frameId,
       type: GLASS_CARD_TYPE,
       x: cardX,
-      y: cardY,
+      y: bottomY + visualH + 14 * scale,
       props: {
-        w: 286 * scale,
-        h: 220 * scale,
+        w: tileW,
+        h: copyH,
         title: feature.title,
         body: feature.body,
-        tone: index === 1 ? "ink" : "frost",
+        tone: index === 1 ? "accent" : "tile",
         provenance: feature.provenance,
       },
     });
@@ -176,13 +181,13 @@ export function composeAppleCleanTemplate(
     id: createShapeId("icon-motion"),
     parentId: frameId,
     type: ICON_TYPE,
-    x: 875 * scale,
-    y: 128 * scale,
+    x: 864 * scale,
+    y: 144 * scale,
     props: {
-      w: 92 * scale,
-      h: 92 * scale,
+      w: 104 * scale,
+      h: 104 * scale,
       icon: "motion",
-      tone: "frost",
+      tone: "tile",
       provenance: "verified",
     },
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDownToLine,
@@ -55,6 +55,7 @@ type InspectorState = {
 };
 
 const DEFAULT_PROMPT = "Premium product asset, preserve source product page typography, palette, and CTA style, no text";
+const ASSET_DRAG_TYPE = "application/x-adframe-asset-id";
 
 export default function EditorPage() {
   const router = useRouter();
@@ -126,8 +127,9 @@ export default function EditorPage() {
     if (!editor || !product) return;
     const feature = product.features[index];
     placementCounter.current += 1;
+    const shapeId = createShapeId(`manual-feature-${index}-${placementCounter.current}`);
     editor.createShape<GlassCardShape>({
-      id: createShapeId(`manual-feature-${index}-${placementCounter.current}`),
+      id: shapeId,
       type: GLASS_CARD_TYPE,
       x: 110 + index * 28,
       y: 920,
@@ -136,34 +138,89 @@ export default function EditorPage() {
         h: 230,
         title: feature.title,
         body: feature.body,
-        tone: "frost",
+        tone: index === 1 ? "accent" : "tile",
         provenance: feature.provenance,
       },
     });
+    editor.select(shapeId);
+    syncSelection(editor);
   }
 
-  function placeAsset(asset: ProductAsset) {
+  function placeAsset(asset: ProductAsset, screenPoint?: { x: number; y: number }) {
     if (!editor) return;
     if (asset.mediaType === "video") {
       setBusy("Video source captured. Use it as motion reference; canvas video placement is not enabled yet.");
       return;
     }
     placementCounter.current += 1;
+    const shapeId = createShapeId(`${asset.id}-${placementCounter.current}`);
+    const placement = getAssetPlacement(asset);
+    const pagePoint = screenPoint ? editor.screenToPage(screenPoint) : null;
     editor.createShape<CutoutImageShape>({
-      id: createShapeId(`${asset.id}-${placementCounter.current}`),
+      id: shapeId,
       type: CUTOUT_IMAGE_TYPE,
-      x: 360,
-      y: 450,
+      x: pagePoint ? pagePoint.x - placement.w / 2 : 360,
+      y: pagePoint ? pagePoint.y - placement.h / 2 : 450,
       props: {
-        w: 460,
-        h: 320,
+        w: placement.w,
+        h: placement.h,
         src: asset.src,
         alt: asset.alt,
-        fit: "contain",
+        fit: placement.fit,
         bgRemoved: Boolean(asset.bgRemoved),
         provenance: asset.provenance,
       },
     });
+    editor.select(shapeId);
+    syncSelection(editor);
+    setBusy(screenPoint ? "Asset placed at drop point." : "Asset copied to canvas.");
+  }
+
+  function startAssetDrag(event: DragEvent<HTMLButtonElement>, asset: ProductAsset) {
+    if (asset.mediaType === "video") {
+      event.preventDefault();
+      return;
+    }
+
+    event.stopPropagation();
+    event.dataTransfer.clearData();
+    event.dataTransfer.effectAllowed = "copy";
+    event.dataTransfer.setData(ASSET_DRAG_TYPE, asset.id);
+  }
+
+  function handleCanvasDragOver(event: DragEvent<HTMLDivElement>) {
+    if (!Array.from(event.dataTransfer.types).includes(ASSET_DRAG_TYPE)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "copy";
+  }
+
+  function handleCanvasDrop(event: DragEvent<HTMLDivElement>) {
+    const assetId = event.dataTransfer.getData(ASSET_DRAG_TYPE);
+    if (!assetId) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    const asset = assets.find((item) => item.id === assetId);
+    if (!asset) return;
+
+    placeAsset(asset, { x: event.clientX, y: event.clientY });
+  }
+
+  function duplicateSelected() {
+    if (!editor || !selected) return;
+    editor.duplicateShapes([selected.id], { x: 24, y: 24 });
+    syncSelection(editor);
+  }
+
+  function bringSelectedToFront() {
+    if (!editor || !selected) return;
+    editor.bringToFront([selected.id]);
+  }
+
+  function sendSelectedToBack() {
+    if (!editor || !selected) return;
+    editor.sendToBack([selected.id]);
   }
 
   function updateSelected(patch: Record<string, unknown>) {
@@ -276,9 +333,11 @@ export default function EditorPage() {
                 {assets.map((asset) => (
                   <button
                     className="asset-card text-left"
-                    disabled={asset.mediaType === "video"}
+                    aria-disabled={asset.mediaType === "video"}
+                    draggable={asset.mediaType !== "video"}
                     key={asset.id}
                     onClick={() => placeAsset(asset)}
+                    onDragStart={(event) => startAssetDrag(event, asset)}
                     title={asset.mediaType === "video" ? "Video preview is available in Source Assets; canvas placement is image-only for now." : undefined}
                     type="button"
                   >
@@ -287,7 +346,7 @@ export default function EditorPage() {
                         <video src={asset.src} muted playsInline controls preload="metadata" />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={asset.src} alt={asset.alt} />
+                        <img draggable={false} src={asset.src} alt={asset.alt} />
                       )}
                     </div>
                     <div className="mt-3 flex items-center justify-between gap-2">
@@ -379,6 +438,8 @@ export default function EditorPage() {
 
           <div
             className="editor-stage"
+            onDragOverCapture={handleCanvasDragOver}
+            onDropCapture={handleCanvasDrop}
             style={
               product.designSystem
                 ? ({
@@ -527,9 +588,22 @@ export default function EditorPage() {
                         <option value="frost">Frost</option>
                         <option value="ink">Ink</option>
                         <option value="clear">Clear</option>
+                        <option value="tile">Tile</option>
+                        <option value="accent">Accent</option>
                       </select>
                     </div>
                   ) : null}
+                  <div className="grid grid-cols-3 gap-2">
+                    <button className="btn ghost" onClick={duplicateSelected} type="button">
+                      Duplicate
+                    </button>
+                    <button className="btn ghost" onClick={bringSelectedToFront} type="button">
+                      Bring front
+                    </button>
+                    <button className="btn ghost" onClick={sendSelectedToBack} type="button">
+                      Send back
+                    </button>
+                  </div>
                   {selected.src ? (
                     <button className="btn white" onClick={runSegmentation} type="button">
                       Remove background with remove.bg
@@ -695,4 +769,20 @@ function Modal({
       </div>
     </div>
   );
+}
+
+function getAssetPlacement(asset: ProductAsset): {
+  fit: "contain" | "cover";
+  h: number;
+  w: number;
+} {
+  if (asset.kind === "section") {
+    return { fit: "cover", w: 360, h: 205 };
+  }
+
+  if (asset.kind === "hero") {
+    return { fit: "contain", w: 520, h: 340 };
+  }
+
+  return { fit: "contain", w: 460, h: 320 };
 }

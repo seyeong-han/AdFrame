@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:editor-interactions": "node scripts/assert-editor-interactions.mjs",
     "test:template-composition": "tsx scripts/assert-template-composition.ts",
     "test:section-crops": "node scripts/assert-section-crops.mjs",
     "test:video-extraction": "node scripts/assert-video-extraction.mjs"
