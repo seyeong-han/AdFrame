@@ -15,6 +15,36 @@ export const CAROUSEL_FRAME_PREFIX = "carousel-slide-frame";
 
 const DESIGN_W = 1080;
 
+export type AssetTileRole = "floating-hero" | "main" | "feature" | "detail" | "manual";
+
+export type AssetTilePresentation = {
+  fit: "contain" | "cover";
+  padding: number;
+  radius: number;
+  tileStyle: "none" | "paper" | "glass" | "bleed";
+};
+
+export function getAssetTilePresentation(asset: ProductAsset, role: AssetTileRole = "manual"): AssetTilePresentation {
+  const isCutout = asset.bgRemoved === true || asset.kind === "hero";
+  const tileStyle = role === "floating-hero" ? "none" : "paper";
+
+  if (isCutout) {
+    return {
+      fit: "contain",
+      padding: role === "floating-hero" ? 0 : 18,
+      radius: role === "floating-hero" ? 0 : 32,
+      tileStyle,
+    };
+  }
+
+  return {
+    fit: "cover",
+    padding: 0,
+    radius: role === "main" ? 36 : 28,
+    tileStyle,
+  };
+}
+
 export function composeMainCanvasTemplate(
   product: ProductExtraction,
   preset: ExportPreset,
@@ -81,6 +111,7 @@ function composeCinemaMosaicTemplate(
 
   const ambientSection = sectionAssets[3] || sectionAssets[0];
   if (ambientSection) {
+    const presentation = getAssetTilePresentation(ambientSection, "detail");
     shapes.push({
       id: createShapeId("section-ambient-panel"),
       parentId: frameId,
@@ -92,8 +123,11 @@ function composeCinemaMosaicTemplate(
         h: 184 * scale,
         src: ambientSection.src,
         alt: ambientSection.alt,
-        fit: "cover",
+        fit: presentation.fit,
         bgRemoved: Boolean(ambientSection.bgRemoved),
+        padding: presentation.padding * scale,
+        radius: presentation.radius * scale,
+        tileStyle: presentation.tileStyle,
         provenance: ambientSection.provenance,
       },
     });
@@ -149,8 +183,9 @@ function composeCinemaMosaicTemplate(
     });
   }
 
-  shapes.push(
-    {
+  if (hero) {
+    const presentation = getAssetTilePresentation(hero, "floating-hero");
+    shapes.push({
       id: createShapeId("hero-cutout"),
       parentId: frameId,
       type: CUTOUT_IMAGE_TYPE,
@@ -159,19 +194,23 @@ function composeCinemaMosaicTemplate(
       props: {
         w: 650 * scale,
         h: 390 * scale,
-        src: hero?.src || "/fixtures/samsung-s90f/oled-tv.svg",
-        alt: hero?.alt || product.name,
-        fit: "contain",
-        bgRemoved: hero?.bgRemoved ?? true,
-        provenance: hero?.provenance || "verified",
+        src: hero.src,
+        alt: hero.alt,
+        fit: presentation.fit,
+        bgRemoved: hero.bgRemoved,
+        padding: presentation.padding * scale,
+        radius: presentation.radius * scale,
+        tileStyle: presentation.tileStyle,
+        provenance: hero.provenance,
       },
-    },
-  );
+    });
+  }
 
   features.slice(0, 3).forEach((feature, index) => {
     const cardX = margin + index * (tileW + gutter);
     const sectionAsset = findSectionAssetForFeature(sectionAssets, feature.title, index);
     if (sectionAsset) {
+      const presentation = getAssetTilePresentation(sectionAsset, "feature");
       shapes.push({
         id: createShapeId(`section-visual-${index + 1}`),
         parentId: frameId,
@@ -183,8 +222,11 @@ function composeCinemaMosaicTemplate(
           h: visualH,
           src: sectionAsset.src,
           alt: sectionAsset.alt,
-          fit: "cover",
+          fit: presentation.fit,
           bgRemoved: Boolean(sectionAsset.bgRemoved),
+          padding: presentation.padding * scale,
+          radius: presentation.radius * scale,
+          tileStyle: presentation.tileStyle,
           provenance: sectionAsset.provenance,
         },
       });
@@ -334,9 +376,10 @@ function composeAppleInfographicTemplate(
     y: number,
     w: number,
     h: number,
-    fit: "contain" | "cover" = asset?.kind === "section" ? "cover" : "contain",
+    fit?: "contain" | "cover",
   ) => {
     if (!asset) return;
+    const presentation = getAssetTilePresentation(asset, seed.includes("hero") ? "main" : "feature");
     shapes.push({
       id: createShapeId(seed),
       parentId: frameId,
@@ -348,8 +391,11 @@ function composeAppleInfographicTemplate(
         h,
         src: asset.src,
         alt: asset.alt,
-        fit,
+        fit: fit || presentation.fit,
         bgRemoved: Boolean(asset.bgRemoved),
+        padding: presentation.padding * scale,
+        radius: presentation.radius * scale,
+        tileStyle: presentation.tileStyle,
         caption: asset.caption,
         semanticGroup: assetSemanticGroup(asset),
         provenance: asset.provenance,
@@ -424,24 +470,32 @@ function composeAppleInfographicTemplate(
       "paper",
     ),
   );
-  shapes.push({
-    id: createShapeId("apple-hero"),
-    parentId: frameId,
-    type: CUTOUT_IMAGE_TYPE,
-    x: heroX,
-    y: heroY,
-    props: {
-      w: heroW,
-      h: heroRowH,
-      src: hero?.src || "/fixtures/samsung-s90f/oled-tv.svg",
-      alt: hero?.alt || product.name,
-      fit: "contain",
-      bgRemoved: hero?.bgRemoved ?? true,
-      caption: hero?.caption,
-      semanticGroup: hero ? assetSemanticGroup(hero) : "product-front",
-      provenance: hero?.provenance || "verified",
-    },
-  });
+  if (hero) {
+    const presentation = getAssetTilePresentation(hero, "main");
+    shapes.push({
+      id: createShapeId("apple-hero"),
+      parentId: frameId,
+      type: CUTOUT_IMAGE_TYPE,
+      x: heroX,
+      y: heroY,
+      props: {
+        w: heroW,
+        h: heroRowH,
+        src: hero.src,
+        alt: hero.alt,
+        fit: presentation.fit,
+        bgRemoved: hero.bgRemoved,
+        padding: presentation.padding * scale,
+        radius: presentation.radius * scale,
+        tileStyle: presentation.tileStyle,
+        caption: hero.caption,
+        semanticGroup: assetSemanticGroup(hero),
+        provenance: hero.provenance,
+      },
+    });
+  } else {
+    shapes.push(makeFeatureTile("apple-hero-missing-source", frameId, heroX, heroY, heroW, heroRowH, features[0], "paper"));
+  }
 
   shapes.push(
     showPrice
@@ -668,6 +722,7 @@ export function composeCarouselSplitTemplate(
     const sectionAsset = findSectionAssetForFeature(sectionAssets, feature.title, index);
     const asset = sectionAsset || hero;
     const isSectionAsset = asset?.kind === "section";
+    const presentation = asset ? getAssetTilePresentation(asset, isSectionAsset ? "feature" : "main") : null;
     const cardH = estimateFeatureCardHeight(feature.title, feature.body, 936 * scale, scale);
 
     frameIds.push(frameId);
@@ -726,22 +781,6 @@ export function composeCarouselSplitTemplate(
         },
       },
       {
-        id: createShapeId(`carousel-image-${slideNumber}`),
-        parentId: frameId,
-        type: CUTOUT_IMAGE_TYPE,
-        x: 610 * scale,
-        y: 150 * scale,
-        props: {
-          w: 398 * scale,
-          h: 330 * scale,
-          src: asset?.src || "/fixtures/samsung-s90f/oled-tv.svg",
-          alt: asset?.alt || product.name,
-          fit: isSectionAsset ? "cover" : "contain",
-          bgRemoved: asset?.bgRemoved ?? !isSectionAsset,
-          provenance: asset?.provenance || "verified",
-        },
-      },
-      {
         id: createShapeId(`carousel-copy-${slideNumber}`),
         parentId: frameId,
         type: GLASS_CARD_TYPE,
@@ -771,6 +810,28 @@ export function composeCarouselSplitTemplate(
         },
       },
     );
+
+    if (asset) {
+      shapes.push({
+        id: createShapeId(`carousel-image-${slideNumber}`),
+        parentId: frameId,
+        type: CUTOUT_IMAGE_TYPE,
+        x: 610 * scale,
+        y: 150 * scale,
+        props: {
+          w: 398 * scale,
+          h: 330 * scale,
+          src: asset.src,
+          alt: asset.alt,
+          fit: presentation?.fit || (isSectionAsset ? "cover" : "contain"),
+          bgRemoved: asset.bgRemoved,
+          padding: (presentation?.padding || 0) * scale,
+          radius: (presentation?.radius || 28) * scale,
+          tileStyle: presentation?.tileStyle || "paper",
+          provenance: asset.provenance,
+        },
+      });
+    }
   });
 
   return { shapes, frameIds };

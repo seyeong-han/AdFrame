@@ -56,10 +56,11 @@ const requiredSnippets = [
   "fetch(\"/api/layout-review\"",
   "positionPreset",
   "serializeReviewShapes(editor, frame.id)",
-  "applyLayoutReviewPatches(editor, frame.id, result.patches)",
+  "applyLayoutReviewPatches(editor, frame.id, result.patches, assets)",
   "Review layout",
   "Layout reviewed:",
-  "return { fit: \"contain\", w: 360, h: 205 }",
+  "getAssetTilePresentation(asset, \"manual\")",
+  "tileStyle: placement.tileStyle",
 ];
 
 const missing = requiredSnippets.filter((snippet) => !editorSource.includes(snippet));
@@ -70,6 +71,12 @@ const appChromeMissing = [
   "className={step.active ? \"active\" : undefined}",
 ].filter((snippet) => !appChromeSource.includes(snippet));
 const forbiddenChromeSnippets = ["Open studio", "ArrowUpRight"].filter((snippet) => appChromeSource.includes(snippet));
+const forbiddenEditorFallbacks = [
+  "/fixtures/samsung-s90f/oled-tv.svg",
+  "Product cutout",
+  "front TV product cutout",
+  "product-front",
+].filter((snippet) => shapeSource.includes(snippet) || editorSource.includes(snippet));
 const shapeMissing = [
   "function fitImageToBox",
   "function fitImageFullWidth",
@@ -81,7 +88,8 @@ const shapeMissing = [
   "onDragStart={(event) => event.preventDefault()}",
   "draggable={false}",
   "style={{ pointerEvents: \"all\", overflow: \"hidden\", ...boxStyle }}",
-  "overflow: isCover ? \"hidden\" : undefined",
+  "className={`cutout-shape ${tileStyle}`}",
+  "padding={padding}",
 ].filter((snippet) => !shapeSource.includes(snippet));
 const cssMissing = [
   "-webkit-user-drag: none",
@@ -97,6 +105,9 @@ const cssMissing = [
   ".infograph-canvas-bg.light",
   ".glass-card-shape.paper",
   ".glass-card-shape.orange",
+  ".cutout-shape.paper",
+  ".cutout-shape.glass",
+  ".cutout-shape.bleed",
 ].filter((snippet) => !globalCss.includes(snippet));
 const layoutReviewMissing = [
   "import { Agent, run, tool } from \"@openai/agents\"",
@@ -120,6 +131,7 @@ if (
   missing.length ||
   appChromeMissing.length ||
   forbiddenChromeSnippets.length ||
+  forbiddenEditorFallbacks.length ||
   shapeMissing.length ||
   cssMissing.length ||
   layoutReviewMissing.length ||
@@ -130,6 +142,7 @@ if (
       missing.length ? `Missing editor interaction hooks: ${missing.join(", ")}` : "",
       appChromeMissing.length ? `Missing nav active-state hooks: ${appChromeMissing.join(", ")}` : "",
       forbiddenChromeSnippets.length ? `Forbidden nav snippets remain: ${forbiddenChromeSnippets.join(", ")}` : "",
+      forbiddenEditorFallbacks.length ? `Forbidden editor image fallbacks remain: ${forbiddenEditorFallbacks.join(", ")}` : "",
       shapeMissing.length ? `Missing canvas shape drag guards: ${shapeMissing.join(", ")}` : "",
       cssMissing.length ? `Missing canvas image drag CSS: ${cssMissing.join(", ")}` : "",
       layoutReviewMissing.length ? `Missing layout review workflow hooks: ${layoutReviewMissing.join(", ")}` : "",

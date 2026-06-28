@@ -55,6 +55,9 @@ export type CutoutImageShape = TLBaseShape<
     alt: string;
     fit: "contain" | "cover";
     bgRemoved: boolean;
+    tileStyle?: "none" | "paper" | "glass" | "bleed";
+    padding?: number;
+    radius?: number;
     caption?: string;
     semanticGroup?: string;
   }
@@ -149,8 +152,8 @@ export class GlassCardShapeUtil extends BaseBoxShapeUtil<GlassCardShape> {
     return {
       w: 180,
       h: 180,
-      title: "OLED HDR+",
-      body: "High contrast, rich color, and cinematic depth.",
+      title: "Feature",
+      body: "Add product copy from the approved analysis.",
       tone: "frost",
       showBody: false,
       provenance: "inferred",
@@ -184,7 +187,7 @@ export class GlassTextShapeUtil extends BaseBoxShapeUtil<GlassTextShape> {
     return {
       w: 360,
       h: 96,
-      text: "OLED, staged for cinema.",
+      text: "Add headline",
       size: 52,
       align: "left",
       provenance: "inferred",
@@ -240,12 +243,16 @@ function FitCutoutImage({
   bgRemoved,
   boxHeight,
   boxWidth,
+  fit,
+  padding,
   src,
 }: {
   alt: string;
   bgRemoved: boolean;
   boxHeight: number;
   boxWidth: number;
+  fit: "contain" | "cover";
+  padding: number;
   src: string;
 }) {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -253,16 +260,30 @@ function FitCutoutImage({
   const applyFit = useCallback(() => {
     const img = imgRef.current;
     if (!img?.naturalWidth || !img.naturalHeight) return;
-    const fitted = bgRemoved
-      ? fitImageToBox(img.naturalWidth, img.naturalHeight, boxWidth, boxHeight)
-      : fitImageFullWidth(img.naturalWidth, img.naturalHeight, boxWidth, boxHeight);
+    const innerWidth = Math.max(1, boxWidth - padding * 2);
+    const innerHeight = Math.max(1, boxHeight - padding * 2);
+    const fitted =
+      fit === "cover"
+        ? { width: innerWidth, height: innerHeight }
+        : bgRemoved
+          ? fitImageToBox(img.naturalWidth, img.naturalHeight, innerWidth, innerHeight)
+          : fitImageFullWidth(img.naturalWidth, img.naturalHeight, innerWidth, innerHeight);
     img.style.width = `${fitted.width}px`;
     img.style.height = `${fitted.height}px`;
-  }, [bgRemoved, boxHeight, boxWidth]);
+    img.style.objectFit = fit === "cover" ? "cover" : "contain";
+  }, [bgRemoved, boxHeight, boxWidth, fit, padding]);
 
   useEffect(() => {
     applyFit();
   }, [applyFit, src]);
+
+  if (!src) {
+    return (
+      <div className="cutout-empty-state">
+        No source image
+      </div>
+    );
+  }
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -292,18 +313,22 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
     return {
       w: 360,
       h: 240,
-      src: "/fixtures/samsung-s90f/oled-tv.svg",
-      alt: "Product cutout",
+      src: "",
+      alt: "Source image",
       fit: "contain",
-      bgRemoved: true,
-      caption: "front TV product cutout",
-      semanticGroup: "product-front",
-      provenance: "verified",
+      bgRemoved: false,
+      tileStyle: "paper",
+      padding: 12,
+      radius: 28,
+      provenance: "generated",
     };
   }
 
   override component(shape: CutoutImageShape) {
     const isCover = shape.props.fit === "cover";
+    const tileStyle = shape.props.tileStyle || "none";
+    const padding = shape.props.padding ?? 0;
+    const radius = shape.props.radius ?? (isCover || tileStyle !== "none" ? 28 : 0);
     const boxStyle = {
       height: shape.props.h,
       width: shape.props.w,
@@ -315,11 +340,12 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
         style={{ pointerEvents: "all", overflow: "hidden", ...boxStyle }}
       >
         <div
-          className="cutout-shape"
+          className={`cutout-shape ${tileStyle}`}
           style={{
             ...boxStyle,
-            borderRadius: isCover ? 24 : undefined,
-            overflow: isCover ? "hidden" : undefined,
+            borderRadius: radius || undefined,
+            overflow: isCover || tileStyle !== "none" ? "hidden" : undefined,
+            padding,
           }}
         >
           <FitCutoutImage
@@ -327,6 +353,8 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
             bgRemoved={shape.props.bgRemoved}
             boxHeight={shape.props.h}
             boxWidth={shape.props.w}
+            fit={shape.props.fit}
+            padding={padding}
             src={shape.props.src}
           />
         </div>
@@ -350,9 +378,9 @@ export class BadgeShapeUtil extends BaseBoxShapeUtil<BadgeShape> {
     return {
       w: 170,
       h: 42,
-      text: "Verified PDP fact",
+      text: "Label",
       tone: "clear",
-      provenance: "verified",
+      provenance: "generated",
     };
   }
 

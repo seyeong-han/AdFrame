@@ -32,7 +32,13 @@ import { isExtractionApproved, useApprovedExtractionSnapshot } from "@/lib/clien
 import { removeBackgroundLocally } from "@/lib/segmentation";
 import { EXPORT_PRESETS, type ExportPreset, type ProductAsset, type ProductExtraction } from "@/lib/types";
 import { POSITION_PRESETS, STYLE_PRESETS, type PositionPresetId, type StylePreset } from "@/lib/presets";
-import { CAROUSEL_FRAME_PREFIX, composeCarouselSplitTemplate, composeMainCanvasTemplate } from "@/lib/tldraw/templates";
+import {
+  CAROUSEL_FRAME_PREFIX,
+  composeCarouselSplitTemplate,
+  composeMainCanvasTemplate,
+  getAssetTilePresentation,
+  type AssetTilePresentation,
+} from "@/lib/tldraw/templates";
 import {
   CUTOUT_IMAGE_TYPE,
   GLASS_CARD_TYPE,
@@ -221,6 +227,9 @@ export default function EditorPage() {
         alt: asset.alt,
         fit: placement.fit,
         bgRemoved: Boolean(asset.bgRemoved),
+        padding: placement.padding,
+        radius: placement.radius,
+        tileStyle: placement.tileStyle,
         caption: asset.caption,
         semanticGroup: asset.semanticGroup,
         provenance: asset.provenance,
@@ -384,7 +393,7 @@ export default function EditorPage() {
 
       if (!response.ok) throw new Error(await response.text());
       const result = (await response.json()) as LayoutReviewResult;
-      const applied = applyLayoutReviewPatches(editor, frame.id, result.patches);
+      const applied = applyLayoutReviewPatches(editor, frame.id, result.patches, assets);
       setLayoutReview(result);
       setBusy(`Layout reviewed: ${applied} fixes applied (${result.source}, score ${Math.round(result.score)}).`);
       syncSelection(editor);
@@ -953,7 +962,12 @@ function serializeReviewShapes(editor: Editor, frameId: TLShapeId) {
     }));
 }
 
-function applyLayoutReviewPatches(editor: Editor, frameId: TLShapeId, patches: LayoutReviewPatch[]) {
+function applyLayoutReviewPatches(
+  editor: Editor,
+  frameId: TLShapeId,
+  patches: LayoutReviewPatch[],
+  assets: ProductAsset[],
+) {
   const frameShapeIds = new Set(
     editor
       .getCurrentPageShapes()
@@ -993,10 +1007,23 @@ function applyLayoutReviewPatches(editor: Editor, frameId: TLShapeId, patches: L
     }
 
     if (patch.type === "swapAsset") {
+      const asset = assets.find((item) => item.id === patch.assetId);
+      const presentation = asset ? getAssetTilePresentation(asset, "manual") : null;
       updates.push({
         id: shape.id,
         type: shape.type,
-        props: { src: patch.src, alt: patch.alt, fit: patch.fit },
+        props: {
+          src: patch.src,
+          alt: patch.alt,
+          fit: presentation?.fit || patch.fit,
+          ...(presentation
+            ? {
+                padding: presentation.padding,
+                radius: presentation.radius,
+                tileStyle: presentation.tileStyle,
+              }
+            : {}),
+        },
       } as TLShapePartial);
       applied += 1;
       continue;
@@ -1030,20 +1057,21 @@ function blobToDataUrl(blob: Blob) {
   });
 }
 
-function getAssetPlacement(asset: ProductAsset): {
-  fit: "contain" | "cover";
+function getAssetPlacement(asset: ProductAsset): AssetTilePresentation & {
   h: number;
   w: number;
 } {
+  const presentation = getAssetTilePresentation(asset, "manual");
+
   if (asset.kind === "section") {
-    return { fit: "contain", w: 360, h: 205 };
+    return { ...presentation, w: 360, h: 205 };
   }
 
   if (asset.kind === "hero") {
-    return { fit: "contain", w: 520, h: 340 };
+    return { ...presentation, w: 520, h: 340 };
   }
 
-  return { fit: "contain", w: 460, h: 320 };
+  return { ...presentation, w: 460, h: 320 };
 }
 
 function extractionCanvasKey(product: ProductExtraction) {

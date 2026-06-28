@@ -550,9 +550,28 @@ select {
 .cutout-shape {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   overflow: visible;
+}
+
+.cutout-shape.paper {
+  border: 1px solid rgba(0,0,0,0.04);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.92), rgba(245,245,242,0.72));
+  box-shadow: 0 24px 64px rgba(0,0,0,0.10);
+}
+
+.cutout-shape.glass {
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+  backdrop-filter: blur(24px);
+}
+
+.cutout-shape.bleed {
+  background: rgba(255,255,255,0.08);
 }
 
 .cutout-shape img {
@@ -564,6 +583,20 @@ select {
   filter: drop-shadow(var(--ig-shadow-product));
   -webkit-user-drag: none;
   user-select: none;
+}
+
+.cutout-empty-state {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px dashed rgba(255,255,255,0.24);
+  border-radius: 24px;
+  color: rgba(255,255,255,0.52);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .cutout-badge {

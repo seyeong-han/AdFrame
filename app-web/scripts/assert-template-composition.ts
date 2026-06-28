@@ -1,4 +1,5 @@
 import fixture from "../fixtures/samsung-s90f.json";
+import { readFileSync } from "node:fs";
 import { EXPORT_PRESETS, type ProductExtraction } from "../lib/types";
 import { CAROUSEL_FRAME_PREFIX, composeCarouselSplitTemplate, composeMainCanvasTemplate } from "../lib/tldraw/templates";
 import {
@@ -12,6 +13,7 @@ const DARK_TONES = new Set(["tile", "ink", "frost", "clear", "accent"]);
 const LIGHT_TONES = new Set(["paper", "orange"]);
 const preset = EXPORT_PRESETS[0];
 const product = fixture as ProductExtraction;
+const templateSource = readFileSync("lib/tldraw/templates.ts", "utf8");
 const assetsWithoutBackgroundFlag = product.assets.filter((asset) => typeof asset.bgRemoved !== "boolean");
 const imageAssetsWithoutCaptionGroup = product.assets.filter(
   (asset) => asset.mediaType !== "video" && (!asset.caption?.trim() || !asset.semanticGroup?.trim()),
@@ -27,6 +29,10 @@ const imageShapes = shapes.filter((shape) => shape.type === CUTOUT_IMAGE_TYPE);
 const sectionVisuals = imageShapes.filter((shape) => {
   const props = shape.props as { src?: string; fit?: string };
   return props.src?.includes("/generated/sections/samsung-s90f/") && props.src.endsWith("-visual.jpg");
+});
+const sectionVisualsWithoutTilePresentation = sectionVisuals.filter((shape) => {
+  const props = shape.props as { fit?: string; tileStyle?: string; padding?: number };
+  return props.fit !== "cover" || props.tileStyle !== "paper" || typeof props.padding !== "number";
 });
 const videoImages = imageShapes.filter((shape) => {
   const props = shape.props as { src?: string };
@@ -52,6 +58,14 @@ const verifiedBadges = shapes.filter((shape) => {
   const props = shape.props as { text?: string };
   return props.text === "Verified PDP facts";
 });
+const forbiddenTemplateFallbacks = [
+  "/fixtures/samsung-s90f/oled-tv.svg",
+  "product-front",
+].filter((snippet) => templateSource.includes(snippet));
+
+if (forbiddenTemplateFallbacks.length > 0) {
+  throw new Error(`Templates must not use hardcoded demo image fallbacks: ${forbiddenTemplateFallbacks.join(", ")}`);
+}
 
 if (assetsWithoutBackgroundFlag.length > 0) {
   throw new Error(
@@ -80,6 +94,10 @@ if (!firstChild || firstChild.type !== CANVAS_BG_TYPE) {
 
 if (sectionVisuals.length < 3) {
   throw new Error(`Expected at least 3 section visual image shapes, got ${sectionVisuals.length}`);
+}
+
+if (sectionVisualsWithoutTilePresentation.length > 0) {
+  throw new Error("Expected every section visual to use cover fit inside the shared paper image-tile presentation.");
 }
 
 if (videoImages.length > 0) {
@@ -156,6 +174,14 @@ if (appleBgProps.variant !== "light") {
 
 if (!appleHero) {
   throw new Error("Expected Apple infographic preset to include a main hero image.");
+}
+
+const appleImagesWithoutTilePresentation = appleImages.filter((shape) => {
+  const props = shape.props as { tileStyle?: string; padding?: number; radius?: number };
+  return props.tileStyle !== "paper" || typeof props.padding !== "number" || typeof props.radius !== "number";
+});
+if (appleImagesWithoutTilePresentation.length > 0) {
+  throw new Error("Expected every Apple image slot to use the shared paper image-tile presentation.");
 }
 
 if (appleImages.length < 8) {
