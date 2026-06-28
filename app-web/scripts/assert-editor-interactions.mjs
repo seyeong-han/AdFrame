@@ -61,6 +61,12 @@ const requiredSnippets = [
   "Layout reviewed:",
   "getAssetTilePresentation(asset, \"manual\")",
   "tileStyle: placement.tileStyle",
+  "function switchSelectedAsset()",
+  "selected.type !== CUTOUT_IMAGE_TYPE",
+  "const imageAssets = assets.filter((asset) => asset.mediaType !== \"video\")",
+  "Switched selected asset to ${nextAsset.name}.",
+  "Change asset",
+  "<Repeat2 size={15} />",
 ];
 
 const missing = requiredSnippets.filter((snippet) => !editorSource.includes(snippet));
@@ -85,6 +91,10 @@ const shapeMissing = [
   "showBody?: boolean",
   "shape.props.showBody ?",
   "override isAspectRatioLocked() {\n    return false;",
+  "override onResize(shape: CutoutImageShape, info: TLResizeInfo<CutoutImageShape>)",
+  "const resized = resizeBox(shape, info)",
+  "initialCenter.x - resizedCenter.x",
+  "initialCenter.y - resizedCenter.y",
   "onDragStart={(event) => event.preventDefault()}",
   "draggable={false}",
   "style={{ pointerEvents: \"all\", overflow: \"hidden\", ...boxStyle }}",

@@ -12,6 +12,7 @@ import {
   ImagePlus,
   Layers,
   Maximize2,
+  Repeat2,
   RotateCcw,
   RotateCw,
   Sparkles,
@@ -295,6 +296,37 @@ export default function EditorPage() {
       props: patch,
     });
     syncSelection(editor);
+  }
+
+  function switchSelectedAsset() {
+    if (!editor || !selected?.src || selected.type !== CUTOUT_IMAGE_TYPE) return;
+
+    const imageAssets = assets.filter((asset) => asset.mediaType !== "video");
+    if (imageAssets.length < 2) {
+      setBusy("No alternate image assets available.");
+      return;
+    }
+
+    const currentIndex = imageAssets.findIndex((asset) => asset.src === selected.src);
+    const nextAsset =
+      currentIndex >= 0
+        ? imageAssets[(currentIndex + 1) % imageAssets.length]
+        : imageAssets.find((asset) => asset.src !== selected.src) || imageAssets[0];
+    const presentation = getAssetTilePresentation(nextAsset, "manual");
+
+    updateSelected({
+      src: nextAsset.src,
+      alt: nextAsset.alt,
+      fit: presentation.fit,
+      bgRemoved: Boolean(nextAsset.bgRemoved),
+      padding: presentation.padding,
+      radius: presentation.radius,
+      tileStyle: presentation.tileStyle,
+      caption: nextAsset.caption,
+      semanticGroup: nextAsset.semanticGroup,
+      provenance: nextAsset.provenance,
+    });
+    setBusy(`Switched selected asset to ${nextAsset.name}.`);
   }
 
   async function runSegmentation() {
@@ -671,26 +703,7 @@ export default function EditorPage() {
                           semanticGroup: `upload-${file.name.replace(/\.[^.]+$/, "").toLowerCase()}`,
                         };
                         setExtraAssets((current) => [asset, ...current]);
-                        if (editor) {
-                          placementCounter.current += 1;
-                          editor.createShape<CutoutImageShape>({
-                            id: createShapeId(`${asset.id}-${placementCounter.current}`),
-                            type: CUTOUT_IMAGE_TYPE,
-                            x: 360,
-                            y: 450,
-                            props: {
-                              w: 460,
-                              h: 320,
-                              src: asset.src,
-                              alt: asset.alt,
-                              fit: "contain",
-                              bgRemoved: false,
-                              caption: asset.caption,
-                              semanticGroup: asset.semanticGroup,
-                              provenance: "verified",
-                            },
-                          });
-                        }
+                        placeAsset(asset);
                       };
                       reader.readAsDataURL(file);
                     }}
@@ -793,9 +806,15 @@ export default function EditorPage() {
                     </button>
                   </div>
                   {selected.src ? (
-                    <button className="btn white" onClick={runSegmentation} type="button">
-                      Remove background with remove.bg
-                    </button>
+                    <div className="grid gap-2">
+                      <button className="btn white" onClick={switchSelectedAsset} type="button">
+                        <Repeat2 size={15} />
+                        Change asset
+                      </button>
+                      <button className="btn white" onClick={runSegmentation} type="button">
+                        Remove background with remove.bg
+                      </button>
+                    </div>
                   ) : null}
                   <button
                     className="btn ghost"

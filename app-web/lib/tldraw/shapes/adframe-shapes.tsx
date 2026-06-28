@@ -4,6 +4,8 @@ import {
   BaseBoxShapeUtil,
   HTMLContainer,
   TLBaseShape,
+  resizeBox,
+  type TLResizeInfo,
   type TLShapePartial,
 } from "tldraw";
 import type { GlassTone, Provenance } from "@/lib/types";
@@ -307,6 +309,25 @@ export class CutoutImageShapeUtil extends BaseBoxShapeUtil<CutoutImageShape> {
 
   override isAspectRatioLocked() {
     return false;
+  }
+
+  override onResize(shape: CutoutImageShape, info: TLResizeInfo<CutoutImageShape>) {
+    const resized = resizeBox(shape, info);
+    const initial = info.initialShape;
+    const initialCenter = {
+      x: initial.x + initial.props.w / 2,
+      y: initial.y + initial.props.h / 2,
+    };
+    const resizedCenter = {
+      x: resized.x + resized.props.w / 2,
+      y: resized.y + resized.props.h / 2,
+    };
+
+    return {
+      ...resized,
+      x: resized.x + initialCenter.x - resizedCenter.x,
+      y: resized.y + initialCenter.y - resizedCenter.y,
+    };
   }
 
   override getDefaultProps(): CutoutImageShape["props"] {

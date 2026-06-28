@@ -141,8 +141,10 @@ const hasAppleShape = (idFragment: string) => appleShapes.some((shape) => String
 const appleHero = appleImages.find((shape) => String(shape.id).includes("apple-hero"));
 const appleTopLeftAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-left-asset"));
 const appleTopAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-asset"));
+const appleTopSecondAsset = appleImages.find((shape) => String(shape.id).includes("apple-top-second-asset"));
 const appleTopCopy = appleCards.find((shape) => String(shape.id).includes("apple-top-copy"));
 const appleSecondCopy = appleCards.find((shape) => String(shape.id).includes("apple-second-copy"));
+const appleSecondRightAsset = appleImages.find((shape) => String(shape.id).includes("apple-second-right-asset"));
 const appleHeroSideAsset = appleImages.find((shape) => String(shape.id).includes("apple-hero-side-asset"));
 const appleBottomCenterAsset = appleImages.find((shape) => String(shape.id).includes("apple-bottom-center-asset"));
 const appleMiddleLeftCopy = appleCards.find((shape) => String(shape.id).includes("apple-middle-left-copy"));
@@ -207,12 +209,12 @@ if (new Set(appleImageGroups).size !== appleImageGroups.length) {
   throw new Error(`Expected Apple image tiles to avoid repeated semantic groups, got ${appleImageGroups.join(", ")}`);
 }
 
-if (!hasAppleShape("apple-top-left-asset") || !hasAppleShape("apple-top-asset") || !appleTopCopy) {
-  throw new Error("Expected dense Apple tile-board to include the sketch's tall top-left slot, top asset slot, and top-right copy tile.");
+if (!hasAppleShape("apple-top-left-asset") || !hasAppleShape("apple-top-asset") || !appleTopSecondAsset || !appleTopCopy) {
+  throw new Error("Expected dense Apple tile-board to include the sketch's tall top-left slot plus red top row asset/asset/copy tiles.");
 }
 
-if (!appleSecondCopy || !hasAppleShape("apple-second-right-asset")) {
-  throw new Error("Expected dense Apple tile-board to include second-row copy plus right asset slot.");
+if (!appleSecondCopy || !appleSecondRightAsset) {
+  throw new Error("Expected dense Apple tile-board to include red second-row wide copy plus right asset slot.");
 }
 
 if (!appleHeroSideAsset || !applePrice) {
@@ -231,15 +233,26 @@ if (appleMiddleCopyTiles.length < 2 || !appleBottomLeftCopy) {
   throw new Error("Expected dense Apple tile-board to include middle stacked copy and footer-left copy.");
 }
 
-if (!appleTopLeftAsset || !appleTopAsset) {
-  throw new Error("Expected top-left and top asset slots to use image assets in the fixture.");
+if (!appleTopLeftAsset || !appleTopAsset || !appleTopSecondAsset) {
+  throw new Error("Expected top-left and red top asset slots to use image assets in the fixture.");
 }
 
 const topAssetProps = appleTopAsset.props as { w?: number };
+const topSecondAssetProps = appleTopSecondAsset.props as { w?: number };
 const topCopyProps = appleTopCopy.props as { w?: number };
 const topLeftProps = appleTopLeftAsset.props as { h?: number };
-if ((topAssetProps.w || 0) <= (topCopyProps.w || 0) || (appleTopCopy.x || 0) <= ((appleTopAsset.x || 0) + (topAssetProps.w || 0)) || (topLeftProps.h || 0) <= 260) {
-  throw new Error("Expected the top area to place a tall left asset plus wide asset before compact copy.");
+const secondCopyProps = appleSecondCopy.props as { w?: number };
+const secondRightProps = appleSecondRightAsset.props as { w?: number };
+if (
+  Math.abs((topAssetProps.w || 0) - (topSecondAssetProps.w || 0)) > 4 ||
+  Math.abs((topSecondAssetProps.w || 0) - (topCopyProps.w || 0)) > 4 ||
+  (appleTopSecondAsset.x || 0) <= ((appleTopAsset.x || 0) + (topAssetProps.w || 0)) ||
+  (appleTopCopy.x || 0) <= ((appleTopSecondAsset.x || 0) + (topSecondAssetProps.w || 0)) ||
+  (secondCopyProps.w || 0) <= ((secondRightProps.w || 0) * 1.8) ||
+  (appleSecondRightAsset.x || 0) <= ((appleSecondCopy.x || 0) + (secondCopyProps.w || 0)) ||
+  (topLeftProps.h || 0) <= 260
+) {
+  throw new Error("Expected the red top area to use asset/asset/copy then a two-column copy beside one asset.");
 }
 
 const heroProps = appleHero.props as { h?: number; w?: number };

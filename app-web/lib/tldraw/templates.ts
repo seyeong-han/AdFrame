@@ -296,13 +296,12 @@ function composeAppleInfographicTemplate(
   const lowerY = heroY + heroRowH + gap;
   const footerY = lowerY + lowerH + gap;
   const topLeftW = Math.round(205 * scale);
-  const topCopyW = Math.round(205 * scale);
-  const topAssetW = contentW - topLeftW - topCopyW - gap * 2;
-  const secondCopyW = Math.round(190 * scale);
-  const secondRightAssetW = contentW - topLeftW - secondCopyW - gap * 2;
+  const topGridW = contentW - topLeftW - gap;
+  const topTileW = Math.round((topGridW - gap * 2) / 3);
+  const topWideCopyW = topTileW * 2 + gap;
   const topMainX = margin + topLeftW + gap;
-  const topRightX = topMainX + topAssetW + gap;
-  const secondRightX = topMainX + secondCopyW + gap;
+  const topMidX = topMainX + topTileW + gap;
+  const topRightX = topMidX + topTileW + gap;
   const heroLeftW = Math.round(165 * scale);
   const heroSideW = Math.round(205 * scale);
   const heroW = contentW - heroLeftW - heroSideW - gap * 2;
@@ -421,6 +420,7 @@ function composeAppleInfographicTemplate(
 
   const topLeftAsset = nextAsset("detail", features[0], imageAssets);
   const topAsset = nextAsset("feature", features[0]);
+  const topSecondAsset = nextAsset("feature", features[1] || features[0]);
   const secondRightAsset = nextAsset("feature", features[2] || features[0]);
   const heroLeftAsset = nextAsset("detail", features[2] || features[0], imageAssets);
   const heroSideAsset = nextAsset("detail", features[3] || features[0], imageAssets);
@@ -430,14 +430,15 @@ function composeAppleInfographicTemplate(
   const footerRightAsset = nextAsset("detail", features[3], imageAssets);
 
   pushAssetOrCopyTile("apple-top-left-asset", topLeftAsset, leftX, topY, topLeftW, topH + secondH + gap, features[0], "cover");
-  pushAssetOrCopyTile("apple-top-asset", topAsset, topMainX, topY, topAssetW, topH, features[0]);
+  pushAssetOrCopyTile("apple-top-asset", topAsset, topMainX, topY, topTileW, topH, features[0]);
+  pushAssetOrCopyTile("apple-top-second-asset", topSecondAsset, topMidX, topY, topTileW, topH, features[1] || features[0]);
   shapes.push(
     makeFeatureTile(
       "apple-top-copy",
       frameId,
       topRightX,
       topY,
-      topCopyW,
+      topTileW,
       topH,
       features[0],
       "paper",
@@ -450,13 +451,13 @@ function composeAppleInfographicTemplate(
       frameId,
       topMainX,
       secondY,
-      secondCopyW,
+      topWideCopyW,
       secondH,
       features[1] || features[0],
       "paper",
     ),
   );
-  pushAssetOrCopyTile("apple-second-right-asset", secondRightAsset, secondRightX, secondY, secondRightAssetW, secondH, features[2] || features[0]);
+  pushAssetOrCopyTile("apple-second-right-asset", secondRightAsset, topRightX, secondY, topTileW, secondH, features[2] || features[0]);
   pushAssetOrCopyTile("apple-middle-left-asset", heroLeftAsset, leftX, heroY, heroLeftW, heroLeftTileH, features[2] || features[0], "cover");
   shapes.push(
     makeFeatureTile(
